@@ -15,11 +15,9 @@ import org.spongepowered.api.text.format.TextColors;
 /**
  * Created by Hy on 1/4/2016.
  */
-public class LoginCommand implements CommandExecutor {
+public class LogoutCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        String email = args.<String>getOne("email").get();
-        String password = args.<String>getOne("password").get();
 
         // Sign in to Discord
         src.sendMessage(Text.of("Logging in to Discord..."));
