@@ -1,9 +1,9 @@
 package com.nguyenquyhy.spongediscord;
 
-import com.google.inject.Inject;
 import com.nguyenquyhy.spongediscord.commands.LoginCommand;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -30,13 +30,22 @@ public class SpongeDiscord {
     public void onServerInit(GameInitializationEvent event) {
         Game game = Sponge.getGame();
 
-        CommandSpec loginCommandSpec = CommandSpec.builder()
-                .description(Text.of("Login to Discord"))
-                .permission("spongediscord.command.login")
+        CommandSpec loginCmd = CommandSpec.builder()
+                //.permission("spongediscord.login")
+                .description(Text.of("Login to your Discord account"))
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("email"))),
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("password"))))
                 .executor(new LoginCommand())
                 .build();
 
-        game.getCommandManager().register(this, loginCommandSpec, "discordlogin", "dlogin");
+        CommandSpec loginCommandSpec = CommandSpec.builder()
+                //.permission("spongediscord")
+                .description(Text.of("Discord in Minecraft"))
+                .child(loginCmd, "login", "l")
+                .build();
+
+        game.getCommandManager().register(this, loginCommandSpec, "discord", "d");
     }
 
     @Listener
@@ -49,11 +58,8 @@ public class SpongeDiscord {
         Optional<Text> originalMessage = event.getOriginalMessage();
         if (originalMessage.isPresent()) {
             Optional<Player> player = event.getCause().first(Player.class);
-            event.getChannel().ifPresent(channel -> channel.send(Text.of(TextColors.BLUE, "Talkative ", TextColors.GOLD, TextStyles.BOLD, player.get().getName())));
             if (player.isPresent()) {
-                //player.get().sendMessage(Text.of(TextColors.RED, "Talkative ", TextColors.GOLD, TextStyles.BOLD, player.get().getName()));
-                //System.out.println(event.getRawMessage().toPlain());
-                //System.out.println(message.get().toPlain());
+                event.getChannel().ifPresent(channel -> channel.send(Text.of(TextColors.BLUE, "Talkative ", TextColors.GOLD, TextStyles.BOLD, player.get().getName())));
             }
         }
     }

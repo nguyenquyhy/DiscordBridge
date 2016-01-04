@@ -16,9 +16,11 @@ import org.spongepowered.api.text.Text;
 public class LoginCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if(src instanceof Player) {
+        if (src instanceof Player) {
             Player player = (Player) src;
-            player.sendMessage(Text.of("Hello " + player.getName() + "!"));
+            String email = args.<String>getOne("email").get();
+            String password = args.<String>getOne("password").get();
+            player.sendMessage(Text.of("Hello " + player.getName() + "!\nYou have used " + email + " " + password));
         }
         else if(src instanceof ConsoleSource) {
             src.sendMessage(Text.of("Hello GLaDOS!"));
