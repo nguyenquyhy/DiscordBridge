@@ -15,7 +15,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
@@ -31,8 +30,6 @@ import java.util.Optional;
  */
 @Plugin(id = "com.nguyenquyhy.spongediscord", name = "Sponge Discord", version = "0.1.0")
 public class SpongeDiscord {
-    //@Inject
-    //private Logger logger;
 
     public static final Text FLARDARIAN = Text.of(TextColors.DARK_AQUA, TextStyles.BOLD, TextStyles.ITALIC, "Flardarian");
 
@@ -68,7 +65,6 @@ public class SpongeDiscord {
     public void onPreInitialization(GamePreInitializationEvent event) {
         Game game = Sponge.getGame();
         try {
-
             if (!getDefaultConfig().exists()) {
 
                 getDefaultConfig().createNewFile();
@@ -91,7 +87,6 @@ public class SpongeDiscord {
             }
 
             this.config = getConfigManager().load();
-
         } catch (IOException exception) {
             getLogger().error("[Sponge-Discord]: Couldn't create default configuration file!");
         }

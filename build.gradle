@@ -5,6 +5,7 @@ version = '0.1.0'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name 'Sonatype'
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -17,4 +18,5 @@ repositories {
 
 dependencies {
     compile 'org.spongepowered:spongeapi:3.0.0'
+    compile 'sx.blah:Discord4J:1.0-SNAPSHOT'
 }
