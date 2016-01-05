@@ -4,6 +4,8 @@ import com.google.inject.Inject;
 import com.nguyenquyhy.spongediscord.commands.LoginCommand;
 import com.nguyenquyhy.spongediscord.commands.LogoutCommand;
 import com.nguyenquyhy.spongediscord.commands.ReloadCommand;
+import com.nguyenquyhy.spongediscord.database.IStorage;
+import com.nguyenquyhy.spongediscord.database.InMemoryStorage;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -11,7 +13,10 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
@@ -26,10 +31,15 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import sx.blah.discord.DiscordClient;
+import sx.blah.discord.handle.IListener;
+import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Message;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +62,8 @@ public class SpongeDiscord {
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path configDir;
+
+    private IStorage storage;
 
     private static SpongeDiscord instance;
 
@@ -102,10 +114,19 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event) {
+    public void onJoin(ClientConnectionEvent.Join event) throws ParseException, URISyntaxException {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
-
+            UUID playerId = player.get().getUniqueId();
+            if (!clients.containsKey(playerId)) {
+                String cachedToken = getStorage().getToken(playerId);
+                if (null != cachedToken && !cachedToken.isEmpty()) {
+                    player.get().sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
+                    DiscordClient client = new DiscordClient();
+                    prepareClient(client, player.get());
+                    client.login(cachedToken);
+                }
+            }
         }
     }
 
@@ -114,6 +135,7 @@ public class SpongeDiscord {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             removeClient(player.get().getUniqueId());
+            getLogger().info(player.get().getName() + " has disconnected!");
         }
     }
 
@@ -135,6 +157,7 @@ public class SpongeDiscord {
     public Logger getLogger() {
         return logger;
     }
+    public IStorage getStorage() { return storage; }
 
     public void loadConfiguration() {
         try {
@@ -150,20 +173,58 @@ public class SpongeDiscord {
                 Files.createFile(configFile);
                 configNode = configLoader.load();
                 configNode.getNode("Channel").setValue("");
-                configNode.getNode("JoinMessage").setValue("I just joined the server as %s!");
+                configNode.getNode("JoinMessage").setValue("_just joined the server as %s_");
                 configLoader.save(configNode);
                 getLogger().info("[Sponge-Discord]: Created default configuration, ConfigDatabase will not run until you have edited this file!");
             }
             configNode = configLoader.load();
             CHANNEL_ID = configNode.getNode("Channel").getString();
             JOIN_MESSAGE = configNode.getNode("JoinMessage").getString();
+            storage = new InMemoryStorage();
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().error("[Sponge-Discord]: Couldn't create default configuration file!");
         }
     }
 
-    public static void addClient(UUID player, DiscordClient client) {
+    public void prepareClient(DiscordClient client, CommandSource src) {
+        client.getDispatcher().registerListener(new IListener<ReadyEvent>() {
+            @Override
+            public void receive(ReadyEvent readyEvent) {
+                try {
+                    String name = client.getOurUser().getName();
+                    src.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "You have logged in to Discord account " + name + "!"));
+                    if (src instanceof Player) {
+                        Player player = (Player) src;
+                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, player.getName()), SpongeDiscord.CHANNEL_ID);
+                        SpongeDiscord.addClient(player.getUniqueId(), client);
+                        SpongeDiscord.getInstance().getStorage().putToken(player.getUniqueId(), client.getToken());
+                    } else if (src instanceof ConsoleSource) {
+                        src.sendMessage(Text.of("WARNING: This Discord account will be used only for this console session!"));
+                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, "console"), SpongeDiscord.CHANNEL_ID);
+                        SpongeDiscord.addClient(null, client);
+                    } else if (src instanceof CommandBlockSource) {
+                        src.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        client.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
+            @Override
+            public void receive(MessageReceivedEvent event) {
+                Message message = event.getMessage();
+                Text formattedMessage = Text.of(TextColors.GRAY, "<", message.getAuthor().getName(), "> ", TextColors.WHITE, message.getContent());
+                src.sendMessage(formattedMessage);
+            }
+        });
+    }
+
+    private static void addClient(UUID player, DiscordClient client) {
         if (player == null) {
             consoleClient = client;
         } else {

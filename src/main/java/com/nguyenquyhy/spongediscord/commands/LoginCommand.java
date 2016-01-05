@@ -12,6 +12,8 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyle;
+import org.spongepowered.api.text.format.TextStyles;
 import sx.blah.discord.DiscordClient;
 import sx.blah.discord.handle.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
@@ -29,33 +31,10 @@ public class LoginCommand implements CommandExecutor {
         String password = args.<String>getOne("password").get();
 
         // Sign in to Discord
-        src.sendMessage(Text.of("Logging in to Discord..."));
+        src.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
         DiscordClient client = new DiscordClient();
 
-        client.getDispatcher().registerListener(new IListener<ReadyEvent>() {
-            @Override
-            public void receive(ReadyEvent readyEvent) {
-                try {
-                    String name = client.getOurUser().getName();
-                    src.sendMessage(Text.of("[Discord] Hello " + name + "!"));
-                    if (src instanceof Player) {
-                        Player player = (Player) src;
-                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, player.getName()), SpongeDiscord.CHANNEL_ID);
-                        SpongeDiscord.addClient(player.getUniqueId(), client);
-                    } else if (src instanceof ConsoleSource) {
-                        src.sendMessage(Text.of("WARNING: This Discord account will be used only for this console session!"));
-                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, "console"), SpongeDiscord.CHANNEL_ID);
-                        SpongeDiscord.addClient(null, client);
-                    } else if (src instanceof CommandBlockSource) {
-                        src.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        SpongeDiscord.getInstance().prepareClient(client, src);
 
         try {
             client.login(email, password);
@@ -66,9 +45,8 @@ public class LoginCommand implements CommandExecutor {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        String token = client.getToken();
 
-        if (token != null) {
+        if (client.getToken() != null) {
             src.sendMessage(Text.of("Getting user info..."));
             return CommandResult.success();
         }

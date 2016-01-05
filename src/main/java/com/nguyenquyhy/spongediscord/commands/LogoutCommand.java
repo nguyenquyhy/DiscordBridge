@@ -12,6 +12,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.util.UUID;
+
 /**
  * Created by Hy on 1/4/2016.
  */
@@ -20,7 +22,9 @@ public class LogoutCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
             Player player = (Player) src;
-            SpongeDiscord.removeClient(player.getUniqueId());
+            UUID playerId = player.getUniqueId();
+            SpongeDiscord.getInstance().getStorage().removeToken(playerId);
+            SpongeDiscord.removeClient(playerId);
             src.sendMessage(Text.of(TextColors.YELLOW, "Logged out of Discord!"));
             return CommandResult.success();
         } else if (src instanceof ConsoleSource) {
