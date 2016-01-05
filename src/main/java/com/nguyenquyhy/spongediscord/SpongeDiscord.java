@@ -4,8 +4,9 @@ import com.google.inject.Inject;
 import com.nguyenquyhy.spongediscord.commands.LoginCommand;
 import com.nguyenquyhy.spongediscord.commands.LogoutCommand;
 import com.nguyenquyhy.spongediscord.commands.ReloadCommand;
-import com.nguyenquyhy.spongediscord.database.IStorage;
 import com.nguyenquyhy.spongediscord.database.InMemoryStorage;
+import com.nguyenquyhy.spongediscord.database.JsonFileStorage;
+import com.nguyenquyhy.spongediscord.database.IStorage;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -183,6 +184,7 @@ public class SpongeDiscord {
                 configNode.getNode("InviteCode").setValue("");
                 configNode.getNode("JoinedMessage").setValue("_just joined the server as %s_");
                 configNode.getNode("LeftMessage").setValue("_just left the server_");
+                configNode.getNode("TokenStore").setValue("JSON");
                 configLoader.save(configNode);
                 getLogger().info("[Sponge-Discord]: Created default configuration, ConfigDatabase will not run until you have edited this file!");
             }
@@ -191,7 +193,19 @@ public class SpongeDiscord {
             INVITE_CODE = configNode.getNode("InviteCode").getString();
             JOINED_MESSAGE = configNode.getNode("JoinedMessage").getString();
             LEFT_MESSAGE = configNode.getNode("LeftMessage").getString();
-            storage = new InMemoryStorage();
+            switch (configNode.getNode("TokenStore").getString()) {
+                case "InMemory":
+                    storage = new InMemoryStorage();
+                    break;
+                case "JSON":
+                    storage = new JsonFileStorage(configDir);
+                    break;
+                default:
+                    getLogger().warn("Invalid TokenStore config. JSON setting with be used!");
+                    storage = new JsonFileStorage(configDir);
+                    break;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().error("[Sponge-Discord]: Couldn't create default configuration file!");

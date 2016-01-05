@@ -12,6 +12,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -23,7 +24,12 @@ public class LogoutCommand implements CommandExecutor {
         if (src instanceof Player) {
             Player player = (Player) src;
             UUID playerId = player.getUniqueId();
-            SpongeDiscord.getInstance().getStorage().removeToken(playerId);
+            try {
+                SpongeDiscord.getInstance().getStorage().removeToken(playerId);
+            } catch (IOException e) {
+                e.printStackTrace();
+                src.sendMessage(Text.of(TextColors.RED, "Cannot remove cached token!"));
+            }
             SpongeDiscord.removeClient(playerId);
             src.sendMessage(Text.of(TextColors.YELLOW, "Logged out of Discord!"));
             return CommandResult.success();

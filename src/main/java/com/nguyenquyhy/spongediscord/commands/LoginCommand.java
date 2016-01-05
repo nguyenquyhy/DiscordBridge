@@ -51,7 +51,6 @@ public class LoginCommand implements CommandExecutor {
         }
 
         if (client.getToken() != null) {
-            src.sendMessage(Text.of("Getting user info..."));
             return CommandResult.success();
         }
         else {

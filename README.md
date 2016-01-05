@@ -24,3 +24,4 @@ Build Sponge-Discord
 - `InviteCode`: an invitation code that does not expire (usually the part after `https://discord.gg/` in the invitation link)
 - `JoinedMessage`: a message that will be posted to Discord when a player joins the server
 - `LeftMessage`: a message that will be posted to Discord when a player leaves the server
+- `TokenStore`: either `InMemory` or `JSON`
