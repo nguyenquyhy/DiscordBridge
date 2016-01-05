@@ -20,17 +20,13 @@ public class LogoutCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
             Player player = (Player) src;
-
-            player.sendMessage(Text.of("Hello " + player.getUniqueId() + "!"));
-
+            SpongeDiscord.removeClient(player.getUniqueId());
+            src.sendMessage(Text.of(TextColors.YELLOW, "Logged out of Discord!"));
             return CommandResult.success();
         } else if (src instanceof ConsoleSource) {
-            src.sendMessage(Text.of(TextColors.YELLOW, "This Discord account will be used only for this console session!"));
-
-            SpongeDiscord.consoleToken = null;
-            SpongeDiscord.consoleUsername = null;
-
-            return CommandResult.empty();
+            SpongeDiscord.removeClient(null);
+            src.sendMessage(Text.of("Logged out of Discord!"));
+            return CommandResult.success();
         } else if (src instanceof CommandBlockSource) {
             src.sendMessage(Text.of(TextColors.YELLOW, "Cannot log out from command blocks!"));
             return CommandResult.empty();

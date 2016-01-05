@@ -13,7 +13,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import sx.blah.discord.DiscordClient;
-import sx.blah.discord.handle.obj.User;
+import sx.blah.discord.handle.IListener;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,7 +30,33 @@ public class LoginCommand implements CommandExecutor {
 
         // Sign in to Discord
         src.sendMessage(Text.of("Logging in to Discord..."));
-        DiscordClient client = DiscordClient.get();
+        DiscordClient client = new DiscordClient();
+
+        client.getDispatcher().registerListener(new IListener<ReadyEvent>() {
+            @Override
+            public void receive(ReadyEvent readyEvent) {
+                try {
+                    String name = client.getOurUser().getName();
+                    src.sendMessage(Text.of("[Discord] Hello " + name + "!"));
+                    if (src instanceof Player) {
+                        Player player = (Player) src;
+                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, player.getName()), SpongeDiscord.CHANNEL_ID);
+                        SpongeDiscord.addClient(player.getUniqueId(), client);
+                    } else if (src instanceof ConsoleSource) {
+                        src.sendMessage(Text.of("WARNING: This Discord account will be used only for this console session!"));
+                        client.sendMessage(String.format(SpongeDiscord.JOIN_MESSAGE, "console"), SpongeDiscord.CHANNEL_ID);
+                        SpongeDiscord.addClient(null, client);
+                    } else if (src instanceof CommandBlockSource) {
+                        src.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         try {
             client.login(email, password);
         } catch (IOException e) {
@@ -43,30 +70,11 @@ public class LoginCommand implements CommandExecutor {
 
         if (token != null) {
             src.sendMessage(Text.of("Getting user info..."));
-            User user = client.getOurUser();
-            String name = user.getName();
-
-            if (src instanceof Player) {
-                Player player = (Player) src;
-
-                player.sendMessage(Text.of("Hello " + name + "!"));
-
-                return CommandResult.success();
-            } else if (src instanceof ConsoleSource) {
-                src.sendMessage(Text.of(TextColors.YELLOW, "This Discord account will be used only for this console session!"));
-
-                SpongeDiscord.consoleToken = token;
-                SpongeDiscord.consoleUsername = name;
-
-                return CommandResult.empty();
-            } else if (src instanceof CommandBlockSource) {
-                src.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
-                return CommandResult.empty();
-            }
+            return CommandResult.success();
         }
         else {
             src.sendMessage(Text.of(TextColors.RED, "Invalid username and/or password!"));
+            return CommandResult.empty();
         }
-        return CommandResult.empty();
     }
 }
