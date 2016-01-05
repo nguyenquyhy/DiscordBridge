@@ -17,6 +17,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import sx.blah.discord.DiscordClient;
 import sx.blah.discord.handle.IListener;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.util.HttpException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -44,6 +45,9 @@ public class LoginCommand implements CommandExecutor {
             e.printStackTrace();
         } catch (ParseException e) {
             e.printStackTrace();
+        } catch (HttpException e) {
+            e.printStackTrace();
+            src.sendMessage(Text.of("Cannot login! " + e.getMessage()));
         }
 
         if (client.getToken() != null) {
