@@ -46,7 +46,6 @@ public class LoginCommand implements CommandExecutor {
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (HttpException e) {
-            e.printStackTrace();
             src.sendMessage(Text.of("Cannot login! " + e.getMessage()));
         }
 
