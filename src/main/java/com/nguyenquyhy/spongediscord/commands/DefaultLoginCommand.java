@@ -11,9 +11,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 /**
- * Created by Hy on 1/4/2016.
+ * Created by Hy on 1/9/2016.
  */
-public class LoginCommand implements CommandExecutor {
+public class DefaultLoginCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
         String email = commandContext.<String>getOne("email").get();
@@ -23,7 +23,7 @@ public class LoginCommand implements CommandExecutor {
         commandSource.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
         DiscordClient client = new DiscordClient();
 
-        SpongeDiscord.getInstance().prepareClient(client, commandSource);
-        return SpongeDiscord.login(client, commandSource, email, password, false);
+        SpongeDiscord.getInstance().prepareDefaultClient(client, commandSource);
+        return SpongeDiscord.login(client, commandSource, email, password, true);
     }
 }

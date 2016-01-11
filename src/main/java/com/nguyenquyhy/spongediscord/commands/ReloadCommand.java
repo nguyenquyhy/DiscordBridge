@@ -12,7 +12,7 @@ import org.spongepowered.api.command.spec.CommandExecutor;
  */
 public class ReloadCommand implements CommandExecutor {
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
         SpongeDiscord.getInstance().loadConfiguration();
         SpongeDiscord.getInstance().getLogger().info("Configuration Reloaded!");
         return CommandResult.success();

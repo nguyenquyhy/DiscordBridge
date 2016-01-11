@@ -18,7 +18,6 @@ buildscript {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         name 'Sonatype'
@@ -28,14 +27,19 @@ repositories {
         name 'sponge'
         url 'http://repo.spongepowered.org/maven'
     }
-    maven { url "http://tomp2p.net/dev/mvn/" }
+    //maven { url "http://tomp2p.net/dev/mvn/" }
     maven { url "http://repo.maven.apache.org/maven2" }
 }
 
 dependencies {
     compile 'org.spongepowered:spongeapi:3.0.0'
-    compile 'sx.blah:Discord4J:1.0-SNAPSHOT'
+    compile 'org.apache.httpcomponents:httpcore:4.3.2'
+    compile 'org.apache.httpcomponents:httpclient:4.3.3'
+    compile 'org.java-websocket:Java-WebSocket:1.3.0'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'net.jodah:typetools:0.4.3'
 }
+
 task fatJar(type: Jar) {
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -44,18 +48,17 @@ task fatJar(type: Jar) {
 
 shadowJar {
     dependencies {
-        include dependency('sx.blah:Discord4J')
         include dependency('org.slf4j:slf4j-simple')
         include dependency('org.slf4j:slf4j-api')
         include dependency('commons-logging:commons-logging')
-        include dependency('org.apache.commons:commons-lang3')
-        include dependency('org.apache.httpcomponents:httpcore')
-        include dependency('org.apache.httpcomponents:httpclient')
-        include dependency(group: 'com.googlecode.json-simple', name: 'json-simple', version:'1.1.1')
-        include dependency(group: 'org.java-websocket', name: 'Java-WebSocket', version:'1.3.0')
+        //include dependency('org.apache.commons:commons-lang3')
+        //include dependency('org.apache.httpcomponents:httpcore')
+        //include dependency('org.apache.httpcomponents:httpclient')
+        //include dependency(group: 'com.googlecode.json-simple', name: 'json-simple', version:'1.1.1')
+        //include dependency(group: 'org.java-websocket', name: 'Java-WebSocket', version:'1.3.0')
         include dependency(group: 'net.tomp2p', name: 'opus-wrapper', version:'1.3')
         include dependency(group: 'org.abstractj.kalium', name: 'kalium', version:'0.4.0')
-        include dependency(group: 'net.jodah', name: 'typetools', version:'0.4.3')
+        //include dependency(group: 'net.jodah', name: 'typetools', version:'0.4.3')
 
         relocate 'org.apache.http', 'shaded.apache.http'
         relocate 'org.apache.commons', 'shaded.apache.commons'
