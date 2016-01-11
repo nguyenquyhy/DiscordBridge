@@ -204,24 +204,23 @@ public final class DiscordClient {
      * @throws IOException
      * @throws ParseException
      */
-    public Message sendMessage(String content, String channelID) throws IOException, ParseException {
+    public Message sendMessage(String content, String nonce, String channelID) throws IOException, ParseException {
         if (null != ws) {
 
             content = StringEscapeUtils.escapeJson(content);
 
             try {
                 String response = Requests.POST.makeRequest(DiscordEndpoints.CHANNELS + channelID + "/messages",
-                        new StringEntity("{\"content\":\"" + content + "\",\"mentions\":[]}","UTF-8"),
+                        new StringEntity(prepareMessageJson(content, nonce),"UTF-8"),
                         new BasicNameValuePair("authorization", token),
                         new BasicNameValuePair("content-type", "application/json"));
-
 
                 JSONObject object1 = (JSONObject) JSON_PARSER.parse(response);
                 String time = (String) object1.get("timestamp");
                 String messageID = (String) object1.get("id");
 
                 Channel channel = getChannelByID(channelID);
-                Message message = new Message(messageID, content, this.ourUser, channel, this.convertFromTimestamp(time));
+                Message message = new Message(messageID, content, nonce, this.ourUser, channel, this.convertFromTimestamp(time));
                 channel.addMessage(message); //Had to be moved here so that if a message is edited before the MESSAGE_CREATE event, it doesn't error
                 DiscordClient.this.dispatcher.dispatch(new MessageSendEvent(message));
                 return message;
@@ -244,7 +243,7 @@ public final class DiscordClient {
      * @param channelID The channel the message exists in
      * @throws ParseException
      */
-    public void editMessage(String content, String messageID, String channelID) throws ParseException {
+    public void editMessage(String content, String nonce, String messageID, String channelID) throws ParseException {
         if (null != ws) {
 
             content = StringEscapeUtils.escapeJson(content);
@@ -258,14 +257,16 @@ public final class DiscordClient {
             Message oldMessage = channel.getMessageByID(messageID);
 
             try {
+                prepareMessageJson(content, nonce);
+
                 String response = Requests.PATCH.makeRequest(DiscordEndpoints.CHANNELS + channelID + "/messages/" + messageID,
-                        new StringEntity("{\"content\":\"" + content + "\", \"mentions\":[]}", "UTF-8"),
+                        new StringEntity(prepareMessageJson(content, nonce), "UTF-8"),
                         new BasicNameValuePair("authorization", token),
                         new BasicNameValuePair("content-type", "application/json"));
 
                 JSONObject object1 = (JSONObject) JSON_PARSER.parse(response);
 
-                Message newMessage = new Message((String) object1.get("id"), content, this.ourUser, getChannelByID(channelID),
+                Message newMessage = new Message((String) object1.get("id"), content, nonce, this.ourUser, getChannelByID(channelID),
                         oldMessage.getTimestamp());
                 //Event dispatched here because otherwise there'll be an NPE as for some reason when the bot edits a message,
                 // the event chain goes like this:
@@ -279,6 +280,14 @@ public final class DiscordClient {
         } else {
             SpongeDiscord.getInstance().getLogger().error("Bot has not signed in yet!");
         }
+    }
+
+    private String prepareMessageJson(String content, String nonce) {
+        String json = "{\"content\":\"" + content + "\",\"mentions\":[]}";
+        if (nonce != null) {
+            json = "{\"content\":\"" + content + "\",\"mentions\":[],\"nonce\":\"" + nonce + "\"}";
+        }
+        return json;
     }
 
     /**
@@ -376,6 +385,7 @@ public final class DiscordClient {
 
             channel.addMessage(new Message((String) object1.get("id"),
                     (String) object1.get("content"),
+                    (String) object1.get("nonce"),
                     this.getUserByID((String) author.get("id")),
                     channel,
                     this.convertFromTimestamp((String) object1.get("timestamp"))));
@@ -681,6 +691,7 @@ public final class DiscordClient {
                         String channelID = (String) d.get("channel_id");
                         String content = (String) d.get("content");
                         String messageID = (String) d.get("id");
+                        String nonce = (String) d.get("nonce");
                         JSONArray array = (JSONArray) d.get("mentions");
                         String time = (String) d.get("timestamp");
 
@@ -698,7 +709,7 @@ public final class DiscordClient {
 
 
                         if (null != channel) {
-                            Message message1 = new Message(messageID, content, DiscordClient.this.getUserByID(id),
+                            Message message1 = new Message(messageID, content, nonce, DiscordClient.this.getUserByID(id),
                                     channel, DiscordClient.this.convertFromTimestamp(time));
                             if (!id.equalsIgnoreCase(DiscordClient.this.getOurUser().getID())) {
                                 channel.addMessage(message1);
@@ -794,6 +805,7 @@ public final class DiscordClient {
                         id = (String) d.get("id");
                         channelID = (String) d.get("channel_id");
                         content = (String) d.get("content");
+                        nonce = (String) d.get("nonce");
 
                         channel = DiscordClient.this.getChannelByID(channelID);
                         Message m = channel.getMessageByID(id);
@@ -803,7 +815,7 @@ public final class DiscordClient {
                             Message newMessage;
                             int index = channel.getMessages().indexOf(m);
                             channel.getMessages().remove(m);
-                            channel.getMessages().add(index, newMessage = new Message(id, content, m.getAuthor(), channel, m.getTimestamp()));
+                            channel.getMessages().add(index, newMessage = new Message(id, content, nonce, m.getAuthor(), channel, m.getTimestamp()));
                             dispatcher.dispatch(new MessageUpdateEvent(m, newMessage));
                         }
                         break;
@@ -826,10 +838,9 @@ public final class DiscordClient {
                         Presences presences = Presences.valueOf(((String) d.get("status")).toUpperCase());
                         Long gameId = (Long) d.get("game_id");
                         guild = getGuildByID((String) d.get("guild_id"));
-                        if(null != guild
-                                && null != presences) {
-                            user = guild.getUserByID((String)((JSONObject) d.get("user")).get("id"));
-                            if(null != user) {
+                        if(null != guild && null != presences) {
+                            user = guild.getUserByID((String) ((JSONObject) d.get("user")).get("id"));
+                            if (null != user && null != user.getPresence()) {
                                 if (!user.getPresence().equals(presences)) {
                                     dispatcher.dispatch(new PresenceUpdateEvent(guild, user, user.getPresence(), presences));
                                     user.setPresence(presences);

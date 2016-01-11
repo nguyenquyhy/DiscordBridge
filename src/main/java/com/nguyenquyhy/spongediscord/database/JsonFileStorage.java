@@ -15,6 +15,8 @@ import java.util.UUID;
  * Created by Hy on 1/6/2016.
  */
 public class JsonFileStorage implements IStorage {
+    private final String DEFAULT_NODE = "DEFAULT";
+
     private ConfigurationLoader<? extends ConfigurationNode> configLoader;
     private ConfigurationNode configNode;
 
@@ -49,6 +51,23 @@ public class JsonFileStorage implements IStorage {
     @Override
     public void removeToken(UUID player) throws IOException {
         getCachedTokens().removeChild(player.toString());
+        configLoader.save(configNode);
+    }
+
+    @Override
+    public void putDefaultToken(String token) throws IOException {
+        configNode.getNode(DEFAULT_NODE).setValue(token);
+        configLoader.save(configNode);
+    }
+
+    @Override
+    public String getDefaultToken() {
+        return configNode.getNode(DEFAULT_NODE).getString();
+    }
+
+    @Override
+    public void removeDefaultToken() throws IOException {
+        configNode.removeChild(DEFAULT_NODE);
         configLoader.save(configNode);
     }
 

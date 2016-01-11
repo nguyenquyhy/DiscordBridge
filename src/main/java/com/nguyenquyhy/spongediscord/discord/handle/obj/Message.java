@@ -21,6 +21,8 @@ public class Message {
      */
     private String content;
 
+    private String nonce;
+
     /**
      * The User who sent the message.
      */
@@ -36,9 +38,10 @@ public class Message {
      */
     private final LocalDateTime timestamp;
 
-    public Message(String messageID, String content, User user, Channel channel, LocalDateTime timestamp) {
+    public Message(String messageID, String content, String nonce, User user, Channel channel, LocalDateTime timestamp) {
         this.messageID = messageID;
         this.content = content;
+        this.nonce = nonce;
         this.author = user;
         this.channel = channel;
         this.timestamp = timestamp;
@@ -49,6 +52,8 @@ public class Message {
     public String getContent() {
         return content;
     }
+
+    public String getNonce() { return nonce; }
 
     public void setContent(String content) {
         this.content = content;
@@ -76,7 +81,7 @@ public class Message {
      *
      * @param content Message to send.
      */
-    public void reply(String content) throws IOException, ParseException {
-        DiscordClient.get().sendMessage(String.format("%s, %s", this.getAuthor(), content), this.getChannel().getID());
+    public void reply(String content, String nonce) throws IOException, ParseException {
+        DiscordClient.get().sendMessage(String.format("%s, %s", this.getAuthor(), content), nonce, this.getChannel().getID());
     }
 }
