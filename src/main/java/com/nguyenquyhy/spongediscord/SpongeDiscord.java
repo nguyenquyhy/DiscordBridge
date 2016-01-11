@@ -482,7 +482,9 @@ public class SpongeDiscord {
     private void handleMessageReceivedEvent(MessageReceivedEvent event, CommandSource commandSource) {
         Message message = event.getMessage();
         if (message.getChannel().getID().equals(CHANNEL_ID) && !NONCE.equals(message.getNonce())) {
-            Text formattedMessage = Text.of(MESSAGE_MINECRAFT_PREFIX, TextColors.GRAY, "<", message.getAuthor().getName(), "> ", TextColors.WHITE, message.getContent());
+            String content = message.getContent();
+            String author = message.getAuthor().getName();
+            Text formattedMessage = Text.of(MESSAGE_MINECRAFT_PREFIX, TextColors.GRAY, "<" + author + "> ", TextColors.WHITE, content);
             if (commandSource != null) {
                 commandSource.sendMessage(formattedMessage);
             } else {
