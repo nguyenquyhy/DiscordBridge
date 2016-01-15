@@ -126,12 +126,13 @@ public class SpongeDiscord {
                 .build();
 
         CommandSpec reloadCmd = CommandSpec.builder()
+                .permission("spongediscord.reload")
                 .description(Text.of("Reload Sponge Discord configuration"))
                 .executor(new ReloadCommand())
                 .build();
 
         CommandSpec broadcastCmd = CommandSpec.builder()
-                //.permission("spongediscord.login")
+                .permission("spongediscord.broadcast")
                 .description(Text.of("Broadcast message to Discord and online Minecraft accounts"))
                 .arguments(GenericArguments.onlyOne(GenericArguments.string(Text.of("message"))))
                 .executor(new BroadcastCommand())
