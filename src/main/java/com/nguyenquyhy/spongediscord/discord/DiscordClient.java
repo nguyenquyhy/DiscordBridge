@@ -6,6 +6,7 @@ import com.nguyenquyhy.spongediscord.discord.handle.impl.EventDispatcher;
 import com.nguyenquyhy.spongediscord.discord.handle.impl.events.*;
 import com.nguyenquyhy.spongediscord.discord.handle.obj.*;
 import com.nguyenquyhy.spongediscord.discord.util.HttpException;
+import com.nguyenquyhy.spongediscord.discord.util.MessageFormatter;
 import com.nguyenquyhy.spongediscord.discord.util.Presences;
 import com.nguyenquyhy.spongediscord.discord.util.Requests;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -207,7 +208,7 @@ public final class DiscordClient {
     public Message sendMessage(String content, String nonce, String channelID) throws IOException, ParseException {
         if (null != ws) {
 
-            content = StringEscapeUtils.escapeJson(content);
+            content = StringEscapeUtils.escapeJson(MessageFormatter.convertMinecraftToDiscord(content));
 
             try {
                 String response = Requests.POST.makeRequest(DiscordEndpoints.CHANNELS + channelID + "/messages",
@@ -709,6 +710,7 @@ public final class DiscordClient {
 
 
                         if (null != channel) {
+                            content = MessageFormatter.convertDiscordToMinecraft(content);
                             Message message1 = new Message(messageID, content, nonce, DiscordClient.this.getUserByID(id),
                                     channel, DiscordClient.this.convertFromTimestamp(time));
                             if (!id.equalsIgnoreCase(DiscordClient.this.getOurUser().getID())) {
