@@ -11,6 +11,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 ## Build
 
 Build **Sponge-Discord**
+
 1. Clone this repository
 1. Run `gradle` (or `gradlew` for Windows)
 1. The jar file will be in `build/libs/Sponge-Discord-{version}-all.jar.
