@@ -570,7 +570,7 @@ public final class DiscordClient {
         @Override
         public void onOpen(ServerHandshake serverHandshake) {
             if (!token.isEmpty()) {
-                send("{\"op\":2,\"d\":{\"token\":\"" + token + "\",\"properties\":{\"$os\":\"Linux\",\"$browser\":\"DesuBot\",\"$device\":\"DesuBot\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"v\":2}}");
+                send("{\"op\":2,\"d\":{\"token\":\"" + token + "\",\"properties\":{\"$os\":\"Windows\",\"$browser\":\"Chrome\",\"$device\":\"\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"v\":3}}");
                 SpongeDiscord.getInstance().getLogger().debug("Connected to the Discord websocket.");
             } else System.err.println("Use the login() method to set your token first!");
         }
@@ -925,12 +925,13 @@ public final class DiscordClient {
         }
 
         @Override public void onClose(int i, String s, boolean b) {
-
+            SpongeDiscord.getInstance().getLogger().debug("Connection closed.");
         }
 
         @Override
         public void onError(Exception e) {
-            e.printStackTrace();
+            SpongeDiscord.getInstance().getLogger().error("Connection error: " + e.getMessage());
+            //e.printStackTrace();
         }
 
     }
