@@ -8,9 +8,9 @@ version = '1.1.0'
 
 buildscript {
     repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
     }
     dependencies {
         classpath "com.github.jengelman.gradle.plugins:shadow:1.2.2"
@@ -28,9 +28,11 @@ repositories {
         url 'http://repo.spongepowered.org/maven'
     }
     maven { url "http://repo.maven.apache.org/maven2" }
+    //maven { url  "http://dl.bintray.com/austinv11/maven" }
 }
 
 dependencies {
+    //compile "sx.blah:Discord4J:2.2.7"
     compile 'org.spongepowered:spongeapi:3.0.0'
     compile 'org.apache.httpcomponents:httpcore:4.3.2'
     compile 'org.apache.httpcomponents:httpclient:4.3.3'

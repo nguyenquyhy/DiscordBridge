@@ -1,7 +1,6 @@
 package com.nguyenquyhy.spongediscord.commands;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
-import com.nguyenquyhy.spongediscord.discord.DiscordClient;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -21,9 +20,6 @@ public class DefaultLoginCommand implements CommandExecutor {
 
         // Sign in to Discord
         commandSource.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
-        DiscordClient client = new DiscordClient();
-
-        SpongeDiscord.getInstance().prepareDefaultClient(client, commandSource);
-        return SpongeDiscord.login(client, commandSource, email, password, true);
+        return SpongeDiscord.login(commandSource, email, password, true);
     }
 }

@@ -6,6 +6,8 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
+import sx.blah.discord.api.DiscordException;
+import sx.blah.discord.util.HTTP429Exception;
 
 import java.io.IOException;
 
@@ -18,6 +20,10 @@ public class DefaultLogoutCommand implements CommandExecutor {
         try {
             return SpongeDiscord.logoutDefault(commandSource);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DiscordException e) {
+            e.printStackTrace();
+        } catch (HTTP429Exception e) {
             e.printStackTrace();
         }
         return CommandResult.empty();
