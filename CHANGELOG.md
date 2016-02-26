@@ -1,5 +1,8 @@
 # CHANGE LOG
 
+## 1.1.1
+- Update due to changes in Discord API.
+
 ## 1.1.0
 
 - Emojis are converted between Minecraft (`:)`, `:P`) and Discord format (`:smiley:`, `:smile:`).

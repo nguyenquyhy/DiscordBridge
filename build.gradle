@@ -4,16 +4,12 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
-version = '1.1.0'
+version = '1.1.1'
 
 buildscript {
-    repositories {
-//        maven {
-//            url "https://plugins.gradle.org/m2/"
-//        }
-    }
+    repositories { jcenter() }
     dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:1.2.2"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
     }
 }
 
@@ -33,6 +29,7 @@ repositories {
 
 dependencies {
     //compile "sx.blah:Discord4J:2.2.7"
+    compile files('libs/Discord4J-2.2.7.jar')
     compile 'org.spongepowered:spongeapi:3.0.0'
     compile 'org.apache.httpcomponents:httpcore:4.3.2'
     compile 'org.apache.httpcomponents:httpclient:4.3.3'
