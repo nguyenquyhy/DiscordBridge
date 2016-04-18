@@ -1,17 +1,16 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    //id 'org.spongepowered.plugin' version '0.5.1'
+}
+
 defaultTasks 'build', 'shadowJar'
 
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-
+group = 'com.nguyenquyhy'
+version = '1.2.0'
+description = 'An example plugin'
 sourceCompatibility = 1.8
-version = '1.1.1'
 
-buildscript {
-    repositories { jcenter() }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
-    }
-}
 
 repositories {
     mavenCentral()

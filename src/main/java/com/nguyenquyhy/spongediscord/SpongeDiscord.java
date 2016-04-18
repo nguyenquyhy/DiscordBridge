@@ -22,6 +22,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -53,7 +54,7 @@ import java.util.*;
 /**
  * Created by Hy on 1/4/2016.
  */
-@Plugin(id = "SpongeDiscord", name = "Sponge Discord", version = "1.0.0")
+@Plugin(id = "com.nguyenquyhy.spongediscord", name = "Sponge Discord", version = "1.2.0")
 public class SpongeDiscord {
     public static String DEBUG = "";
     public static String CHANNEL_ID = "";
@@ -95,7 +96,7 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onServerInit(GameInitializationEvent event) {
+    public void onServerStart(GameStartedServerEvent event) {
         CommandSpec defaultLoginCmd = CommandSpec.builder()
                 .description(Text.of("Log in and set a Discord account for unauthenticated users"))
                 .arguments(
