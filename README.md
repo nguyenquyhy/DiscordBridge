@@ -8,6 +8,10 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 - Server owners can setup a default account as a bot for all unauthenticated players and server announcements.
 - Emoji is converted between Minecraft and Discord format. Details are showed in [EMOJI.md](EMOJI.md).
 
+## Getting Started for server owners and players
+
+[GETTING STARTED.md](GETTING STARTED.md)
+
 ## Build
 
 Build **Sponge-Discord**
