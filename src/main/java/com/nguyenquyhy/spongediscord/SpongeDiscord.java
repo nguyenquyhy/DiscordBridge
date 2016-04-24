@@ -186,16 +186,13 @@ public class SpongeDiscord {
                 if (null != cachedToken && !cachedToken.isEmpty()) {
                     player.get().sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
 
-                    try
-                    {
+                    try {
                         ClientBuilder clientBuilder = new ClientBuilder();
                         IDiscordClient client = clientBuilder.build();
                         prepareClient(client, player.get());
                         client.login(cachedToken);
                         loggedIn = true;
-                    }
-                    catch (DiscordException e)
-                    {
+                    } catch (DiscordException e) {
                         SpongeDiscord.getInstance().getLogger().error("Cannot login to Discord! " + e.getMessage());
                     }
                 }
@@ -230,7 +227,7 @@ public class SpongeDiscord {
                 if (client != null && client.isReady()) {
                     IChannel channel = client.getChannelByID(CHANNEL_ID);
                     channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), NONCE, false);
-                } else {
+                } else if (defaultClient != null && defaultClient.isReady()) {
                     IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
                     channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), NONCE, false);
                 }
@@ -261,11 +258,17 @@ public class SpongeDiscord {
         }
     }
 
-    public static SpongeDiscord getInstance() { return instance; }
+    public static SpongeDiscord getInstance() {
+        return instance;
+    }
+
     public Logger getLogger() {
         return logger;
     }
-    public IStorage getStorage() { return storage; }
+
+    public IStorage getStorage() {
+        return storage;
+    }
 
     public void loadConfiguration() {
         try {
@@ -459,7 +462,7 @@ public class SpongeDiscord {
                 }
             }
         } else {
-            logout(commandSource);
+            logout(commandSource, true);
         }
 
         IDiscordClient client = null;
@@ -478,14 +481,13 @@ public class SpongeDiscord {
 
         if (client.getToken() != null) {
             return CommandResult.success();
-        }
-        else {
+        } else {
             commandSource.sendMessage(Text.of(TextColors.RED, "Invalid username and/or password!"));
             return CommandResult.empty();
         }
     }
 
-    public static CommandResult logout(CommandSource commandSource) {
+    public static CommandResult logout(CommandSource commandSource, boolean isSilence) {
         if (commandSource instanceof Player) {
             Player player = (Player) commandSource;
             UUID playerId = player.getUniqueId();
@@ -498,7 +500,8 @@ public class SpongeDiscord {
             SpongeDiscord.removeAndLogoutClient(playerId);
             unauthenticatedPlayers.add(player.getUniqueId());
 
-            commandSource.sendMessage(Text.of(TextColors.YELLOW, "Logged out of Discord!"));
+            if (!isSilence)
+                commandSource.sendMessage(Text.of(TextColors.YELLOW, "Logged out of Discord!"));
             return CommandResult.success();
         } else if (commandSource instanceof ConsoleSource) {
             SpongeDiscord.removeAndLogoutClient(null);
@@ -539,7 +542,7 @@ public class SpongeDiscord {
                 // This case is used for default account
                 for (UUID playerUUID : unauthenticatedPlayers) {
                     Optional<Player> player = Sponge.getServer().getPlayer(playerUUID);
-                    if(player.isPresent()) {
+                    if (player.isPresent()) {
                         player.get().sendMessage(formattedMessage);
                     }
                 }

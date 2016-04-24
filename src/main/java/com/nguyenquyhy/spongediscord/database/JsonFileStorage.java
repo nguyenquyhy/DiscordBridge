@@ -1,6 +1,7 @@
 package com.nguyenquyhy.spongediscord.database;
 
 import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.gson.GsonConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
@@ -21,20 +22,22 @@ public class JsonFileStorage implements IStorage {
     private ConfigurationNode configNode;
 
     public JsonFileStorage(Path configDir) throws IOException {
-        Path configFile = Paths.get(configDir + "/tokens.json");
+        Path tokensFile = configDir.resolve("tokens.json");
         configLoader = GsonConfigurationLoader.builder()
-                .setPath(configFile)
+                .setPath(tokensFile)
                 .setIndent(4)
                 .setLenient(true)
                 .build();
 
-        if (!Files.exists(configFile)) {
-            Files.createFile(configFile);
+        if (!Files.exists(tokensFile)) {
+            Files.createFile(tokensFile);
             configNode = configLoader.load();
             getCachedTokens().setValue(new HashMap<UUID, String>());
             configLoader.save(configNode);
         }
-        configNode = configLoader.load();
+        else {
+            configNode = configLoader.load();
+        }
     }
 
     @Override

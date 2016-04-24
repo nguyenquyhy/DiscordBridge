@@ -13,6 +13,6 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 public class LogoutCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
-        return SpongeDiscord.logout(commandSource);
+        return SpongeDiscord.logout(commandSource, false);
     }
 }
