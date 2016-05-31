@@ -1,5 +1,5 @@
 plugins {
-    id "com.qixalite.spongestart" version "1.4.3"
+    id "com.qixalite.spongestart" version "1.4.6"
     id 'java'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     //id 'org.spongepowered.plugin' version '0.5.1'
@@ -12,14 +12,14 @@ version = '1.2.0'
 description = 'An example plugin'
 sourceCompatibility = 1.8
 
-
 repositories {
     mavenCentral()
+//    jcenter()
+//    maven { url "https://jitpack.io" }
     maven {
         name 'Sonatype'
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
-    maven { url "https://jitpack.io" }
     maven {
         name 'sponge'
         url 'http://repo.spongepowered.org/maven'
@@ -32,21 +32,21 @@ spongestart{
     eula true
 
     //optional configs
-    spongeVanillaBuild 'LATEST'
-    spongeForgeBuild 'LATEST'
+    //spongeVanillaBuild 'LATEST'
+    //spongeForgeBuild 'LATEST'
     forgeServerFolder 'run'
     //vanillaServerFolder 'run/vanilla'
 }
 
 dependencies {
-    //compile "sx.blah:Discord4J:2.2.7"
-    compile files('libs/Discord4J-2.2.7.jar')
     compile 'org.spongepowered:spongeapi:4.0.3'
-    compile 'org.apache.httpcomponents:httpcore:4.3.2'
-    compile 'org.apache.httpcomponents:httpclient:4.3.3'
-    compile 'org.java-websocket:Java-WebSocket:1.3.0'
-    compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    compile 'net.jodah:typetools:0.4.3'
+//    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
+//    compile files('libs/Discord4J-2.2.7.jar')
+//    compile 'org.apache.httpcomponents:httpcore:4.3.2'
+//    compile 'org.apache.httpcomponents:httpclient:4.3.3'
+//    compile 'org.java-websocket:Java-WebSocket:1.3.0'
+//    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+//    compile 'net.jodah:typetools:0.4.3'
 }
 
 task fatJar(type: Jar) {

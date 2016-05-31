@@ -3,11 +3,11 @@ package com.nguyenquyhy.spongediscord;
 import com.google.inject.Inject;
 import com.nguyenquyhy.spongediscord.commands.*;
 import com.nguyenquyhy.spongediscord.database.*;
+import com.nguyenquyhy.spongediscord.utils.ConfigUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.apache.http.HttpException;
-import org.json.simple.parser.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -20,29 +20,28 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.DiscordException;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.MissingPermissionsException;
-import sx.blah.discord.handle.IListener;
+import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.impl.obj.Channel;
 import sx.blah.discord.handle.impl.obj.Invite;
-import sx.blah.discord.handle.impl.obj.Message;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
+import sx.blah.discord.util.MissingPermissionsException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -61,8 +60,11 @@ public class SpongeDiscord {
     public static String INVITE_CODE = "";
     public static String JOINED_MESSAGE = "";
     public static String LEFT_MESSAGE = "";
-    public static String MESSAGE_DISCORD_PREFIX = "";
-    public static String MESSAGE_MINECRAFT_PREFIX = "";
+    public static String MESSAGE_DISCORD_TEMPLATE = "";
+    public static String MESSAGE_DISCORD_ANONYMOUS_TEMPLATE = "";
+    public static String MESSAGE_MINECRAFT_TEMPLATE = "";
+    public static String MESSAGE_DISCORD_SERVER_UP = "";
+    public static String MESSAGE_DISCORD_SERVER_DOWN = "";
 
     public static String NONCE = "sponge-discord";
 
@@ -90,8 +92,6 @@ public class SpongeDiscord {
     @Listener
     public void onPreInitialization(GamePreInitializationEvent event) {
         instance = this;
-
-        // Create Config Directory for EssentialCmds
         loadConfiguration();
     }
 
@@ -165,10 +165,9 @@ public class SpongeDiscord {
 
             try {
                 ClientBuilder clientBuilder = new ClientBuilder();
-                IDiscordClient client = clientBuilder.build();
+                IDiscordClient client = clientBuilder.withToken(cachedToken).build();
                 prepareDefaultClient(client, null);
-
-                client.login(cachedToken);
+                client.login();
             } catch (DiscordException e) {
                 e.printStackTrace();
             }
@@ -176,7 +175,26 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event) throws ParseException, URISyntaxException {
+    public void onServerStop(GameStoppingServerEvent event) {
+        if (defaultClient != null && defaultClient.isReady()) {
+            IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
+            if (channel != null) {
+                try {
+                    channel.sendMessage(MESSAGE_DISCORD_SERVER_DOWN, NONCE, false);
+                } catch (HTTP429Exception e) {
+                    e.printStackTrace();
+                } catch (DiscordException e) {
+                    e.printStackTrace();
+                } catch (MissingPermissionsException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    @Listener
+    public void onJoin(ClientConnectionEvent.Join event) throws URISyntaxException {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
@@ -188,9 +206,9 @@ public class SpongeDiscord {
 
                     try {
                         ClientBuilder clientBuilder = new ClientBuilder();
-                        IDiscordClient client = clientBuilder.build();
+                        IDiscordClient client = clientBuilder.withToken(cachedToken).build();
                         prepareClient(client, player.get());
-                        client.login(cachedToken);
+                        client.login();
                         loggedIn = true;
                     } catch (DiscordException e) {
                         SpongeDiscord.getInstance().getLogger().error("Cannot login to Discord! " + e.getMessage());
@@ -218,7 +236,7 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onDisconnect(ClientConnectionEvent.Disconnect event) throws IOException, ParseException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public void onDisconnect(ClientConnectionEvent.Disconnect event) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
@@ -239,7 +257,7 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onChat(MessageChannelEvent.Chat event) throws IOException, ParseException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public void onChat(MessageChannelEvent.Chat event) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
         if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
             String plainString = event.getRawMessage().toPlain().trim();
             if (plainString != null && !plainString.isEmpty() && !plainString.startsWith("/")) {
@@ -248,10 +266,10 @@ public class SpongeDiscord {
                     UUID playerId = player.get().getUniqueId();
                     if (clients.containsKey(playerId)) {
                         IChannel channel = clients.get(playerId).getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(MESSAGE_DISCORD_PREFIX + plainString, NONCE, false);
+                        channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, plainString), NONCE, false);
                     } else if (defaultClient != null) {
                         IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(MESSAGE_DISCORD_PREFIX + "_<" + player.get().getName() + ">_ " + plainString, NONCE, false);
+                        channel.sendMessage(String.format(MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", player.get().getName()), plainString), NONCE, false);
                     }
                 }
             }
@@ -282,28 +300,30 @@ public class SpongeDiscord {
 
             if (!Files.exists(configFile)) {
                 Files.createFile(configFile);
-                configNode = configLoader.load();
-                configNode.getNode("Channel").setValue("");
-                configNode.getNode("InviteCode").setValue("");
-                configNode.getNode("JoinedMessage").setValue("_%s just joined the server_");
-                configNode.getNode("LeftMessage").setValue("_%s just left the server_");
-                configNode.getNode("MessageInDiscordPrefix").setValue("");
-                configNode.getNode("MessageInMinecraftPrefix").setValue("");
-                configNode.getNode("TokenStore").setValue("JSON");
-                configLoader.save(configNode);
                 getLogger().info("[Sponge-Discord]: Created default configuration, ConfigDatabase will not run until you have edited this file!");
             }
             configNode = configLoader.load();
+
             DEBUG = configNode.getNode("Debug").getString();
-            CHANNEL_ID = configNode.getNode("Channel").getString();
-            INVITE_CODE = configNode.getNode("InviteCode").getString();
-            JOINED_MESSAGE = configNode.getNode("JoinedMessage").getString();
-            LEFT_MESSAGE = configNode.getNode("LeftMessage").getString();
-            MESSAGE_DISCORD_PREFIX = configNode.getNode("MessageInDiscordPrefix").getString();
-            if (MESSAGE_DISCORD_PREFIX == null) MESSAGE_DISCORD_PREFIX = "";
-            MESSAGE_MINECRAFT_PREFIX = configNode.getNode("MessageInMinecraftPrefix").getString();
-            if (MESSAGE_MINECRAFT_PREFIX == null) MESSAGE_MINECRAFT_PREFIX = "";
-            switch (configNode.getNode("TokenStore").getString()) {
+            CHANNEL_ID = ConfigUtil.readString(configNode, "Channel", "");
+            INVITE_CODE = ConfigUtil.readString(configNode, "InviteCode", "");
+            JOINED_MESSAGE = ConfigUtil.readString(configNode, "JoinedMessageTemplate", "_%s just joined the server_");
+            LEFT_MESSAGE = ConfigUtil.readString(configNode, "LeftMessageTemplate", "_%s just left the server_");
+            MESSAGE_DISCORD_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordTemplate", "%s");
+            MESSAGE_DISCORD_ANONYMOUS_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordAnonymousTemplate", "_<%a>_ %s");
+            MESSAGE_MINECRAFT_TEMPLATE = ConfigUtil.readString(configNode, "MessageInMinecraftTemplate", "&7<%a> &f%s");
+            MESSAGE_DISCORD_SERVER_UP = ConfigUtil.readString(configNode, "MessageInDiscordServerUp", "Server has started.");
+            MESSAGE_DISCORD_SERVER_DOWN = ConfigUtil.readString(configNode, "MessageInDiscordServerDown", "Server has stopped.");
+            String tokenStore = ConfigUtil.readString(configNode, "TokenStore", "JSON");
+
+            configLoader.save(configNode);
+
+            // TODO: exit if channel is empty
+            if (StringUtils.isBlank(CHANNEL_ID)) {
+                getLogger().error("Channel ID is not set!");
+            }
+
+            switch (tokenStore) {
                 case "InMemory":
                     storage = new InMemoryStorage();
                     getLogger().info("Use InMemory storage.");
@@ -327,7 +347,7 @@ public class SpongeDiscord {
     public void prepareClient(IDiscordClient client, CommandSource commandSource) {
         client.getDispatcher().registerListener(new IListener<ReadyEvent>() {
             @Override
-            public void handle(ReadyEvent event) {
+            public void handle(ReadyEvent readyEvent) {
                 try {
                     String name = client.getOurUser().getName();
                     commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "You have logged in to Discord account " + name + "!"));
@@ -355,8 +375,6 @@ public class SpongeDiscord {
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
                     e.printStackTrace();
                 } catch (DiscordException e) {
                     e.printStackTrace();
@@ -401,15 +419,13 @@ public class SpongeDiscord {
                     if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
                         IChannel channel = client.getChannelByID(CHANNEL_ID);
                         if (channel == null) {
-                            SpongeDiscord.getInstance().getLogger().info("Accepting channel invite for default account");
+                            getLogger().info("Accepting channel invite for default account...");
                             acceptInvite(client);
                         } else {
                             channelJoined(client, channel, commandSource);
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
                     e.printStackTrace();
                 } catch (DiscordException e) {
                     e.printStackTrace();
@@ -423,20 +439,20 @@ public class SpongeDiscord {
 
         client.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
             @Override
-            public void handle(MessageReceivedEvent event) {
-                handleMessageReceivedEvent(event, null);
+            public void handle(MessageReceivedEvent messageReceivedEvent) {
+                handleMessageReceivedEvent(messageReceivedEvent, null);
             }
         });
 
         client.getDispatcher().registerListener(new IListener<GuildCreateEvent>() {
             @Override
-            public void handle(GuildCreateEvent event) {
-                handleGuildCreateEvent(event, client, commandSource);
+            public void handle(GuildCreateEvent guildCreateEvent) {
+                handleGuildCreateEvent(guildCreateEvent, client, commandSource);
             }
         });
     }
 
-    public static CommandResult logoutDefault(CommandSource commandSource) throws IOException, DiscordException, HTTP429Exception {
+    public static CommandResult logoutDefault(CommandSource commandSource) throws IOException, HTTP429Exception, DiscordException {
         if (defaultClient != null) {
             defaultClient.logout();
             defaultClient = null;
@@ -514,14 +530,14 @@ public class SpongeDiscord {
         return CommandResult.empty();
     }
 
-    public static CommandResult broadcast(CommandSource commandSource, String message) throws IOException, ParseException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public static CommandResult broadcast(CommandSource commandSource, String message) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
         if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
             if (defaultClient == null) {
                 commandSource.sendMessage(Text.of(TextColors.RED, "You have to set up a default account first!"));
                 return CommandResult.empty();
             }
             IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-            channel.sendMessage(MESSAGE_DISCORD_PREFIX + "_<Broadcast>_ " + message, NONCE, false);
+            channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, "_<Broadcast>_ " + message), NONCE, false);
             Collection<Player> players = Sponge.getServer().getOnlinePlayers();
             for (Player player : players) {
                 player.sendMessage(Text.of(TextStyles.ITALIC, "<Broadcast> " + message));
@@ -535,7 +551,7 @@ public class SpongeDiscord {
         if (message.getChannel().getID().equals(CHANNEL_ID) && !NONCE.equals(message.getNonce())) {
             String content = message.getContent();
             String author = message.getAuthor().getName();
-            Text formattedMessage = Text.of(MESSAGE_MINECRAFT_PREFIX, TextColors.GRAY, "<" + author + "> ", TextColors.WHITE, content);
+            Text formattedMessage = TextSerializers.FORMATTING_CODE.deserialize(String.format(MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
             if (commandSource != null) {
                 commandSource.sendMessage(formattedMessage);
             } else {
@@ -570,8 +586,6 @@ public class SpongeDiscord {
             channelJoined(client, channel, commandSource);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
         } catch (DiscordException e) {
             e.printStackTrace();
         } catch (HTTP429Exception e) {
@@ -581,7 +595,7 @@ public class SpongeDiscord {
         }
     }
 
-    private void channelJoined(IDiscordClient client, IChannel channel, CommandSource src) throws IOException, ParseException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    private void channelJoined(IDiscordClient client, IChannel channel, CommandSource src) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
         if (channel != null) {
             if (client != defaultClient) {
                 String playerName = "console";
@@ -594,6 +608,8 @@ public class SpongeDiscord {
                 getLogger().info(playerName + " connected to Discord channel.");
             } else {
                 getLogger().info("Default account has connected to Discord channel.");
+                if (StringUtils.isNotBlank(MESSAGE_DISCORD_SERVER_UP))
+                    channel.sendMessage(MESSAGE_DISCORD_SERVER_UP, NONCE, false);
             }
         }
     }
