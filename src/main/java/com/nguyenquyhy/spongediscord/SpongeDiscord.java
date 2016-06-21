@@ -56,6 +56,7 @@ import java.util.*;
 @Plugin(id = "com.nguyenquyhy.spongediscord", name = "Sponge Discord", version = "1.2.0")
 public class SpongeDiscord {
     public static String DEBUG = "";
+    public static String BOT_TOKEN = "";
     public static String CHANNEL_ID = "";
     public static String INVITE_CODE = "";
     public static String JOINED_MESSAGE = "";
@@ -160,7 +161,18 @@ public class SpongeDiscord {
         getLogger().info("/discord command registered.");
 
         String cachedToken = getStorage().getDefaultToken();
-        if (null != cachedToken && !cachedToken.isEmpty()) {
+        if (StringUtils.isNotBlank(BOT_TOKEN)) {
+            getLogger().info("Logging in to bot Discord account...");
+
+            try {
+                ClientBuilder clientBuilder = new ClientBuilder();
+                IDiscordClient client = clientBuilder.withToken(BOT_TOKEN).asBot().build();
+                prepareDefaultClient(client, null);
+                client.login();
+            } catch (DiscordException e) {
+                e.printStackTrace();
+            }
+        } else if (StringUtils.isNotBlank(cachedToken)) {
             getLogger().info("Logging in to default Discord account...");
 
             try {
@@ -219,7 +231,7 @@ public class SpongeDiscord {
             if (!loggedIn) {
                 unauthenticatedPlayers.add(playerId);
 
-                if (JOINED_MESSAGE != null && defaultClient != null && defaultClient.isReady()) {
+                if (StringUtils.isNotBlank(JOINED_MESSAGE) && defaultClient != null && defaultClient.isReady()) {
                     try {
                         IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
                         channel.sendMessage(String.format(JOINED_MESSAGE, player.get().getName()), NONCE, false);
@@ -240,7 +252,7 @@ public class SpongeDiscord {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
-            if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty() && LEFT_MESSAGE != null) {
+            if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty() && StringUtils.isNotBlank(LEFT_MESSAGE)) {
                 IDiscordClient client = clients.get(playerId);
                 if (client != null && client.isReady()) {
                     IChannel channel = client.getChannelByID(CHANNEL_ID);
@@ -305,6 +317,7 @@ public class SpongeDiscord {
             configNode = configLoader.load();
 
             DEBUG = configNode.getNode("Debug").getString();
+            BOT_TOKEN = ConfigUtil.readString(configNode, "BotToken", "");
             CHANNEL_ID = ConfigUtil.readString(configNode, "Channel", "");
             INVITE_CODE = ConfigUtil.readString(configNode, "InviteCode", "");
             JOINED_MESSAGE = ConfigUtil.readString(configNode, "JoinedMessageTemplate", "_%s just joined the server_");

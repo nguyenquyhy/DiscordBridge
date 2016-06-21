@@ -9,7 +9,7 @@ defaultTasks 'build', 'shadowJar'
 
 group = 'com.nguyenquyhy'
 version = '1.2.0'
-description = 'An example plugin'
+description = 'A plugin to connect Discord and Minecraft'
 sourceCompatibility = 1.8
 
 repositories {
@@ -24,7 +24,7 @@ repositories {
         name 'sponge'
         url 'http://repo.spongepowered.org/maven'
     }
-    maven { url "http://repo.maven.apache.org/maven2" }
+    //maven { url "http://repo.maven.apache.org/maven2" }
     //maven { url  "http://dl.bintray.com/austinv11/maven" }
 }
 
@@ -40,6 +40,7 @@ spongestart{
 
 dependencies {
     compile 'org.spongepowered:spongeapi:4.0.3'
+    compile files('libs/Discord4J-2.4.9-shaded.jar')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile files('libs/Discord4J-2.2.7.jar')
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'
