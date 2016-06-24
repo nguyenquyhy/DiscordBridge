@@ -31,10 +31,12 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import sx.blah.discord.api.ClientBuilder;
+import sx.blah.discord.api.Event;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.IListener;
 import sx.blah.discord.handle.impl.events.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.MessageSendEvent;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.obj.Invite;
 import sx.blah.discord.handle.obj.IChannel;
@@ -272,7 +274,7 @@ public class SpongeDiscord {
     public void onChat(MessageChannelEvent.Chat event) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
         if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
             String plainString = event.getRawMessage().toPlain().trim();
-            if (plainString != null && !plainString.isEmpty() && !plainString.startsWith("/")) {
+            if (StringUtils.isNotBlank(plainString) && !plainString.startsWith("/")) {
                 Optional<Player> player = event.getCause().first(Player.class);
                 if (player.isPresent()) {
                     UUID playerId = player.get().getUniqueId();
@@ -399,10 +401,17 @@ public class SpongeDiscord {
             }
         });
 
+        client.getDispatcher().registerListener(new IListener<MessageSendEvent>() {
+            @Override
+            public void handle(MessageSendEvent event) {
+                handleMessageReceivedEvent(event.getMessage(), commandSource);
+            }
+        });
+
         client.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
             @Override
             public void handle(MessageReceivedEvent event) {
-                handleMessageReceivedEvent(event, commandSource);
+                handleMessageReceivedEvent(event.getMessage(), commandSource);
             }
         });
 
@@ -450,10 +459,17 @@ public class SpongeDiscord {
             }
         });
 
+        client.getDispatcher().registerListener(new IListener<MessageSendEvent>() {
+            @Override
+            public void handle(MessageSendEvent event) {
+                handleMessageReceivedEvent(event.getMessage(), commandSource);
+            }
+        });
+
         client.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
             @Override
             public void handle(MessageReceivedEvent messageReceivedEvent) {
-                handleMessageReceivedEvent(messageReceivedEvent, null);
+                handleMessageReceivedEvent(messageReceivedEvent.getMessage(), null);
             }
         });
 
@@ -559,8 +575,7 @@ public class SpongeDiscord {
         return CommandResult.success();
     }
 
-    private void handleMessageReceivedEvent(MessageReceivedEvent event, CommandSource commandSource) {
-        IMessage message = event.getMessage();
+    private void handleMessageReceivedEvent(IMessage message, CommandSource commandSource) {
         if (message.getChannel().getID().equals(CHANNEL_ID) && !NONCE.equals(message.getNonce())) {
             String content = message.getContent();
             String author = message.getAuthor().getName();
