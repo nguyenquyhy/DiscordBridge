@@ -8,7 +8,7 @@ plugins {
 defaultTasks 'build', 'shadowJar'
 
 group = 'com.nguyenquyhy'
-version = '1.2.0'
+version = '1.2.1'
 description = 'A plugin to connect Discord and Minecraft'
 sourceCompatibility = 1.8
 
