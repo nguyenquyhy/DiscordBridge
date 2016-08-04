@@ -8,7 +8,7 @@ plugins {
 defaultTasks 'build', 'shadowJar'
 
 group = 'com.nguyenquyhy'
-version = '1.2.1'
+version = '1.2.2'
 description = 'A plugin to connect Discord and Minecraft'
 sourceCompatibility = 1.8
 
@@ -40,7 +40,7 @@ spongestart{
 
 dependencies {
     compile 'org.spongepowered:spongeapi:4.0.3'
-    compile files('libs/Discord4J-2.4.9-shaded.jar')
+    compile files('libs/Discord4J-2.5.2-shaded.jar')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile files('libs/Discord4J-2.2.7.jar')
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'

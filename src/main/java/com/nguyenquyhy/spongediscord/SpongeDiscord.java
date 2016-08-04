@@ -31,9 +31,9 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.Event;
+import sx.blah.discord.api.events.Event;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.IListener;
+import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.impl.events.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.MessageSendEvent;
@@ -42,8 +42,8 @@ import sx.blah.discord.handle.impl.obj.Invite;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -168,7 +168,7 @@ public class SpongeDiscord {
 
             try {
                 ClientBuilder clientBuilder = new ClientBuilder();
-                IDiscordClient client = clientBuilder.withToken(BOT_TOKEN).asBot().build();
+                IDiscordClient client = clientBuilder.withToken(BOT_TOKEN).build();
                 prepareDefaultClient(client, null);
                 client.login();
             } catch (DiscordException e) {
@@ -179,7 +179,7 @@ public class SpongeDiscord {
 
             try {
                 ClientBuilder clientBuilder = new ClientBuilder();
-                IDiscordClient client = clientBuilder.withToken(cachedToken).build();
+                IDiscordClient client = clientBuilder.withUserToken(cachedToken).build();
                 prepareDefaultClient(client, null);
                 client.login();
             } catch (DiscordException e) {
@@ -194,12 +194,12 @@ public class SpongeDiscord {
             IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
             if (channel != null) {
                 try {
-                    channel.sendMessage(MESSAGE_DISCORD_SERVER_DOWN, NONCE, false);
-                } catch (HTTP429Exception e) {
-                    e.printStackTrace();
+                    channel.sendMessage(MESSAGE_DISCORD_SERVER_DOWN, false, NONCE);
                 } catch (DiscordException e) {
                     e.printStackTrace();
                 } catch (MissingPermissionsException e) {
+                    e.printStackTrace();
+                } catch (RateLimitException e) {
                     e.printStackTrace();
                 }
             }
@@ -220,7 +220,7 @@ public class SpongeDiscord {
 
                     try {
                         ClientBuilder clientBuilder = new ClientBuilder();
-                        IDiscordClient client = clientBuilder.withToken(cachedToken).build();
+                        IDiscordClient client = clientBuilder.withUserToken(cachedToken).build();
                         prepareClient(client, player.get());
                         client.login();
                         loggedIn = true;
@@ -236,12 +236,12 @@ public class SpongeDiscord {
                 if (StringUtils.isNotBlank(JOINED_MESSAGE) && defaultClient != null && defaultClient.isReady()) {
                     try {
                         IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(String.format(JOINED_MESSAGE, player.get().getName()), NONCE, false);
+                        channel.sendMessage(String.format(JOINED_MESSAGE, player.get().getName()), false, NONCE);
                     } catch (DiscordException e) {
                         e.printStackTrace();
-                    } catch (HTTP429Exception e) {
-                        e.printStackTrace();
                     } catch (MissingPermissionsException e) {
+                        e.printStackTrace();
+                    } catch (RateLimitException e) {
                         e.printStackTrace();
                     }
                 }
@@ -250,7 +250,7 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onDisconnect(ClientConnectionEvent.Disconnect event) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public void onDisconnect(ClientConnectionEvent.Disconnect event) throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
@@ -258,10 +258,10 @@ public class SpongeDiscord {
                 IDiscordClient client = clients.get(playerId);
                 if (client != null && client.isReady()) {
                     IChannel channel = client.getChannelByID(CHANNEL_ID);
-                    channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), NONCE, false);
+                    channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), false, NONCE);
                 } else if (defaultClient != null && defaultClient.isReady()) {
                     IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-                    channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), NONCE, false);
+                    channel.sendMessage(String.format(LEFT_MESSAGE, player.get().getName()), false, NONCE);
                 }
             }
             removeAndLogoutClient(playerId);
@@ -271,7 +271,7 @@ public class SpongeDiscord {
     }
 
     @Listener
-    public void onChat(MessageChannelEvent.Chat event) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public void onChat(MessageChannelEvent.Chat event) throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
         if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
             String plainString = event.getRawMessage().toPlain().trim();
             if (StringUtils.isNotBlank(plainString) && !plainString.startsWith("/")) {
@@ -280,10 +280,10 @@ public class SpongeDiscord {
                     UUID playerId = player.get().getUniqueId();
                     if (clients.containsKey(playerId)) {
                         IChannel channel = clients.get(playerId).getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, plainString), NONCE, false);
+                        channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, plainString), false, NONCE);
                     } else if (defaultClient != null) {
                         IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(String.format(MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", player.get().getName().replace("_", "\\_")), plainString), NONCE, false);
+                        channel.sendMessage(String.format(MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", player.get().getName().replace("_", "\\_")), plainString), false, NONCE);
                     }
                 }
             }
@@ -393,9 +393,9 @@ public class SpongeDiscord {
                     e.printStackTrace();
                 } catch (DiscordException e) {
                     e.printStackTrace();
-                } catch (HTTP429Exception e) {
-                    e.printStackTrace();
                 } catch (MissingPermissionsException e) {
+                    e.printStackTrace();
+                } catch (RateLimitException e) {
                     e.printStackTrace();
                 }
             }
@@ -451,9 +451,9 @@ public class SpongeDiscord {
                     e.printStackTrace();
                 } catch (DiscordException e) {
                     e.printStackTrace();
-                } catch (HTTP429Exception e) {
-                    e.printStackTrace();
                 } catch (MissingPermissionsException e) {
+                    e.printStackTrace();
+                } catch (RateLimitException e) {
                     e.printStackTrace();
                 }
             }
@@ -481,7 +481,7 @@ public class SpongeDiscord {
         });
     }
 
-    public static CommandResult logoutDefault(CommandSource commandSource) throws IOException, HTTP429Exception, DiscordException {
+    public static CommandResult logoutDefault(CommandSource commandSource) throws IOException, DiscordException, RateLimitException {
         if (defaultClient != null) {
             defaultClient.logout();
             defaultClient = null;
@@ -500,9 +500,9 @@ public class SpongeDiscord {
                 try {
                     defaultClient.logout();
                     commandSource.sendMessage(Text.of("Logged out of current default account."));
-                } catch (HTTP429Exception e) {
-                    e.printStackTrace();
                 } catch (DiscordException e) {
+                    e.printStackTrace();
+                } catch (RateLimitException e) {
                     e.printStackTrace();
                 }
             }
@@ -559,14 +559,14 @@ public class SpongeDiscord {
         return CommandResult.empty();
     }
 
-    public static CommandResult broadcast(CommandSource commandSource, String message) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    public static CommandResult broadcast(CommandSource commandSource, String message) throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
         if (CHANNEL_ID != null && !CHANNEL_ID.isEmpty()) {
             if (defaultClient == null) {
                 commandSource.sendMessage(Text.of(TextColors.RED, "You have to set up a default account first!"));
                 return CommandResult.empty();
             }
             IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-            channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, "_<Broadcast>_ " + message), NONCE, false);
+            channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, "_<Broadcast>_ " + message), false, NONCE);
             Collection<Player> players = Sponge.getServer().getOnlinePlayers();
             for (Player player : players) {
                 player.sendMessage(Text.of(TextStyles.ITALIC, "<Broadcast> " + message));
@@ -596,7 +596,7 @@ public class SpongeDiscord {
 
     private IChannel acceptInvite(IDiscordClient client) {
         if (INVITE_CODE != null && !INVITE_CODE.isEmpty()) {
-            Invite invite = new Invite(client, INVITE_CODE, null);
+            Invite invite = new Invite(client, INVITE_CODE);
             try {
                 invite.accept();
                 return client.getChannelByID(CHANNEL_ID);
@@ -616,14 +616,14 @@ public class SpongeDiscord {
             e.printStackTrace();
         } catch (DiscordException e) {
             e.printStackTrace();
-        } catch (HTTP429Exception e) {
-            e.printStackTrace();
         } catch (MissingPermissionsException e) {
+            e.printStackTrace();
+        } catch (RateLimitException e) {
             e.printStackTrace();
         }
     }
 
-    private void channelJoined(IDiscordClient client, IChannel channel, CommandSource src) throws IOException, HTTP429Exception, DiscordException, MissingPermissionsException {
+    private void channelJoined(IDiscordClient client, IChannel channel, CommandSource src) throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
         if (channel != null) {
             if (client != defaultClient) {
                 String playerName = "console";
@@ -632,12 +632,12 @@ public class SpongeDiscord {
                     playerName = player.getName();
                 }
                 if (JOINED_MESSAGE != null)
-                    channel.sendMessage(String.format(JOINED_MESSAGE, playerName), NONCE, false);
+                    channel.sendMessage(String.format(JOINED_MESSAGE, playerName), false, NONCE);
                 getLogger().info(playerName + " connected to Discord channel.");
             } else {
                 getLogger().info("Default account has connected to Discord channel.");
                 if (StringUtils.isNotBlank(MESSAGE_DISCORD_SERVER_UP))
-                    channel.sendMessage(MESSAGE_DISCORD_SERVER_UP, NONCE, false);
+                    channel.sendMessage(MESSAGE_DISCORD_SERVER_UP, false, NONCE);
             }
         }
     }
@@ -654,9 +654,9 @@ public class SpongeDiscord {
         if (player == null) {
             try {
                 consoleClient.logout();
-            } catch (HTTP429Exception e) {
-                e.printStackTrace();
             } catch (DiscordException e) {
+                e.printStackTrace();
+            } catch (RateLimitException e) {
                 e.printStackTrace();
             }
             consoleClient = null;
@@ -666,9 +666,9 @@ public class SpongeDiscord {
                 if (client.isReady()) {
                     try {
                         client.logout();
-                    } catch (HTTP429Exception e) {
-                        e.printStackTrace();
                     } catch (DiscordException e) {
+                        e.printStackTrace();
+                    } catch (RateLimitException e) {
                         e.printStackTrace();
                     }
                 }

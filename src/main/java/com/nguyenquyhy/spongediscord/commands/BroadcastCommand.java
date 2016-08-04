@@ -7,8 +7,8 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
 
 import java.io.IOException;
 
@@ -23,11 +23,11 @@ public class BroadcastCommand implements CommandExecutor {
             return SpongeDiscord.broadcast(commandSource, message);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (HTTP429Exception e) {
-            e.printStackTrace();
         } catch (MissingPermissionsException e) {
             e.printStackTrace();
         } catch (DiscordException e) {
+            e.printStackTrace();
+        } catch (RateLimitException e) {
             e.printStackTrace();
         }
         return CommandResult.empty();
