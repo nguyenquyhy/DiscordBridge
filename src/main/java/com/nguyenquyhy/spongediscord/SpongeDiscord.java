@@ -283,7 +283,7 @@ public class SpongeDiscord {
                         channel.sendMessage(String.format(MESSAGE_DISCORD_TEMPLATE, plainString), NONCE, false);
                     } else if (defaultClient != null) {
                         IChannel channel = defaultClient.getChannelByID(CHANNEL_ID);
-                        channel.sendMessage(String.format(MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", player.get().getName()), plainString), NONCE, false);
+                        channel.sendMessage(String.format(MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", player.get().getName().replace("_", "\\_")), plainString), NONCE, false);
                     }
                 }
             }
