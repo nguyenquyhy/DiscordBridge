@@ -1,6 +1,7 @@
 package com.nguyenquyhy.spongediscord.commands;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
+import com.nguyenquyhy.spongediscord.logics.LoginHandler;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -13,6 +14,6 @@ import org.spongepowered.api.command.spec.CommandExecutor;
 public class LogoutCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
-        return SpongeDiscord.logout(commandSource, false);
+        return LoginHandler.logout(commandSource, false);
     }
 }

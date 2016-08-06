@@ -1,6 +1,7 @@
 package com.nguyenquyhy.spongediscord.commands;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
+import com.nguyenquyhy.spongediscord.logics.LoginHandler;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -20,6 +21,6 @@ public class LoginCommand implements CommandExecutor {
 
         // Sign in to Discord
         commandSource.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
-        return SpongeDiscord.login(commandSource, email, password, false);
+        return LoginHandler.login(commandSource, email, password, false);
     }
 }
