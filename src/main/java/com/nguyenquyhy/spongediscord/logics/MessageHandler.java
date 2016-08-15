@@ -23,7 +23,6 @@ public class MessageHandler {
      */
     public static void discordMessageReceived(IMessage message, CommandSource commandSource) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
-        Logger logger = mod.getLogger();
         Config config = mod.getConfig();
 
         if (message.getChannel().getID().equals(config.CHANNEL_ID) && !config.NONCE.equals(message.getNonce())) {

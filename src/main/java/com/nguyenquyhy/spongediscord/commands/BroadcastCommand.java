@@ -31,15 +31,14 @@ public class BroadcastCommand implements CommandExecutor {
         String message = commandContext.<String>getOne("message").get();
         try {
             return broadcast(commandSource, message);
-        } catch (IOException | DiscordException | RateLimitException | MissingPermissionsException e) {
+        } catch (DiscordException | RateLimitException | MissingPermissionsException e) {
             SpongeDiscord.getInstance().getLogger().error("Cannot broadcast! " + e.getLocalizedMessage());
         }
         return CommandResult.empty();
     }
 
-    private CommandResult broadcast(CommandSource commandSource, String message) throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
+    private CommandResult broadcast(CommandSource commandSource, String message) throws DiscordException, MissingPermissionsException, RateLimitException {
         SpongeDiscord mod = SpongeDiscord.getInstance();
-        Logger logger = mod.getLogger();
         Config config = mod.getConfig();
         IDiscordClient defaultClient = mod.getDefaultClient();
 

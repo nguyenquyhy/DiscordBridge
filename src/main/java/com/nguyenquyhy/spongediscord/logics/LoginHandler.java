@@ -94,7 +94,6 @@ public class LoginHandler {
     public static CommandResult login(CommandSource commandSource, String email, String password, boolean defaultAccount) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Logger logger = mod.getLogger();
-        Config config = mod.getConfig();
         IDiscordClient defaultClient = mod.getDefaultClient();
 
         if (defaultAccount) {
@@ -247,7 +246,6 @@ public class LoginHandler {
 
     private static void prepareClient(IDiscordClient client, CommandSource commandSource) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
-        Logger logger = mod.getLogger();
         Config config = mod.getConfig();
 
         client.getDispatcher().registerListener(new IListener<ReadyEvent>() {
@@ -332,13 +330,13 @@ public class LoginHandler {
         IChannel channel = event.getGuild().getChannelByID(config.CHANNEL_ID);
         try {
             channelJoined(client, channel, commandSource);
-        } catch (IOException | DiscordException | MissingPermissionsException | RateLimitException e) {
+        } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
             logger.error(e.getLocalizedMessage(), e);
         }
     }
 
     private static void channelJoined(IDiscordClient client, IChannel channel, CommandSource src)
-            throws IOException, DiscordException, MissingPermissionsException, RateLimitException {
+            throws DiscordException, MissingPermissionsException, RateLimitException {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Logger logger = mod.getLogger();
         Config config = mod.getConfig();

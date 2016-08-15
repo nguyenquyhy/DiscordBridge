@@ -1,14 +1,12 @@
 package com.nguyenquyhy.spongediscord.database;
 
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.gson.GsonConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -18,7 +16,7 @@ import java.util.UUID;
 public class JsonFileStorage implements IStorage {
     private final String DEFAULT_NODE = "DEFAULT";
 
-    private ConfigurationLoader<? extends ConfigurationNode> configLoader;
+    private final ConfigurationLoader<? extends ConfigurationNode> configLoader;
     private ConfigurationNode configNode;
 
     public JsonFileStorage(Path configDir) throws IOException {

@@ -5,7 +5,7 @@ package com.nguyenquyhy.spongediscord.logics;
  */
 public class Config {
     // Unchanged
-    public String NONCE = "sponge-discord";
+    public final String NONCE = "sponge-discord";
 
     // Changeable
     public String DEBUG = "";

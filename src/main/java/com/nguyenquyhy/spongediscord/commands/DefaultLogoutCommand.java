@@ -1,8 +1,6 @@
 package com.nguyenquyhy.spongediscord.commands;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
-import com.nguyenquyhy.spongediscord.logics.Config;
-import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;

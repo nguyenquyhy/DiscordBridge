@@ -9,7 +9,7 @@ import java.util.UUID;
  * Created by Hy on 1/5/2016.
  */
 public class InMemoryStorage implements IStorage {
-    private Map<UUID, String> tokens = new HashMap<UUID, String>();
+    private final Map<UUID, String> tokens = new HashMap<>();
     private String defaultToken = null;
 
     @Override
