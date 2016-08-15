@@ -214,7 +214,7 @@ public class LoginHandler {
                     logger.error("Cannot handle ReadyEvent! " + e.getLocalizedMessage(), e);
                 } catch (MissingPermissionsException e) {
                     if (e.getMissingPermission().contains(Permissions.SEND_MESSAGES)) {
-                        logger.error("Sponge-Discord cannot send messages to the preset channel!");
+                        logger.error("Discord Bridge cannot send messages to the preset channel!");
                     } else {
                         logger.error(e.getErrorMessage(), e);
                     }

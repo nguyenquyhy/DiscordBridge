@@ -50,7 +50,7 @@ public class CommandRegistry {
 
         CommandSpec reloadCmd = CommandSpec.builder()
                 .permission("spongediscord.reload")
-                .description(Text.of("Reload Sponge Discord configuration"))
+                .description(Text.of("Reload Discord Bridge configuration"))
                 .executor(new ReloadCommand())
                 .build();
 

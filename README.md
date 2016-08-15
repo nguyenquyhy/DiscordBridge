@@ -24,10 +24,13 @@ Build **Sponge-Discord**
 
 - `/discord login <email> <password>`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
 - `/discord logout`: logout of Discord and unbind the Discord account from the Minecraft account. 
-- `/discord default login <email> <password>`: login to a default Discord account. This account will be used as a bot for unauthenticated players to send and receive Discord messsages in Minecraft.
-- `/discord default logout`: logout of the default Discord account.
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.  
 - `/discord reload`: reload configurations.
+
+The below commands are still working but not recommended. Use a bot account instead.
+
+- `/discord default login <email> <password>`: login to a default Discord account. This account will be used as a bot for unauthenticated players to send and receive Discord messsages in Minecraft.
+- `/discord default logout`: logout of the default Discord account.
 
 A short summary is below:
 
@@ -35,10 +38,10 @@ A short summary is below:
 |---------|-----------|------------|
 | `/discord login <e> <p>` | `/d l <e> <p>` | &nbsp; |
 | `/discord logout` | `/d lo` | &nbsp; |
-| `/discord default login <e> <p>` | `/d d l <e> <p>` | `spongediscord.default` |
-| `/discord default logout` | `/d d lo` | `spongediscord.default` |
 | `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
 | `/discord reload` | `/d reload` | `spongediscord.reload` |
+| `/discord default login <e> <p>` | `/d d l <e> <p>` | `spongediscord.default` |
+| `/discord default logout` | `/d d lo` | `spongediscord.default` |
 
 Some ideas for future commands
 
@@ -78,3 +81,4 @@ Some ideas for future commands
 ## TODO
 
 - [ ] Group-based prefix
+- [ ] URL from Discord should be clickable in Minecraft.

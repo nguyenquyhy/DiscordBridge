@@ -36,7 +36,7 @@ public class ConfigHandler {
 
             if (!Files.exists(configFile)) {
                 Files.createFile(configFile);
-                logger.info("[Sponge-Discord]: Created default configuration, ConfigDatabase will not run until you have edited this file!");
+                logger.info("Created default configuration, ConfigDatabase will not run until you have edited this file!");
             }
             configNode = configLoader.load();
 
@@ -76,8 +76,7 @@ public class ConfigHandler {
             }
             logger.info("Configuration loaded. Channel " + config.CHANNEL_ID);
         } catch (IOException e) {
-            logger.error("[Sponge-Discord]: Couldn't create default configuration file!", e);
+            logger.error("Couldn't create default configuration file!", e);
         }
     }
-
 }
