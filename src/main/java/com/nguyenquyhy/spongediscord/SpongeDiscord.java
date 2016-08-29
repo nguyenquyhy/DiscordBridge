@@ -5,6 +5,7 @@ import com.nguyenquyhy.spongediscord.database.IStorage;
 import com.nguyenquyhy.spongediscord.logics.Config;
 import com.nguyenquyhy.spongediscord.logics.ConfigHandler;
 import com.nguyenquyhy.spongediscord.logics.LoginHandler;
+import com.nguyenquyhy.spongediscord.utils.TextUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -142,6 +143,9 @@ public class SpongeDiscord {
         if (StringUtils.isNotBlank(config.CHANNEL_ID)) {
             String plainString = event.getRawMessage().toPlain().trim();
             if (StringUtils.isNotBlank(plainString) && !plainString.startsWith("/")) {
+
+                plainString = TextUtil.formatMinecraftEmoji(plainString);
+
                 Optional<Player> player = event.getCause().first(Player.class);
                 if (player.isPresent()) {
                     UUID playerId = player.get().getUniqueId();

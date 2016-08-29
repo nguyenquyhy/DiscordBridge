@@ -24,7 +24,21 @@ public class TextUtil {
     private static final Pattern urlPattern =
             Pattern.compile("(?<first>(^|\\s))(?<colour>(&[0-9a-flmnork])+)?(?<url>(http(s)?://)?([A-Za-z0-9]+\\.)+[A-Za-z0-9]{2,}\\S*)", Pattern.CASE_INSENSITIVE);
 
-    public static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
+    private static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
+
+    public static String formatDiscordEmoji(String message) {
+        for (Emoji emoji : Emoji.values()) {
+            message = message.replace(emoji.unicode, emoji.minecraftFormat);
+        }
+        return message;
+    }
+
+    public static String formatMinecraftEmoji(String message) {
+        for (Emoji emoji : Emoji.values()) {
+            message = message.replace(emoji.minecraftFormat, emoji.discordFormat);
+        }
+        return message;
+    }
 
     public static Text formatUrl(String message) {
         Preconditions.checkNotNull(message, "message");

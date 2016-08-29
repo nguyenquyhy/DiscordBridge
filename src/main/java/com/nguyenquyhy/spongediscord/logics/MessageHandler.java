@@ -27,10 +27,8 @@ public class MessageHandler {
         Config config = mod.getConfig();
 
         if (message.getChannel().getID().equals(config.CHANNEL_ID) && !config.NONCE.equals(message.getNonce())) {
-            String content = message.getContent();
+            String content =  TextUtil.formatDiscordEmoji(message.getContent());
             String author = message.getAuthor().getName();
-//            Text formattedMessage = TextSerializers.FORMATTING_CODE.deserialize(
-//                    String.format(config.MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
             Text formattedMessage = TextUtil.formatUrl(String.format(config.MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
             if (commandSource != null) {
                 commandSource.sendMessage(formattedMessage);
