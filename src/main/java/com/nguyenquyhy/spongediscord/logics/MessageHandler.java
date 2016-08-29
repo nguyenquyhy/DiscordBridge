@@ -1,6 +1,7 @@
 package com.nguyenquyhy.spongediscord.logics;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
+import com.nguyenquyhy.spongediscord.utils.TextUtil;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -28,8 +29,9 @@ public class MessageHandler {
         if (message.getChannel().getID().equals(config.CHANNEL_ID) && !config.NONCE.equals(message.getNonce())) {
             String content = message.getContent();
             String author = message.getAuthor().getName();
-            Text formattedMessage = TextSerializers.FORMATTING_CODE.deserialize(
-                    String.format(config.MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
+//            Text formattedMessage = TextSerializers.FORMATTING_CODE.deserialize(
+//                    String.format(config.MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
+            Text formattedMessage = TextUtil.formatUrl(String.format(config.MESSAGE_MINECRAFT_TEMPLATE.replace("%a", author), content));
             if (commandSource != null) {
                 commandSource.sendMessage(formattedMessage);
             } else {

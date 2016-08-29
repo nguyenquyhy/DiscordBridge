@@ -204,8 +204,12 @@ public class LoginHandler {
                     if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty()) {
                         IChannel channel = client.getChannelByID(config.CHANNEL_ID);
                         if (channel == null) {
-                            logger.info("Accepting channel invite for default account...");
-                            acceptInvite(client);
+                            if (StringUtils.isNotBlank(config.BOT_TOKEN)) {
+                                logger.warn("Cannot access channel from Bot account! Please make sure the bot has permission.");
+                            } else {
+                                logger.info("Accepting channel invite for default account...");
+                                acceptInvite(client);
+                            }
                         } else {
                             channelJoined(client, channel, commandSource);
                         }
@@ -348,7 +352,7 @@ public class LoginHandler {
                     Player player = (Player) src;
                     playerName = player.getName();
                 }
-                if (config.JOINED_MESSAGE != null) {
+                if (StringUtils.isNotBlank(config.JOINED_MESSAGE)) {
                     channel.sendMessage(String.format(config.JOINED_MESSAGE, playerName), false, config.NONCE);
                 }
                 logger.info(playerName + " connected to Discord channel.");

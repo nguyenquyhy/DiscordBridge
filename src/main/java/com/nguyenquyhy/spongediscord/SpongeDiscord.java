@@ -31,7 +31,7 @@ import java.util.*;
 /**
  * Created by Hy on 1/4/2016.
  */
-@Plugin(id = "com.nguyenquyhy.spongediscord", name = "Discord Bridge", version = "1.3.1")
+@Plugin(id = "com.nguyenquyhy.spongediscord", name = "Discord Bridge", version = "1.3.2")
 public class SpongeDiscord {
     private IDiscordClient consoleClient = null;
     private final Map<UUID, IDiscordClient> clients = new HashMap<>();
