@@ -50,7 +50,7 @@ public class LoginHandler {
             return false;
         }
 
-        IDiscordClient defaultClient = mod.getDefaultClient();
+        IDiscordClient defaultClient = mod.getDefaultDiscordClient();
         if (defaultClient != null && defaultClient.getChannelByID(config.CHANNEL_ID) != null && defaultClient.getToken().equals(tokenUsed)) {
             return true;
         }
@@ -94,7 +94,7 @@ public class LoginHandler {
     public static CommandResult login(CommandSource commandSource, String email, String password, boolean defaultAccount) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Logger logger = mod.getLogger();
-        IDiscordClient defaultClient = mod.getDefaultClient();
+        IDiscordClient defaultClient = mod.getDefaultDiscordClient();
 
         if (defaultAccount) {
             if (defaultClient != null) {
@@ -198,7 +198,7 @@ public class LoginHandler {
                     else
                         logger.info(text);
 
-                    mod.setDefaultClient(client);
+                    mod.setDefaultDiscordClient(client);
                     mod.getStorage().putDefaultToken(client.getToken());
 
                     if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty()) {
@@ -346,7 +346,7 @@ public class LoginHandler {
         Config config = mod.getConfig();
 
         if (channel != null) {
-            if (client != mod.getDefaultClient()) {
+            if (client != mod.getDefaultDiscordClient()) {
                 String playerName = "console";
                 if (src instanceof Player) {
                     Player player = (Player) src;

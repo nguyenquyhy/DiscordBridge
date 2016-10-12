@@ -12,6 +12,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -24,8 +25,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -35,8 +34,8 @@ import java.util.*;
 @Plugin(id = "com.nguyenquyhy.spongediscord", name = "Discord Bridge", version = "1.4.0")
 public class SpongeDiscord {
     private IDiscordClient consoleClient = null;
-    private final Map<UUID, IDiscordClient> clients = new HashMap<>();
-    private IDiscordClient defaultClient = null;
+    private final Map<UUID, IDiscordClient> discordClients = new HashMap<>();
+    private IDiscordClient defaultDiscordClient = null;
 
     private final Set<UUID> unauthenticatedPlayers = new HashSet<>(100);
 
@@ -73,8 +72,8 @@ public class SpongeDiscord {
 
     @Listener
     public void onServerStop(GameStoppingServerEvent event) {
-        if (defaultClient != null && defaultClient.isReady()) {
-            IChannel channel = defaultClient.getChannelByID(config.CHANNEL_ID);
+        if (defaultDiscordClient != null && defaultDiscordClient.isReady()) {
+            IChannel channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
             if (channel != null) {
                 try {
                     channel.sendMessage(config.MESSAGE_DISCORD_SERVER_DOWN, false, config.NONCE);
@@ -92,7 +91,7 @@ public class SpongeDiscord {
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
             boolean loggedIn = false;
-            if (!clients.containsKey(playerId)) {
+            if (!discordClients.containsKey(playerId)) {
                 loggedIn = LoginHandler.loginNormalAccount(player.get());
             }
 
@@ -100,9 +99,9 @@ public class SpongeDiscord {
                 // User is not logged in => use global client
                 unauthenticatedPlayers.add(playerId);
 
-                if (StringUtils.isNotBlank(config.JOINED_MESSAGE) && defaultClient != null && defaultClient.isReady()) {
+                if (StringUtils.isNotBlank(config.JOINED_MESSAGE) && defaultDiscordClient != null && defaultDiscordClient.isReady()) {
                     try {
-                        IChannel channel = defaultClient.getChannelByID(config.CHANNEL_ID);
+                        IChannel channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
                         channel.sendMessage(String.format(config.JOINED_MESSAGE, getNameInDiscord(player.get())), false, config.NONCE);
                     } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
                         logger.error(e.getLocalizedMessage(), e);
@@ -118,12 +117,12 @@ public class SpongeDiscord {
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
             if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty() && StringUtils.isNotBlank(config.LEFT_MESSAGE)) {
-                IDiscordClient client = clients.get(playerId);
+                IDiscordClient client = discordClients.get(playerId);
                 IChannel channel = null;
                 if (client != null && client.isReady()) {
                     channel = client.getChannelByID(config.CHANNEL_ID);
-                } else if (defaultClient != null && defaultClient.isReady()) {
-                    channel = defaultClient.getChannelByID(config.CHANNEL_ID);
+                } else if (defaultDiscordClient != null && defaultDiscordClient.isReady()) {
+                    channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
                 }
                 if (channel != null) {
                     try {
@@ -138,48 +137,49 @@ public class SpongeDiscord {
         }
     }
 
-    @Listener
+    @Listener(order = Order.POST)
     public void onChat(MessageChannelEvent.Chat event) {
-        if (StringUtils.isNotBlank(config.CHANNEL_ID)) {
-            String plainString = event.getRawMessage().toPlain().trim();
-            if (StringUtils.isNotBlank(plainString) && !plainString.startsWith("/")) {
+        if (event.isCancelled() || event.isMessageCancelled()) return;
+        if (StringUtils.isBlank(config.CHANNEL_ID)) return;
 
-                plainString = TextUtil.formatMinecraftEmoji(plainString);
+        String plainString = event.getRawMessage().toPlain().trim();
+        if (StringUtils.isBlank(plainString) || plainString.startsWith("/")) return;
 
-                Optional<Player> player = event.getCause().first(Player.class);
-                if (player.isPresent()) {
-                    UUID playerId = player.get().getUniqueId();
-                    if (clients.containsKey(playerId)) {
-                        IChannel channel = clients.get(playerId).getChannelByID(config.CHANNEL_ID);
-                        if (channel == null) {
-                            LoginHandler.loginNormalAccount(player.get());
-                        }
-                        if (channel != null) {
-                            try {
-                                channel.sendMessage(String.format(config.MESSAGE_DISCORD_TEMPLATE, plainString), false, config.NONCE);
-                            } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
-                                logger.warn("Cannot send message! " + e.getLocalizedMessage());
-                            }
-                        } else {
-                            logger.warn("Cannot re-login user account!");
-                        }
-                    } else if (defaultClient != null) {
-                        IChannel channel = defaultClient.getChannelByID(config.CHANNEL_ID);
-                        if (channel == null) {
-                            LoginHandler.loginGlobalAccount();
-                        }
-                        if (channel != null) {
-                            try {
-                                channel.sendMessage(
-                                        String.format(config.MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", getNameInDiscord(player.get())), plainString),
-                                        false, config.NONCE);
-                            } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
-                                logger.warn("Cannot send message! " + e.getLocalizedMessage());
-                            }
-                        } else {
-                            logger.warn("Cannot re-login default account!");
-                        }
+        Optional<Player> player = event.getCause().first(Player.class);
+        if (player.isPresent()) {
+            UUID playerId = player.get().getUniqueId();
+
+            plainString = TextUtil.formatMinecraftEmoji(plainString);
+
+            if (discordClients.containsKey(playerId)) {
+                IChannel channel = discordClients.get(playerId).getChannelByID(config.CHANNEL_ID);
+                if (channel == null) {
+                    LoginHandler.loginNormalAccount(player.get());
+                }
+                if (channel != null) {
+                    try {
+                        channel.sendMessage(String.format(config.MESSAGE_DISCORD_TEMPLATE, plainString), false, config.NONCE);
+                    } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+                        logger.warn("Cannot send message! " + e.getLocalizedMessage());
                     }
+                } else {
+                    logger.warn("Cannot re-login user account!");
+                }
+            } else if (defaultDiscordClient != null) {
+                IChannel channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
+                if (channel == null) {
+                    LoginHandler.loginGlobalAccount();
+                }
+                if (channel != null) {
+                    try {
+                        channel.sendMessage(
+                                String.format(config.MESSAGE_DISCORD_ANONYMOUS_TEMPLATE.replace("%a", getNameInDiscord(player.get())), plainString),
+                                false, config.NONCE);
+                    } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
+                        logger.warn("Cannot send message! " + e.getLocalizedMessage());
+                    }
+                } else {
+                    logger.warn("Cannot re-login default account!");
                 }
             }
         }
@@ -213,12 +213,12 @@ public class SpongeDiscord {
         this.storage = storage;
     }
 
-    public IDiscordClient getDefaultClient() {
-        return defaultClient;
+    public IDiscordClient getDefaultDiscordClient() {
+        return defaultDiscordClient;
     }
 
-    public void setDefaultClient(IDiscordClient defaultClient) {
-        this.defaultClient = defaultClient;
+    public void setDefaultDiscordClient(IDiscordClient defaultDiscordClient) {
+        this.defaultDiscordClient = defaultDiscordClient;
     }
 
     public Set<UUID> getUnauthenticatedPlayers() {
@@ -229,7 +229,7 @@ public class SpongeDiscord {
         if (player == null) {
             consoleClient = client;
         } else {
-            clients.put(player, client);
+            discordClients.put(player, client);
         }
     }
 
@@ -242,8 +242,8 @@ public class SpongeDiscord {
             }
             consoleClient = null;
         } else {
-            if (clients.containsKey(player)) {
-                IDiscordClient client = clients.get(player);
+            if (discordClients.containsKey(player)) {
+                IDiscordClient client = discordClients.get(player);
                 if (client.isReady()) {
                     try {
                         client.logout();
@@ -251,7 +251,7 @@ public class SpongeDiscord {
                         e.printStackTrace();
                     }
                 }
-                clients.remove(player);
+                discordClients.remove(player);
             }
         }
     }

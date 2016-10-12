@@ -39,7 +39,7 @@ spongestart{
 }
 
 dependencies {
-    compile('org.spongepowered:spongeapi:4.0.3')
+    compile('org.spongepowered:spongeapi:4.1.0')
     compile files('libs/Discord4J-2.5.2-shaded.jar')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'

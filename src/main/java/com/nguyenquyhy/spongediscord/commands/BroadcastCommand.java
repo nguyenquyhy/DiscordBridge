@@ -2,7 +2,6 @@ package com.nguyenquyhy.spongediscord.commands;
 
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
 import com.nguyenquyhy.spongediscord.logics.Config;
-import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -19,7 +18,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-import java.io.IOException;
 import java.util.Collection;
 
 /**
@@ -40,7 +38,7 @@ public class BroadcastCommand implements CommandExecutor {
     private CommandResult broadcast(CommandSource commandSource, String message) throws DiscordException, MissingPermissionsException, RateLimitException {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Config config = mod.getConfig();
-        IDiscordClient defaultClient = mod.getDefaultClient();
+        IDiscordClient defaultClient = mod.getDefaultDiscordClient();
 
         if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty()) {
             if (defaultClient == null) {

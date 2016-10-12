@@ -29,29 +29,35 @@ public class ConfigHandler {
             if (!Files.exists(configDir)) {
                 Files.createDirectories(configDir);
             }
-            Path configFile = Paths.get(configDir + "/config.conf");
-            ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(configFile).build();
 
-            CommentedConfigurationNode configNode;
+            Path legacyConfigFile = Paths.get(configDir + "/config.conf");
+            //if (Files.exists(legacyConfigFile)) {
+                ConfigurationLoader<CommentedConfigurationNode> configLoader = HoconConfigurationLoader.builder().setPath(legacyConfigFile).build();
+                CommentedConfigurationNode configNode = configLoader.load();
 
-            if (!Files.exists(configFile)) {
-                Files.createFile(configFile);
-                logger.info("Created default configuration, ConfigDatabase will not run until you have edited this file!");
-            }
-            configNode = configLoader.load();
+                config.BOT_TOKEN = ConfigUtil.readString(configNode, "BotToken", "");
+                config.CHANNEL_ID = ConfigUtil.readString(configNode, "Channel", "");
+                config.INVITE_CODE = ConfigUtil.readString(configNode, "InviteCode", "");
+                config.JOINED_MESSAGE = ConfigUtil.readString(configNode, "JoinedMessageTemplate", "_%s just joined the server_");
+                config.LEFT_MESSAGE = ConfigUtil.readString(configNode, "LeftMessageTemplate", "_%s just left the server_");
+                config.MESSAGE_DISCORD_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordTemplate", "%s");
+                config.MESSAGE_DISCORD_ANONYMOUS_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordAnonymousTemplate", "_<%a>_ %s");
+                config.MESSAGE_MINECRAFT_TEMPLATE = ConfigUtil.readString(configNode, "MessageInMinecraftTemplate", "&7<%a> &f%s");
+                config.MESSAGE_DISCORD_SERVER_UP = ConfigUtil.readString(configNode, "MessageInDiscordServerUp", "Server has started.");
+                config.MESSAGE_DISCORD_SERVER_DOWN = ConfigUtil.readString(configNode, "MessageInDiscordServerDown", "Server has stopped.");
+                String tokenStore = ConfigUtil.readString(configNode, "TokenStore", "JSON");
+            //}
 
-            config.DEBUG = configNode.getNode("Debug").getString();
-            config.BOT_TOKEN = ConfigUtil.readString(configNode, "BotToken", "");
-            config.CHANNEL_ID = ConfigUtil.readString(configNode, "Channel", "");
-            config.INVITE_CODE = ConfigUtil.readString(configNode, "InviteCode", "");
-            config.JOINED_MESSAGE = ConfigUtil.readString(configNode, "JoinedMessageTemplate", "_%s just joined the server_");
-            config.LEFT_MESSAGE = ConfigUtil.readString(configNode, "LeftMessageTemplate", "_%s just left the server_");
-            config.MESSAGE_DISCORD_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordTemplate", "%s");
-            config.MESSAGE_DISCORD_ANONYMOUS_TEMPLATE = ConfigUtil.readString(configNode, "MessageInDiscordAnonymousTemplate", "_<%a>_ %s");
-            config.MESSAGE_MINECRAFT_TEMPLATE = ConfigUtil.readString(configNode, "MessageInMinecraftTemplate", "&7<%a> &f%s");
-            config.MESSAGE_DISCORD_SERVER_UP = ConfigUtil.readString(configNode, "MessageInDiscordServerUp", "Server has started.");
-            config.MESSAGE_DISCORD_SERVER_DOWN = ConfigUtil.readString(configNode, "MessageInDiscordServerDown", "Server has stopped.");
-            String tokenStore = ConfigUtil.readString(configNode, "TokenStore", "JSON");
+
+//            Path configFile = Paths.get(configDir + "/config.json");
+//
+//            if (!Files.exists(configFile)) {
+//                Files.createFile(configFile);
+//                logger.warn("Created default configuration, Discord Bridge will not run until you have edited this file!");
+//            }
+
+            //ConfigurationLoader<CommentedConfigurationNode> configLoader = .builder().setPath(legacyConfigFile).build();
+
 
             configLoader.save(configNode);
 

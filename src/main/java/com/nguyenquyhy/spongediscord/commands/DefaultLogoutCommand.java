@@ -30,11 +30,11 @@ public class DefaultLogoutCommand implements CommandExecutor {
 
     private static CommandResult logoutDefault(CommandSource commandSource) throws IOException, DiscordException, RateLimitException {
         SpongeDiscord mod = SpongeDiscord.getInstance();
-        IDiscordClient defaultClient = mod.getDefaultClient();
+        IDiscordClient defaultClient = mod.getDefaultDiscordClient();
 
         if (defaultClient != null) {
             defaultClient.logout();
-            mod.setDefaultClient(null);
+            mod.setDefaultDiscordClient(null);
             mod.getStorage().removeDefaultToken();
 
             if (commandSource != null) {
