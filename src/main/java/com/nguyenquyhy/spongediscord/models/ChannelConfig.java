@@ -8,20 +8,18 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  */
 @ConfigSerializable
 public class ChannelConfig {
-    public ChannelConfig() {
-//        discord = new ChannelDiscordConfig();
-//        minecraft = new ChannelMinecraftConfig();
-
-//        discordId = "";
-//        type = ChannelType.BIDIRECTION;
+    public void initializeDefault() {
+        discordId = "";
+        discord = new ChannelDiscordConfig();
+        discord.initializeDefault();
+        minecraft = new ChannelMinecraftConfig();
+        minecraft.initializeDefault();
     }
 
     @Setting
     public String discordId;
     @Setting
     public String discordInviteCode;
-//    @Setting
-//    public ChannelType type;
     @Setting
     public ChannelDiscordConfig discord;
     @Setting

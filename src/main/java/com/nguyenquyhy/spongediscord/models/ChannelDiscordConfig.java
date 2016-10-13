@@ -8,13 +8,13 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  */
 @ConfigSerializable
 public class ChannelDiscordConfig {
-    public ChannelDiscordConfig() {
-//        joinedTemplate = "_%s just joined the server_";
-//        leftTemplate = "_%s just left the server_";
-//        authenticatedChatTemplate = "%s";
-//        anonymousChatTemplate = "`<%a>` %s";
-//        serverUpMessage = "Server has started.";
-//        serverDownMessage = "Server has stopped.";
+    public void initializeDefault() {
+        joinedTemplate = "_%s just joined the server_";
+        leftTemplate = "_%s just left the server_";
+        authenticatedChatTemplate = "%s";
+        anonymousChatTemplate = "`<%a>` %s";
+        serverUpMessage = "Server has started.";
+        serverDownMessage = "Server has stopped.";
     }
 
     @Setting

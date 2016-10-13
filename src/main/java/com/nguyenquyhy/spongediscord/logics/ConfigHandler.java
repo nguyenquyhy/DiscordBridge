@@ -47,6 +47,7 @@ public class ConfigHandler {
             logger.info("Created default configuration!");
 
             ChannelConfig channel = new ChannelConfig();
+            channel.initializeDefault();
 
             Path legacyConfigFile = Paths.get(configDir + "/config.conf");
             if (Files.exists(legacyConfigFile)) {
