@@ -20,6 +20,6 @@ public class LoginCommand implements CommandExecutor {
 
         // Sign in to Discord
         commandSource.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
-        return LoginHandler.login(commandSource, email, password, false);
+        return LoginHandler.login(commandSource, email, password);
     }
 }

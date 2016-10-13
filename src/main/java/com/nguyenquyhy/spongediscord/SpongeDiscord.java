@@ -2,37 +2,39 @@ package com.nguyenquyhy.spongediscord;
 
 import com.google.inject.Inject;
 import com.nguyenquyhy.spongediscord.database.IStorage;
-import com.nguyenquyhy.spongediscord.logics.Config;
+import com.nguyenquyhy.spongediscord.listeners.ChatListener;
+import com.nguyenquyhy.spongediscord.listeners.ClientConnectionListener;
 import com.nguyenquyhy.spongediscord.logics.ConfigHandler;
 import com.nguyenquyhy.spongediscord.logics.LoginHandler;
-import com.nguyenquyhy.spongediscord.utils.TextUtil;
+import com.nguyenquyhy.spongediscord.models.ChannelConfig;
+import com.nguyenquyhy.spongediscord.models.GlobalConfig;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
 /**
  * Created by Hy on 1/4/2016.
  */
-@Plugin(id = "com.nguyenquyhy.spongediscord", name = "Discord Bridge", version = "1.4.0")
+@Plugin(id = "com.nguyenquyhy.spongediscord", name = "Discord Bridge", version = "2.0.0",
+        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy" })
 public class SpongeDiscord {
     private DiscordAPI consoleClient = null;
-    private final Map<UUID, DiscordAPI> discordClients = new HashMap<>();
-    private DiscordAPI defaultDiscordClient = null;
+    private final Map<UUID, DiscordAPI> humanClients = new HashMap<>();
+    private DiscordAPI botClient = null;
 
     private final Set<UUID> unauthenticatedPlayers = new HashSet<>(100);
 
@@ -43,22 +45,22 @@ public class SpongeDiscord {
     @ConfigDir(sharedRoot = false)
     private Path configDir;
 
-    private Config config;
+    private GlobalConfig config;
 
     @Inject
     private Game game;
-
-    private MessageProvider messageProvider = new MessageProvider();
 
     private IStorage storage;
 
     private static SpongeDiscord instance;
 
     @Listener
-    public void onPreInitialization(GamePreInitializationEvent event) {
+    public void onPreInitialization(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
         instance = this;
-        config = new Config();
-        ConfigHandler.loadConfiguration(config);
+        config = ConfigHandler.loadConfiguration();
+
+        Sponge.getEventManager().registerListeners(this, new ChatListener());
+        Sponge.getEventManager().registerListeners(this, new ClientConnectionListener());
     }
 
     @Listener
@@ -69,10 +71,16 @@ public class SpongeDiscord {
 
     @Listener
     public void onServerStop(GameStoppingServerEvent event) {
-        if (defaultDiscordClient != null) {
-            Channel channel = defaultDiscordClient.getChannelById(config.CHANNEL_ID);
-            if (channel != null) {
-                channel.sendMessage(config.MESSAGE_DISCORD_SERVER_DOWN, false);
+        if (botClient != null) {
+            for (ChannelConfig channelConfig : config.channels) {
+                if (StringUtils.isNotBlank(channelConfig.discordId)
+                        && channelConfig.discord != null
+                        && StringUtils.isNotBlank(channelConfig.discord.serverDownMessage)) {
+                    Channel channel = botClient.getChannelById(channelConfig.discordId);
+                    if (channel != null) {
+                        channel.sendMessage(channelConfig.discord.serverDownMessage, false);
+                    }
+                }
             }
         }
     }
@@ -89,8 +97,12 @@ public class SpongeDiscord {
         return configDir;
     }
 
-    public Config getConfig() {
+    public GlobalConfig getConfig() {
         return config;
+    }
+
+    public void setConfig(GlobalConfig config) {
+        this.config = config;
     }
 
     public Logger getLogger() {
@@ -105,16 +117,16 @@ public class SpongeDiscord {
         this.storage = storage;
     }
 
-    public DiscordAPI getDefaultDiscordClient() {
-        return defaultDiscordClient;
+    public DiscordAPI getBotClient() {
+        return botClient;
     }
 
-    public void setDefaultDiscordClient(DiscordAPI defaultDiscordClient) {
-        this.defaultDiscordClient = defaultDiscordClient;
+    public void setBotClient(DiscordAPI botClient) {
+        this.botClient = botClient;
     }
 
-    public Map<UUID, DiscordAPI> getDiscordClients() {
-        return discordClients;
+    public Map<UUID, DiscordAPI> getHumanClients() {
+        return humanClients;
     }
 
     public Set<UUID> getUnauthenticatedPlayers() {
@@ -125,7 +137,7 @@ public class SpongeDiscord {
         if (player == null) {
             consoleClient = client;
         } else {
-            discordClients.put(player, client);
+            humanClients.put(player, client);
         }
     }
 
@@ -134,10 +146,10 @@ public class SpongeDiscord {
             consoleClient.disconnect();
             consoleClient = null;
         } else {
-            if (discordClients.containsKey(player)) {
-                DiscordAPI client = discordClients.get(player);
+            if (humanClients.containsKey(player)) {
+                DiscordAPI client = humanClients.get(player);
                 client.disconnect();
-                discordClients.remove(player);
+                humanClients.remove(player);
             }
         }
     }

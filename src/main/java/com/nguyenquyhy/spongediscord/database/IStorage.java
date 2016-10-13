@@ -10,8 +10,4 @@ public interface IStorage {
     void putToken(UUID player, String token) throws IOException;
     String getToken(UUID player);
     void removeToken(UUID player) throws IOException;
-
-    void putDefaultToken(String token) throws IOException;
-    String getDefaultToken();
-    void removeDefaultToken() throws IOException;
 }

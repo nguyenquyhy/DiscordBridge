@@ -29,19 +29,4 @@ public class InMemoryStorage implements IStorage {
     public void removeToken(UUID player) {
         tokens.remove(player);
     }
-
-    @Override
-    public void putDefaultToken(String token) throws IOException {
-        defaultToken = token;
-    }
-
-    @Override
-    public String getDefaultToken() {
-        return defaultToken;
-    }
-
-    @Override
-    public void removeDefaultToken() throws IOException {
-        defaultToken = null;
-    }
 }

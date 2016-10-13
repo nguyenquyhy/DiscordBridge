@@ -24,7 +24,7 @@ public class BroadcastCommand implements CommandExecutor {
     private CommandResult broadcast(CommandSource commandSource, String message) {
 //        SpongeDiscord mod = SpongeDiscord.getInstance();
 //        Config config = mod.getConfig();
-//        IDiscordClient defaultClient = mod.getDefaultDiscordClient();
+//        IDiscordClient defaultClient = mod.getBotClient();
 //
 //        if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty()) {
 //            if (defaultClient == null) {

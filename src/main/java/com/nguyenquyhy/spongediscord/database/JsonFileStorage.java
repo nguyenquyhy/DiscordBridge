@@ -55,23 +55,6 @@ public class JsonFileStorage implements IStorage {
         configLoader.save(configNode);
     }
 
-    @Override
-    public void putDefaultToken(String token) throws IOException {
-        configNode.getNode(DEFAULT_NODE).setValue(token);
-        configLoader.save(configNode);
-    }
-
-    @Override
-    public String getDefaultToken() {
-        return configNode.getNode(DEFAULT_NODE).getString();
-    }
-
-    @Override
-    public void removeDefaultToken() throws IOException {
-        configNode.removeChild(DEFAULT_NODE);
-        configLoader.save(configNode);
-    }
-
     private ConfigurationNode getCachedTokens() {
         return configNode.getNode("tokens");
     }

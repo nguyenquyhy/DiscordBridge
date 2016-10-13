@@ -1,7 +1,19 @@
 package com.nguyenquyhy.spongediscord.listeners;
 
+import com.nguyenquyhy.spongediscord.SpongeDiscord;
+import com.nguyenquyhy.spongediscord.logics.LoginHandler;
+import com.nguyenquyhy.spongediscord.logics.MessageHandler;
+import com.nguyenquyhy.spongediscord.models.ChannelConfig;
+import com.nguyenquyhy.spongediscord.models.GlobalConfig;
+import de.btobastian.javacord.DiscordAPI;
+import de.btobastian.javacord.entities.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by Hy on 10/13/2016.
@@ -9,53 +21,61 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 public class ClientConnectionListener {
     @Listener
     public void onJoin(ClientConnectionEvent.Join event) {
-//        Optional<Player> player = event.getCause().first(Player.class);
-//        if (player.isPresent()) {
-//            UUID playerId = player.get().getUniqueId();
-//            boolean loggedIn = false;
-//            if (!discordClients.containsKey(playerId)) {
-//                loggedIn = LoginHandler.loginNormalAccount(player.get());
-//            }
-//
-//            if (!loggedIn) {
-//                // User is not logged in => use global client
-//                unauthenticatedPlayers.add(playerId);
-//
-//                if (StringUtils.isNotBlank(config.JOINED_MESSAGE) && defaultDiscordClient != null && defaultDiscordClient.isReady()) {
-//                    try {
-//                        IChannel channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
-//                        channel.sendMessage(String.format(config.JOINED_MESSAGE, getNameInDiscord(player.get())), false, config.NONCE);
-//                    } catch (DiscordException | MissingPermissionsException | RateLimitException e) {
-//                        logger.error(e.getLocalizedMessage(), e);
-//                    }
-//                }
-//            }
-//        }
+        SpongeDiscord mod = SpongeDiscord.getInstance();
+        GlobalConfig config = mod.getConfig();
+
+        Optional<Player> player = event.getCause().first(Player.class);
+        if (player.isPresent()) {
+            UUID playerId = player.get().getUniqueId();
+            boolean loggedIn = false;
+            if (!mod.getHumanClients().containsKey(playerId)) {
+                loggedIn = LoginHandler.loginNormalAccount(player.get());
+            }
+
+            if (!loggedIn && mod.getBotClient() != null) {
+                // User is not logged in => use global client
+                //unauthenticatedPlayers.add(playerId);
+
+                for (ChannelConfig channelConfig : config.channels) {
+                    if (StringUtils.isNotBlank(channelConfig.discordId)
+                            && channelConfig.discord != null
+                            && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
+                        Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
+                        channel.sendMessage(String.format(channelConfig.discord.joinedTemplate,
+                                MessageHandler.getNameInDiscord(player.get(), channelConfig.discord.joinedTemplate)), false);
+                    }
+                }
+            }
+        }
     }
 
     @Listener
     public void onDisconnect(ClientConnectionEvent.Disconnect event) {
-//        Optional<Player> player = event.getCause().first(Player.class);
-//        if (player.isPresent()) {
-//            UUID playerId = player.get().getUniqueId();
-//            if (config.CHANNEL_ID != null && !config.CHANNEL_ID.isEmpty() && StringUtils.isNotBlank(config.LEFT_MESSAGE)) {
-//                IDiscordClient client = discordClients.get(playerId);
-//                IChannel channel = null;
-//                if (client != null && client.isReady()) {
-//                    channel = client.getChannelByID(config.CHANNEL_ID);
-//                } else if (defaultDiscordClient != null && defaultDiscordClient.isReady()) {
-//                    channel = defaultDiscordClient.getChannelByID(config.CHANNEL_ID);
-//                }
-//                if (channel != null) {
-//                    try {
-//                        channel.sendMessage(String.format(config.LEFT_MESSAGE, getNameInDiscord(player.get())), false, config.NONCE);
-//                    } catch (MissingPermissionsException | RateLimitException | DiscordException e) {
-//                    }
-//                }
-//            }
-//            removeAndLogoutClient(playerId);
-//            unauthenticatedPlayers.remove(playerId);
-//            getLogger().info(player.get().getName() + " has disconnected!");
-//        }
+        SpongeDiscord mod = SpongeDiscord.getInstance();
+        GlobalConfig config = mod.getConfig();
+
+        Optional<Player> player = event.getCause().first(Player.class);
+        if (player.isPresent()) {
+            UUID playerId = player.get().getUniqueId();
+
+            DiscordAPI client = mod.getHumanClients().get(playerId);
+            if (client == null) client = mod.getBotClient();
+            if (client != null) {
+                for (ChannelConfig channelConfig : config.channels) {
+                    if (StringUtils.isNotBlank(channelConfig.discordId)
+                            && channelConfig.discord != null
+                            && StringUtils.isNotBlank(channelConfig.discord.leftTemplate)) {
+                        Channel channel = client.getChannelById(channelConfig.discordId);
+                        if (channel != null) {
+                            channel.sendMessage(String.format(channelConfig.discord.leftTemplate,
+                                    MessageHandler.getNameInDiscord(player.get(), channelConfig.discord.leftTemplate)), false);
+                        }
+                    }
+                    mod.removeAndLogoutClient(playerId);
+                    //unauthenticatedPlayers.remove(playerId);
+                    mod.getLogger().info(player.get().getName() + " has disconnected!");
+                }
+            }
+        }
     }
 }

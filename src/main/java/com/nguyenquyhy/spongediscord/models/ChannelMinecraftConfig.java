@@ -8,6 +8,10 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  */
 @ConfigSerializable
 public class ChannelMinecraftConfig {
+    public ChannelMinecraftConfig() {
+//        chatTemplate = "&7<%a> &f%s";
+    }
+
     @Setting
     public String chatTemplate;
 }

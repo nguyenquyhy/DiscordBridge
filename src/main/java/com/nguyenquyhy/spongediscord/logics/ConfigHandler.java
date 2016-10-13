@@ -46,6 +46,8 @@ public class ConfigHandler {
             Files.createFile(configFile);
             logger.info("Created default configuration!");
 
+            ChannelConfig channel = new ChannelConfig();
+
             Path legacyConfigFile = Paths.get(configDir + "/config.conf");
             if (Files.exists(legacyConfigFile)) {
                 logger.info("Migrating legacy config!");
@@ -65,7 +67,6 @@ public class ConfigHandler {
                         config.tokenStore = TokenStore.JSON;
                         break;
                 }
-                ChannelConfig channel = new ChannelConfig();
                 channel.discordId = ConfigUtil.readString(legacyConfigNode, "Channel", "");
                 channel.discordInviteCode = ConfigUtil.readString(legacyConfigNode, "InviteCode", "");
                 channel.discord.joinedTemplate = ConfigUtil.readString(legacyConfigNode, "JoinedMessageTemplate", "_%s just joined the server_");
@@ -78,7 +79,9 @@ public class ConfigHandler {
             } else {
                 logger.info("Discord Bridge will not run until you have edited this file!");
             }
+            config.channels.add(channel);
         }
+        configNode.setValue(TypeToken.of(GlobalConfig.class), config);
         configLoader.save(configNode);
         logger.info("Configuration loaded.");
 

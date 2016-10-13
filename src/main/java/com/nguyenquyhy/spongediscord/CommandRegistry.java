@@ -13,26 +13,6 @@ public class CommandRegistry {
      * Register all commands
      */
     public static void register() {
-        CommandSpec defaultLoginCmd = CommandSpec.builder()
-                .description(Text.of("Log in and set a Discord account for unauthenticated users"))
-                .arguments(
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("email"))),
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("password"))))
-                .executor(new DefaultLoginCommand())
-                .build();
-
-        CommandSpec defaultLogoutCmd = CommandSpec.builder()
-                .description(Text.of("Log out of default Discord account"))
-                .executor(new DefaultLogoutCommand())
-                .build();
-
-        CommandSpec defaultCmd = CommandSpec.builder()
-                .permission("spongediscord.default")
-                .description(Text.of("Commands to set/unset default Discord account for unauthenticated users"))
-                .child(defaultLoginCmd, "login", "l")
-                .child(defaultLogoutCmd, "logout", "lo")
-                .build();
-
         CommandSpec loginCmd = CommandSpec.builder()
                 //.permission("spongediscord.login")
                 .description(Text.of("Login to your Discord account and bind to current Minecraft account"))
@@ -64,7 +44,6 @@ public class CommandRegistry {
         CommandSpec mainCommandSpec = CommandSpec.builder()
                 //.permission("spongediscord")
                 .description(Text.of("Discord in Minecraft"))
-                .child(defaultCmd, "default", "d")
                 .child(loginCmd, "login", "l")
                 .child(logoutCmd, "logout", "lo")
                 .child(reloadCmd, "reload")
