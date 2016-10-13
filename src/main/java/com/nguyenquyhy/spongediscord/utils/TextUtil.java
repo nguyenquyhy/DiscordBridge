@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * Created by Hy on 8/29/2016.
  */
 public class TextUtil {
+    public static final String SPECIAL_CHAR = "\u2062";
     private static final Pattern urlPattern =
             Pattern.compile("(?<first>(^|\\s))(?<colour>(&[0-9a-flmnork])+)?(?<url>(http(s)?://)?([A-Za-z0-9]+\\.)+[A-Za-z0-9]{2,}\\S*)", Pattern.CASE_INSENSITIVE);
 
@@ -33,11 +34,11 @@ public class TextUtil {
         return message;
     }
 
-    public static String formatMinecraftEmoji(String message) {
+    public static String formatMinecraftMessage(String message) {
         for (Emoji emoji : Emoji.values()) {
             message = message.replace(emoji.minecraftFormat, emoji.discordFormat);
         }
-        return message;
+        return message + SPECIAL_CHAR;
     }
 
     public static Text formatUrl(String message) {
@@ -114,8 +115,7 @@ public class TextUtil {
         return Text.join(texts);
     }
 
-
-    public static StyleTuple getLastColourAndStyle(Text text, StyleTuple current) {
+    private static StyleTuple getLastColourAndStyle(Text text, StyleTuple current) {
         List<Text> texts = flatten(text);
         TextColor tc = TextColors.NONE;
         TextStyle ts = TextStyles.NONE;
@@ -150,11 +150,11 @@ public class TextUtil {
         return texts;
     }
 
-    public static final class StyleTuple {
-        public final TextColor colour;
-        public final TextStyle style;
+    private static final class StyleTuple {
+        final TextColor colour;
+        final TextStyle style;
 
-        public StyleTuple(TextColor colour, TextStyle style) {
+        StyleTuple(TextColor colour, TextStyle style) {
             this.colour = colour;
             this.style = style;
         }

@@ -1,5 +1,5 @@
 plugins {
-    id "com.qixalite.spongestart" version "1.4.6"
+    id "com.qixalite.spongestart" version "1.5.2"
     id 'java'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     //id 'org.spongepowered.plugin' version '0.5.1'
@@ -14,8 +14,6 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-//    jcenter()
-//    maven { url "https://jitpack.io" }
     maven {
         name 'Sonatype'
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
@@ -24,8 +22,10 @@ repositories {
         name 'sponge'
         url 'http://repo.spongepowered.org/maven'
     }
-    //maven { url "http://repo.maven.apache.org/maven2" }
-    //maven { url  "http://dl.bintray.com/austinv11/maven" }
+    maven {
+        name 'javacord-repo'
+        url 'http://repo.bastian-oppermann.de'
+    }
 }
 
 spongestart{
@@ -40,7 +40,7 @@ spongestart{
 
 dependencies {
     compile('org.spongepowered:spongeapi:4.1.0')
-    compile files('libs/Discord4J-2.5.2-shaded.jar')
+    compile('de.btobastian.javacord:javacord:2.0.11:shaded')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'
 //    compile 'org.apache.httpcomponents:httpclient:4.3.3'
@@ -57,15 +57,15 @@ task fatJar(type: Jar) {
 
 shadowJar {
     dependencies {
-        include dependency('commons-logging:commons-logging')
-        include dependency('org.apache.commons:commons-lang3')
-        include dependency('org.apache.httpcomponents:httpcore')
-        include dependency('org.apache.httpcomponents:httpclient')
-        include dependency('com.googlecode.json-simple:json-simple')
-        include dependency('org.java-websocket:Java-WebSocket')
-        include dependency('net.jodah:typetools')
-
-        relocate 'org.apache.http', 'shaded.apache.http'
-        relocate 'org.apache.commons', 'shaded.apache.commons'
+//        include dependency('commons-logging:commons-logging')
+//        include dependency('org.apache.commons:commons-lang3')
+//        include dependency('org.apache.httpcomponents:httpcore')
+//        include dependency('org.apache.httpcomponents:httpclient')
+//        include dependency('com.googlecode.json-simple:json-simple')
+//        include dependency('org.java-websocket:Java-WebSocket')
+//        include dependency('net.jodah:typetools')
+//
+//        relocate 'org.apache.http', 'shaded.apache.http'
+//        relocate 'org.apache.commons', 'shaded.apache.commons'
     }
 }
