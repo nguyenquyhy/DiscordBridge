@@ -1,5 +1,15 @@
 # CHANGE LOG
 
+## 2.0.0
+- Support for multiple channels
+- Remove support for default account. Bot is compulsory now.
+- Replace the underlying library for Discord API to reduce imcompatibility with Sponge and Forge
+
+## 1.4.0
+- URL from Discord is clickable in Minecraft.
+- Emoji is translated properly between Discord and Minecraft.
+- Bot no longer tries to use invitation link.
+
 ## 1.3.1
 - Auto re-login for expired sessions on receiving new messages
 - Clean up error log

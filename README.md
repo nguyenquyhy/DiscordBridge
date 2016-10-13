@@ -3,18 +3,24 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 
 ## Features
 
-- Player's chat messages in Minecraft are sent a specified Discord channel, and chat messages in that Discord channel are also sent to online players in Minecraft.
-- Each player can log in to their own Discord account, so that chat messages show under their names.
-- Server owners can setup a default account as a bot for all unauthenticated players and server announcements.
+- Player's chat messages in Minecraft are sent to specified Discord channels, and chat messages in specific Discord channels are also sent to online players in Minecraft.
+- Admins and mods can log in to their own Discord account, so that chat messages show under their names in Discord.
 - Emoji is converted between Minecraft and Discord format. Details are showed in [EMOJI.md](EMOJI.md).
+- Clickable URL.
+- **New in 2.0.0** Multiple channels with custom configuration for each channel. E.g.:
+  - 1 public channel to send & receive messages between Discord and Minecraft
+  - 1 monitoring channel to record only server start/stop and player join/leave events
+  - 1 staff-only channel that send message one-way from Discord to Minecraft with a special announcement template
 
 ## Getting Started for server owners and players
 
 [GETTING STARTED.md](GETTING STARTED.md)
 
-## Build
+## Migrating from version 1.x.x
+- `/discord default` command and default account are no longer available. You must setup an account now.
+- Your current configuration will be migrated automatically from `config.conf` into `config.json`.
 
-Build **Sponge-Discord**
+## Build your own .jar
 
 1. Clone this repository
 1. Run `gradlew`
@@ -27,11 +33,6 @@ Build **Sponge-Discord**
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.  
 - `/discord reload`: reload configurations.
 
-The below commands are still working but not recommended. Use a bot account instead.
-
-- `/discord default login <email> <password>`: login to a default Discord account. This account will be used as a bot for unauthenticated players to send and receive Discord messsages in Minecraft.
-- `/discord default logout`: logout of the default Discord account.
-
 A short summary is below:
 
 | Command | Shorthand | Permission |
@@ -40,8 +41,6 @@ A short summary is below:
 | `/discord logout` | `/d lo` | &nbsp; |
 | `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
 | `/discord reload` | `/d reload` | `spongediscord.reload` |
-| `/discord default login <e> <p>` | `/d d l <e> <p>` | `spongediscord.default` |
-| `/discord default logout` | `/d d lo` | `spongediscord.default` |
 
 Some ideas for future commands
 
@@ -81,4 +80,8 @@ Some ideas for future commands
 ## TODO
 
 - [ ] Group-based prefix
-- [ ] URL from Discord should be clickable in Minecraft.
+- [ ] Handle custom Sponge channels (e.g. MCClan and staff chat of Nucleus)
+- [ ] Image upload in Discord should show links in Minecraft
+- [ ] A command to check Bot connection status
+- [ ] New config to allow executing Minecraft command from Discord
+- [ ] New config to route Minecraft server log to Discord
