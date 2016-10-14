@@ -17,9 +17,10 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 [GETTING STARTED.md](GETTING STARTED.md)
 
 ## Migrating from version 1.x.x
-- `/discord default` command and default account are no longer available. You must setup an account now.
+- `/discord default` command and default account are no longer available. You must setup a Discord Bot for the plugin to properly function.
 - Your current configuration will be migrated automatically from `config.conf` into `config.json`.
 - Invite code has been removed. Please contact me if you have specific need for that.
+- Default anonymouss chat template is changed to ```"`%a:\` %s"```, which looks nicer in my opinion.
 
 ## Build your own .jar
 
@@ -29,7 +30,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 
 ## Commands
 
-- `/discord login <email> <password>`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
+- `/discord login`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
 - `/discord logout`: logout of Discord and unbind the Discord account from the Minecraft account. 
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.
 - `/discord status`: show current connection status.
@@ -39,10 +40,10 @@ A short summary is below:
 
 | Command | Shorthand | Permission |
 |---------|-----------|------------|
-| `/discord login <e> <p>` | `/d l <e> <p>` | &nbsp; |
-| `/discord logout` | `/d lo` | &nbsp; |
+| `/discord login` | `/d l` | `spongediscord.login` |
+| `/discord logout` | `/d lo` | `spongediscord.login` |
 | `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
-| `/discord status` | `/d s` | `spongediscord.reload` |
+| `/discord status` | `/d s` | `spongediscord.status` |
 | `/discord reload` | `/d reload` | `spongediscord.reload` |
 
 Some ideas for future commands
@@ -54,22 +55,25 @@ Some ideas for future commands
 
 ## Configurations
 
-Configuration is stored in `config.json` file. You can find some examples in `examples` folders. 
+Configuration is stored in `config.json` file. 
 
 - Global config
   - `botToken`: App Bot User's token
-  - `tokenStore`: `JSON` (default) or `NONE` (logging in will be disabled) or `InMemory` (mainly for testing)
+  - `tokenStore`: `JSON` (default) or `NONE` (user authentication will be disabled) or `InMemory` (mainly for testing)
+  - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
-  - `discordInviteCode`: (optional) an invitation code that does not expire (usually the part after `https://discord.gg/` in the invitation link)
   - `discord`: templates in Discord
     - `joinedTemplate`: (optional) template for a message in Discord when a player joins the server
     - `leftTemplate`: (optional) template for a message in Discord when a player leaves the server
-    - `anonymousChatTemplate`: (optional) template for messages from Minecraft to Discord for unauthenticated user. 
-    - `authenticatedChatTemplate`: (optional) template for messages from Minecraft to Discord for authenticated user.
+    - `anonymousChatTemplate`: (optional) template for messages from Minecraft to Discord for unauthenticated user
+    - `authenticatedChatTemplate`: (optional) template for messages from Minecraft to Discord for authenticated user
+    - `broadcastTemplate`: (optional) template for messages in Discord from `/discord broadcast` command
   - `minecraft`: templates in Minecraft
-    - `chatTemplate`: (optional) template for messages from Discord to Minecraft.
+    - `chatTemplate`: (optional) template for messages from Discord to Minecraft
+
+You can find some example configurations in `examples` folders.
 
 ## Notes
 
