@@ -41,8 +41,8 @@ public class BroadcastCommand implements CommandExecutor {
             return false;
         }
 
-        message = TextUtil.formatMinecraftMessage(message);
-
+        // Send to Discord
+        String discordMessage = TextUtil.formatMinecraftMessage(message);
         for (ChannelConfig channelConfig : config.channels) {
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.discord != null
@@ -50,16 +50,17 @@ public class BroadcastCommand implements CommandExecutor {
                 Channel channel = defaultClient.getChannelById(channelConfig.discordId);
                 if (channel != null) {
                     channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
-                            MessageHandler.formatForDiscord(message, channelConfig.discord.broadcastTemplate)), false);
+                            MessageHandler.formatForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
                 } else {
                     logger.error("No active Discord connection is available!");
                 }
             }
         }
 
+        // Send to Minecraft
         if (StringUtils.isNotBlank(config.minecraftBroadcastTemplate)) {
             for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                player.sendMessage(Text.of(String.format(config.minecraftBroadcastTemplate, message)));
+                player.sendMessage(TextUtil.formatUrl(String.format(config.minecraftBroadcastTemplate, message)));
             }
         }
         return true;

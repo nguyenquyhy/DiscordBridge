@@ -65,7 +65,7 @@ public class ChatListener {
                                     channel.sendMessage(
                                             String.format(
                                                     template.replace("%a",
-                                                            MessageHandler.formatForDiscord(player.get().getName(), template)),
+                                                            MessageHandler.formatForDiscord(player.get().getName(), template, "%a")),
                                                     plainString),
                                             false);
                                 } else {
@@ -73,7 +73,7 @@ public class ChatListener {
                                 }
                             } else {
                                 if (channel == null) {
-                                    LoginHandler.loginNormalAccount(player.get());
+                                    LoginHandler.loginHumanAccount(player.get());
                                 }
                                 if (channel != null) {
                                     channel.sendMessage(String.format(template, plainString), false);

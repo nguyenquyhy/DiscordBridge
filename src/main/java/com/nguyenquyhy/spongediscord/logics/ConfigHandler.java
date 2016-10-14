@@ -69,7 +69,7 @@ public class ConfigHandler {
                         break;
                 }
                 channel.discordId = ConfigUtil.readString(legacyConfigNode, "Channel", "");
-                channel.discordInviteCode = ConfigUtil.readString(legacyConfigNode, "InviteCode", "");
+                //channel.discordInviteCode = ConfigUtil.readString(legacyConfigNode, "InviteCode", "");
                 channel.discord.joinedTemplate = ConfigUtil.readString(legacyConfigNode, "JoinedMessageTemplate", "_%s just joined the server_");
                 channel.discord.leftTemplate = ConfigUtil.readString(legacyConfigNode, "LeftMessageTemplate", "_%s just left the server_");
                 channel.discord.authenticatedChatTemplate = ConfigUtil.readString(legacyConfigNode, "MessageInDiscordTemplate", "%s");

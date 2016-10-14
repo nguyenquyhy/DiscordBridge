@@ -49,11 +49,16 @@ public class MessageHandler {
         }
     }
 
-    private static Map<String, Boolean> needReplacement = new HashMap<>();
+    private static Map<String, Map<String, Boolean>> needReplacementMap = new HashMap<>();
 
-    public static String formatForDiscord(String text, String template) {
+    public static String formatForDiscord(String text, String template, String token) {
+        if (!needReplacementMap.containsKey(token)) {
+            needReplacementMap.put(token, new HashMap<>());
+        }
+        Map<String, Boolean> needReplacement = needReplacementMap.get(token);
         if (!needReplacement.containsKey(template)) {
-            boolean need = !Pattern.matches(".*`.*%a.*`.*", template) && Pattern.matches(".*_.*%a.*_.*", template);
+            boolean need = !Pattern.matches(".*`.*" + token + ".*`.*", template)
+                    && Pattern.matches(".*_.*" + token + ".*_.*", template);
             needReplacement.put(template, need);
         }
         if (needReplacement.get(template)) text = text.replace("_", "\\_");

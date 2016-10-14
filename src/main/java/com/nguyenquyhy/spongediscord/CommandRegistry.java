@@ -14,16 +14,21 @@ public class CommandRegistry {
      */
     public static void register() {
         CommandSpec loginCmd = CommandSpec.builder()
-                //.permission("spongediscord.login")
-                .description(Text.of("Login to your Discord account and bind to current Minecraft account"))
-                .arguments(
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("email"))),
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of("password"))))
+                .permission("spongediscord.login")
+                .description(Text.of("(ADMIN) Login to your Discord account and bind to current Minecraft account"))
                 .executor(new LoginCommand())
                 .build();
 
+        CommandSpec loginConfirmCmd = CommandSpec.builder()
+                .permission("spongediscord.login")
+                .arguments(
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("email"))),
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of("password"))))
+                .executor(new LoginConfirmCommand())
+                .build();
+
         CommandSpec logoutCmd = CommandSpec.builder()
-                //.permission("spongediscord.login")
+                .permission("spongediscord.login")
                 .description(Text.of("Logout of your Discord account and unbind from current Minecraft account"))
                 .executor(new LogoutCommand())
                 .build();
@@ -41,13 +46,21 @@ public class CommandRegistry {
                 .executor(new BroadcastCommand())
                 .build();
 
+        CommandSpec statusCmd = CommandSpec.builder()
+                .permission("spongediscord.status")
+                .description(Text.of("Get status of current connections to Discord"))
+                .executor(new StatusCommand())
+                .build();
+
         CommandSpec mainCommandSpec = CommandSpec.builder()
                 //.permission("spongediscord")
                 .description(Text.of("Discord in Minecraft"))
                 .child(loginCmd, "login", "l")
+                .child(loginConfirmCmd, "loginconfirm", "lc")
                 .child(logoutCmd, "logout", "lo")
                 .child(reloadCmd, "reload")
                 .child(broadcastCmd, "broadcast", "b", "bc")
+                .child(statusCmd, "status", "s")
                 .build();
 
         SpongeDiscord mod = SpongeDiscord.getInstance();

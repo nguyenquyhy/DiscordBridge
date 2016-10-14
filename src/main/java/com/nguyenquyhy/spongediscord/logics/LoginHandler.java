@@ -57,20 +57,26 @@ public class LoginHandler {
         return true;
     }
 
-    public static void loginNormalAccount(Player player) {
+    /**
+     *
+     * @param player
+     * @return
+     */
+    public static boolean loginHumanAccount(Player player) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
-        Logger logger = mod.getLogger();
         IStorage storage = mod.getStorage();
 
         if (storage != null) {
             String cachedToken = mod.getStorage().getToken(player.getUniqueId());
-            if (null != cachedToken && !cachedToken.isEmpty()) {
+            if (StringUtils.isNotBlank(cachedToken)) {
                 player.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
 
                 DiscordAPI client = Javacord.getApi(cachedToken, false);
                 prepareHumanClient(client, player);
+                return true;
             }
         }
+        return false;
     }
 
     public static CommandResult login(CommandSource commandSource, String email, String password) {
@@ -143,12 +149,7 @@ public class LoginHandler {
                     if (StringUtils.isNotBlank(channelConfig.discordId)) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel == null) {
-                            if (StringUtils.isNotBlank(config.botToken)) {
-                                logger.warn("Cannot access channel from Bot account! Please make sure the bot has permission.");
-                            } else {
-                                logger.info("Accepting channel invite for default account...");
-                                acceptInvite(client, channelConfig, commandSource);
-                            }
+                            logger.warn("Cannot access channel " + channelConfig.discordId + " from Bot account! Please make sure the bot has read & write permission.");
                         } else {
                             channelJoined(client, channelConfig, channel, commandSource);
                         }
@@ -160,7 +161,7 @@ public class LoginHandler {
 
             @Override
             public void onFailure(Throwable throwable) {
-                logger.error("Cannot connect to Discord!");
+                logger.error("Cannot connect to Discord!", throwable);
             }
         });
     }
@@ -195,8 +196,9 @@ public class LoginHandler {
                         if (StringUtils.isNotBlank(channelConfig.discordId)) {
                             Channel channel = client.getChannelById(channelConfig.discordId);
                             if (channel == null) {
-                                logger.info("Accepting channel invite");
-                                acceptInvite(client, channelConfig, commandSource);
+                                logger.error("Cannot find channel with ID " + channelConfig.discordId);
+                                //logger.info("Accepting channel invite");
+                                //acceptInvite(client, channelConfig, commandSource);
                             } else {
                                 channelJoined(client, channelConfig, channel, commandSource);
                             }
@@ -212,31 +214,34 @@ public class LoginHandler {
             @Override
             public void onFailure(Throwable throwable) {
                 logger.error("Cannot connect to Discord!", throwable);
+                if (commandSource != null) {
+                    commandSource.sendMessage(Text.of(TextColors.RED, "Cannot login! Please check your email and password."));
+                }
             }
         });
     }
 
-    private static Channel acceptInvite(DiscordAPI client, ChannelConfig channelConfig, CommandSource src) {
-        SpongeDiscord mod = SpongeDiscord.getInstance();
-        Logger logger = mod.getLogger();
-        GlobalConfig config = mod.getConfig();
-
-        if (StringUtils.isNotBlank(channelConfig.discordInviteCode)) {
-            client.acceptInvite(channelConfig.discordInviteCode, new FutureCallback<Server>() {
-                @Override
-                public void onSuccess(@Nullable Server server) {
-                    Channel channel = client.getChannelById(channelConfig.discordId);
-                    channelJoined(client, channelConfig, channel, src);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-
-                }
-            });
-        }
-        return null;
-    }
+//    private static Channel acceptInvite(DiscordAPI client, ChannelConfig channelConfig, CommandSource src) {
+//        SpongeDiscord mod = SpongeDiscord.getInstance();
+//        Logger logger = mod.getLogger();
+//        GlobalConfig config = mod.getConfig();
+//
+//        if (StringUtils.isNotBlank(channelConfig.discordInviteCode)) {
+//            client.acceptInvite(channelConfig.discordInviteCode, new FutureCallback<Server>() {
+//                @Override
+//                public void onSuccess(@Nullable Server server) {
+//                    Channel channel = client.getChannelById(channelConfig.discordId);
+//                    channelJoined(client, channelConfig, channel, src);
+//                }
+//
+//                @Override
+//                public void onFailure(Throwable throwable) {
+//                    logger.error("Cannot accept invite", throwable);
+//                }
+//            });
+//        }
+//        return null;
+//    }
 
     private static void channelJoined(DiscordAPI client, ChannelConfig channelConfig, Channel channel, CommandSource src) {
         SpongeDiscord mod = SpongeDiscord.getInstance();

@@ -19,6 +19,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 ## Migrating from version 1.x.x
 - `/discord default` command and default account are no longer available. You must setup an account now.
 - Your current configuration will be migrated automatically from `config.conf` into `config.json`.
+- Invite code has been removed. Please contact me if you have specific need for that.
 
 ## Build your own .jar
 
@@ -30,7 +31,8 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 
 - `/discord login <email> <password>`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
 - `/discord logout`: logout of Discord and unbind the Discord account from the Minecraft account. 
-- `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.  
+- `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.
+- `/discord status`: show current connection status.
 - `/discord reload`: reload configurations.
 
 A short summary is below:
@@ -40,6 +42,7 @@ A short summary is below:
 | `/discord login <e> <p>` | `/d l <e> <p>` | &nbsp; |
 | `/discord logout` | `/d lo` | &nbsp; |
 | `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
+| `/discord status` | `/d s` | `spongediscord.reload` |
 | `/discord reload` | `/d reload` | `spongediscord.reload` |
 
 Some ideas for future commands

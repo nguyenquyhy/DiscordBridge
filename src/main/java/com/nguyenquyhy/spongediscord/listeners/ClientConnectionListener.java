@@ -27,11 +27,12 @@ public class ClientConnectionListener {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
+            boolean loggingIn = false;
             if (!mod.getHumanClients().containsKey(playerId)) {
-                LoginHandler.loginNormalAccount(player.get());
+                loggingIn = LoginHandler.loginHumanAccount(player.get());
             }
 
-            if (mod.getBotClient() != null) {
+            if (!loggingIn && mod.getBotClient() != null) {
                 // Use Bot client to send joined message
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId)
@@ -39,7 +40,7 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
                         Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
                         channel.sendMessage(String.format(channelConfig.discord.joinedTemplate,
-                                MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate)), false);
+                                MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s")), false);
                     }
                 }
             }
@@ -65,7 +66,7 @@ public class ClientConnectionListener {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
                             channel.sendMessage(String.format(channelConfig.discord.leftTemplate,
-                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate)), false);
+                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s")), false);
                         }
                     }
                     mod.removeAndLogoutClient(playerId);
