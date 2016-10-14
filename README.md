@@ -51,13 +51,22 @@ Some ideas for future commands
 
 ## Configurations
 
-- `Channel`: the ID of the Discord number (usually a 18-digit number)
-- `InviteCode`: an invitation code that does not expire (usually the part after `https://discord.gg/` in the invitation link)
-- `JoinedMessage`: (optional) a message that will be posted to Discord when a player joins the server
-- `LeftMessage`: (optional) a message that will be posted to Discord when a player leaves the server
-- `MessageInDiscordPrefix`: (optioal) a prefix for message from Minecraft to Discord. You can use Discord markdown format here.
-- `MessageInMinecraftPrefix`: (optional) a prefix for message from Discord to Minecraft. You can use Minecraft formatting here.
-- `TokenStore`: either `InMemory` (mainly for testing) or `JSON`
+Configuration is stored in `config.json` file. You can find some examples in `examples` folders. 
+
+- Global config
+  - `botToken`: App Bot User's token
+  - `tokenStore`: `JSON` (default) or `NONE` (logging in will be disabled) or `InMemory` (mainly for testing)
+  - `channels`: a list of channel configurations
+- Channel config
+  - `discordId`: the ID of the Discord channel (usually a 18-digit number)
+  - `discordInviteCode`: (optional) an invitation code that does not expire (usually the part after `https://discord.gg/` in the invitation link)
+  - `discord`: templates in Discord
+    - `joinedTemplate`: (optional) template for a message in Discord when a player joins the server
+    - `leftTemplate`: (optional) template for a message in Discord when a player leaves the server
+    - `anonymousChatTemplate`: (optional) template for messages from Minecraft to Discord for unauthenticated user. 
+    - `authenticatedChatTemplate`: (optional) template for messages from Minecraft to Discord for authenticated user.
+  - `minecraft`: templates in Minecraft
+    - `chatTemplate`: (optional) template for messages from Discord to Minecraft.
 
 ## Notes
 

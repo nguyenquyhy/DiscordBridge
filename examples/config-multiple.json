@@ -1,0 +1,32 @@
+{
+  "tokenStore": "JSON",
+  "botToken": "APP_BOT_USER_TOKEN",
+  "channels": [
+    {
+      "discordId": "DISCORD_PUBLIC_CHANNEL_ID",
+      "discordInviteCode": "DISCORD_INVITATION_CODE",
+      "discord": {
+        "authenticatedChatTemplate": "%s",
+        "anonymousChatTemplate": "`%a:` %s"
+      },
+      "minecraft": {
+        "chatTemplate": "&7<%a> &f%s"
+      }
+    },
+    {
+      "discordId": "DISCORD_MONITOR_CHANNEL_ID",
+      "discord": {
+        "joinedTemplate": "_%s just joined the server_",
+        "leftTemplate": "_%s just left the server_",
+        "serverUpMessage": "Server has started.",
+        "serverDownMessage": "Server has stopped."
+      }
+    },
+    {
+      "discordId": "DISCORD_STAFF_BROADCAST_CHANNEL_ID",
+      "minecraft": {
+        "chatTemplate": "&l&2<ANNOUNCEMENT> %s"
+      }
+    }
+  ]
+}

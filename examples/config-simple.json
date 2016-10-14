@@ -1,0 +1,21 @@
+{
+  "tokenStore": "JSON",
+  "botToken": "APP_BOT_USER_TOKEN",
+  "channels": [
+    {
+      "discordId": "DISCORD_PUBLIC_CHANNEL_ID",
+      "discordInviteCode": "DISCORD_INVITATION_CODE",
+      "discord": {
+        "authenticatedChatTemplate": "%s",
+        "anonymousChatTemplate": "`%a:` %s",
+        "joinedTemplate": "_%s just joined the server_",
+        "leftTemplate": "_%s just left the server_",
+        "serverUpMessage": "Server has started.",
+        "serverDownMessage": "Server has stopped."
+      },
+      "minecraft": {
+        "chatTemplate": "&7<%a> &f%s"
+      }
+    }
+  ]
+}
