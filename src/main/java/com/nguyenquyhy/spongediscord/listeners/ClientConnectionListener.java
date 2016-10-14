@@ -42,7 +42,7 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
                         Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
                         channel.sendMessage(String.format(channelConfig.discord.joinedTemplate,
-                                MessageHandler.getNameInDiscord(player.get(), channelConfig.discord.joinedTemplate)), false);
+                                MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate)), false);
                     }
                 }
             }
@@ -68,7 +68,7 @@ public class ClientConnectionListener {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
                             channel.sendMessage(String.format(channelConfig.discord.leftTemplate,
-                                    MessageHandler.getNameInDiscord(player.get(), channelConfig.discord.leftTemplate)), false);
+                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate)), false);
                         }
                     }
                     mod.removeAndLogoutClient(playerId);

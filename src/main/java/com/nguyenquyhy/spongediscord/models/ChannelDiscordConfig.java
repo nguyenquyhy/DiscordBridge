@@ -8,13 +8,14 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  */
 @ConfigSerializable
 public class ChannelDiscordConfig {
-    public void initializeDefault() {
+    void initializeDefault() {
         joinedTemplate = "_%s just joined the server_";
         leftTemplate = "_%s just left the server_";
         authenticatedChatTemplate = "%s";
         anonymousChatTemplate = "`<%a>` %s";
         serverUpMessage = "Server has started.";
         serverDownMessage = "Server has stopped.";
+        broadcastTemplate = "_<BROADCAST> %s_";
     }
 
     @Setting
@@ -29,4 +30,6 @@ public class ChannelDiscordConfig {
     public String serverUpMessage;
     @Setting
     public String serverDownMessage;
+    @Setting
+    public String broadcastTemplate;
 }

@@ -14,6 +14,8 @@ import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -42,24 +44,19 @@ public class MessageHandler {
                 Text formattedMessage = TextUtil.formatUrl(String.format(channelConfig.minecraft.chatTemplate.replace("%a", author), content));
                 // This case is used for default account
                 logger.info(formattedMessage.toPlain());
-                Sponge.getServer().getWorlds().forEach(w ->
-                        w.getEntities(e ->
-                                e.getType().equals(EntityTypes.PLAYER))
-                                .forEach(p -> ((Player) p).sendMessage(formattedMessage)));
+                Sponge.getServer().getOnlinePlayers().forEach(p -> p.sendMessage(formattedMessage));
             }
         }
     }
 
-    private static String lastTemplate = null;
-    private static boolean needReplacement = false;
+    private static Map<String, Boolean> needReplacement = new HashMap<>();
 
-    public static String getNameInDiscord(Player player, String template) {
-        if (lastTemplate == null || !lastTemplate.equals(template)) {
-            needReplacement = !Pattern.matches(".*`.*%a.*`.*", template) && Pattern.matches(".*_.*%a.*_.*", template);
-            lastTemplate = template;
+    public static String formatForDiscord(String text, String template) {
+        if (!needReplacement.containsKey(template)) {
+            boolean need = !Pattern.matches(".*`.*%a.*`.*", template) && Pattern.matches(".*_.*%a.*_.*", template);
+            needReplacement.put(template, need);
         }
-        String name = player.getName();
-        if (needReplacement) name = name.replace("_", "\\_");
-        return name;
+        if (needReplacement.get(template)) text = text.replace("_", "\\_");
+        return text;
     }
 }

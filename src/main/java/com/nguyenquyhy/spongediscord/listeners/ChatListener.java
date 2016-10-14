@@ -65,7 +65,8 @@ public class ChatListener {
                                 if (channel != null) {
                                     channel.sendMessage(
                                             String.format(
-                                                    template.replace("%a", MessageHandler.getNameInDiscord(player.get(), template)),
+                                                    template.replace("%a",
+                                                            MessageHandler.formatForDiscord(player.get().getName(), template)),
                                                     plainString),
                                             false);
                                 } else {
