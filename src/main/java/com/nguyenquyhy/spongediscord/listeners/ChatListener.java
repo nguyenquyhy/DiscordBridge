@@ -51,7 +51,6 @@ public class ChatListener {
             }
 
             if (client != null) {
-
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId) && channelConfig.discord != null) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
@@ -60,7 +59,7 @@ public class ChatListener {
                         if (StringUtils.isNotBlank(template)) {
                             if (isDefaultAccount) {
                                 if (channel == null) {
-                                    LoginHandler.loginGlobalAccount();
+                                    LoginHandler.loginBotAccount();
                                 }
                                 if (channel != null) {
                                     channel.sendMessage(

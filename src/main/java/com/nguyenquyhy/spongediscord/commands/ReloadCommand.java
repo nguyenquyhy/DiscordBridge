@@ -4,15 +4,12 @@ import com.nguyenquyhy.spongediscord.SpongeDiscord;
 import com.nguyenquyhy.spongediscord.logics.ConfigHandler;
 import com.nguyenquyhy.spongediscord.logics.LoginHandler;
 import com.nguyenquyhy.spongediscord.models.GlobalConfig;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-
-import java.io.IOException;
 
 /**
  * Created by Hy on 1/5/2016.
@@ -24,12 +21,12 @@ public class ReloadCommand implements CommandExecutor {
         try {
             GlobalConfig config = ConfigHandler.loadConfiguration();
             SpongeDiscord.getInstance().setConfig(config);
-            logger.info("Configuration Reloaded!");
-            LoginHandler.loginGlobalAccount();
+            logger.info("Configuration reloaded!");
+            LoginHandler.loginBotAccount();
             return CommandResult.success();
         } catch (Exception e) {
             logger.error("Cannot reload configuration!", e);
+            return CommandResult.empty();
         }
-        return CommandResult.empty();
     }
 }

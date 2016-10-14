@@ -66,7 +66,7 @@ public class SpongeDiscord {
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
         CommandRegistry.register();
-        LoginHandler.loginGlobalAccount();
+        LoginHandler.loginBotAccount();
     }
 
     @Listener

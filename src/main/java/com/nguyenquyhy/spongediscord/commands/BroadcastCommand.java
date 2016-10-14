@@ -26,11 +26,11 @@ public class BroadcastCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
         String message = commandContext.<String>getOne("message").get();
-        broadcast(commandSource, message);
-        return CommandResult.empty();
+        boolean sent = broadcast(commandSource, message);
+        return sent ? CommandResult.success() : CommandResult.empty();
     }
 
-    private void broadcast(CommandSource commandSource, String message) {
+    private boolean broadcast(CommandSource commandSource, String message) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         GlobalConfig config = mod.getConfig();
         Logger logger = mod.getLogger();
@@ -38,30 +38,30 @@ public class BroadcastCommand implements CommandExecutor {
         DiscordAPI defaultClient = mod.getBotClient();
         if (defaultClient == null) {
             commandSource.sendMessage(Text.of(TextColors.RED, "You have to set up a Bot token first!"));
-            return;
+            return false;
         }
 
         message = TextUtil.formatMinecraftMessage(message);
 
         for (ChannelConfig channelConfig : config.channels) {
-            if (StringUtils.isNotBlank(channelConfig.discordId)) {
+            if (StringUtils.isNotBlank(channelConfig.discordId)
+                    && channelConfig.discord != null
+                    && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)) {
                 Channel channel = defaultClient.getChannelById(channelConfig.discordId);
-                if (channel == null) {
-                    logger.error("No active Discord connection is available!");
-                    continue;
-                }
-
-                if (StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)) {
+                if (channel != null) {
                     channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
                             MessageHandler.formatForDiscord(message, channelConfig.discord.broadcastTemplate)), false);
-                }
-
-                if (StringUtils.isNotBlank(channelConfig.minecraft.broadcastTemplate)) {
-                    for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                        player.sendMessage(Text.of(String.format(channelConfig.minecraft.broadcastTemplate, message)));
-                    }
+                } else {
+                    logger.error("No active Discord connection is available!");
                 }
             }
         }
+
+        if (StringUtils.isNotBlank(config.minecraftBroadcastTemplate)) {
+            for (Player player : Sponge.getServer().getOnlinePlayers()) {
+                player.sendMessage(Text.of(String.format(config.minecraftBroadcastTemplate, message)));
+            }
+        }
+        return true;
     }
 }

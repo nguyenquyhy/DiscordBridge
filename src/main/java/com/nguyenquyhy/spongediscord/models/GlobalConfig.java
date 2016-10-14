@@ -14,12 +14,15 @@ public class GlobalConfig {
     public GlobalConfig() {
         channels = new ArrayList<>();
         tokenStore = TokenStore.JSON;
+        minecraftBroadcastTemplate = "&2<BROADCAST> %s";
     }
 
     @Setting
     public String botToken;
     @Setting
     public TokenStore tokenStore;
+    @Setting
+    public String minecraftBroadcastTemplate;
     @Setting
     public List<ChannelConfig> channels;
 }

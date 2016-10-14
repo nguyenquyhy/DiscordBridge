@@ -2,6 +2,7 @@ package com.nguyenquyhy.spongediscord.logics;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.nguyenquyhy.spongediscord.SpongeDiscord;
+import com.nguyenquyhy.spongediscord.database.IStorage;
 import com.nguyenquyhy.spongediscord.models.ChannelConfig;
 import com.nguyenquyhy.spongediscord.models.GlobalConfig;
 import com.nguyenquyhy.spongediscord.utils.TextUtil;
@@ -30,7 +31,7 @@ import java.util.UUID;
  * Created by Hy on 8/6/2016.
  */
 public class LoginHandler {
-    public static boolean loginGlobalAccount() {
+    public static boolean loginBotAccount() {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Logger logger = mod.getLogger();
         GlobalConfig config = mod.getConfig();
@@ -56,19 +57,20 @@ public class LoginHandler {
         return true;
     }
 
-    public static boolean loginNormalAccount(Player player) {
+    public static void loginNormalAccount(Player player) {
         SpongeDiscord mod = SpongeDiscord.getInstance();
         Logger logger = mod.getLogger();
+        IStorage storage = mod.getStorage();
 
-        String cachedToken = mod.getStorage().getToken(player.getUniqueId());
-        if (null != cachedToken && !cachedToken.isEmpty()) {
-            player.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
+        if (storage != null) {
+            String cachedToken = mod.getStorage().getToken(player.getUniqueId());
+            if (null != cachedToken && !cachedToken.isEmpty()) {
+                player.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
 
-            DiscordAPI client = Javacord.getApi(cachedToken, false);
-            prepareHumanClient(client, player);
-            return true;
+                DiscordAPI client = Javacord.getApi(cachedToken, false);
+                prepareHumanClient(client, player);
+            }
         }
-        return false;
     }
 
     public static CommandResult login(CommandSource commandSource, String email, String password) {

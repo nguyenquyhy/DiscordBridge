@@ -27,15 +27,12 @@ public class ClientConnectionListener {
         Optional<Player> player = event.getCause().first(Player.class);
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
-            boolean loggedIn = false;
             if (!mod.getHumanClients().containsKey(playerId)) {
-                loggedIn = LoginHandler.loginNormalAccount(player.get());
+                LoginHandler.loginNormalAccount(player.get());
             }
 
-            if (!loggedIn && mod.getBotClient() != null) {
-                // User is not logged in => use global client
-                //unauthenticatedPlayers.add(playerId);
-
+            if (mod.getBotClient() != null) {
+                // Use Bot client to send joined message
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId)
                             && channelConfig.discord != null

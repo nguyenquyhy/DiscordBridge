@@ -10,11 +10,8 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 public class ChannelMinecraftConfig {
     void initializeDefault() {
         chatTemplate = "&7<%a> &f%s";
-        broadcastTemplate = "&2<BROADCAST> %s";
     }
 
     @Setting
     public String chatTemplate;
-    @Setting
-    public String broadcastTemplate;
 }
