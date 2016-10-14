@@ -1,9 +1,13 @@
 # CHANGE LOG
 
 ## 2.0.0
-- Support for multiple channels
+- Configuration is now stored in `config.json`. Old `config.conf` will be migrated automatically. 
+- Support for multiple channels.
 - Remove support for default account. Bot is compulsory now.
-- Replace the underlying library for Discord API to reduce imcompatibility with Sponge and Forge
+- Remove support for Invite token. You have to add permission for the Bot to your channels before using the plugin.
+- `/discord login` command now accepts no parameters and will give out warning and instructions to proceed.
+- `/discord broadcast` command now uses templates in configuration.
+- Replace the underlying library for Discord API to reduce incompatibility with Sponge and Forge.
 
 ## 1.4.0
 - URL from Discord is clickable in Minecraft.
