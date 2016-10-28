@@ -5,7 +5,7 @@
 1. Allow the bot to access the channels you will use (https://discordapp.com/developers/docs/topics/oauth2#adding-bots-to-guilds)
 1. Setup a Minecraft server with compatible [SpongeVanilla](https://docs.spongepowered.org/en/server/getting-started/implementations/spongevanilla.html) or [SpongeForge](https://docs.spongepowered.org/en/server/getting-started/implementations/spongeforge.html)
 1. Download Discord Bridge [latest release](https://github.com/nguyenquyhy/Sponge-Discord/releases) and put it in your server's mod folder
-1. Start the server to create a default config file at `configs/com.nguyenquyhy.spongediscord/config.json`
+1. Start the server to create a default config file at `configs/discordbridge/config.json`
 1. Set compulsory values in the newly created config file
     - `botToken`: token of your _App Bot User_ of your Bot in http://discordapp.com/developers/applications/me
     - `discordId` of each channel: the ID of your Discord channel. Check our 
