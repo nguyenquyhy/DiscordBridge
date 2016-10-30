@@ -2,6 +2,7 @@ package com.nguyenquyhy.discordbridge.models;
 
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -30,11 +31,28 @@ public class ChannelDiscordConfig {
     @Setting
     public SpongeChannelConfig staffChat;
     @Setting
-    public List<SpongeChannelConfig> clansChat;
-    @Setting
     public String serverUpMessage;
     @Setting
     public String serverDownMessage;
     @Setting
     public String broadcastTemplate;
+
+
+    @Deprecated
+    @Setting
+    public String anonymousChatTemplate;
+    @Deprecated
+    @Setting
+    public String authenticatedChatTemplate;
+
+    void migrate() {
+        if (StringUtils.isNotBlank(anonymousChatTemplate)) {
+            if (publicChat == null) publicChat = new SpongeChannelConfig();
+            publicChat.anonymousChatTemplate = anonymousChatTemplate;
+        }
+        if (StringUtils.isNotBlank(authenticatedChatTemplate)) {
+            if (publicChat == null) publicChat = new SpongeChannelConfig();
+            publicChat.authenticatedChatTemplate = authenticatedChatTemplate;
+        }
+    }
 }

@@ -80,6 +80,9 @@ public class ConfigHandler {
             }
             config.channels.add(channel);
         }
+
+        config.migrate();
+
         configNode.setValue(TypeToken.of(GlobalConfig.class), config);
         configLoader.save(configNode);
         logger.info("Configuration loaded.");

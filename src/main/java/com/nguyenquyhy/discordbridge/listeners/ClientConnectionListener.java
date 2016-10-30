@@ -5,6 +5,7 @@ import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +41,8 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
                         Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
                         channel.sendMessage(String.format(channelConfig.discord.joinedTemplate,
-                                MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s")), false);
+                                MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s"))
+                                + TextUtil.SPECIAL_CHAR, false);
                     }
                 }
             }
@@ -66,7 +68,8 @@ public class ClientConnectionListener {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
                             channel.sendMessage(String.format(channelConfig.discord.leftTemplate,
-                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s")), false);
+                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s"))
+                                    + TextUtil.SPECIAL_CHAR, false);
                         }
                     }
                     mod.removeAndLogoutClient(playerId);

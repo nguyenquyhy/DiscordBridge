@@ -18,10 +18,13 @@ public class ChannelConfig {
 
     @Setting
     public String discordId;
-//    @Setting
-//    public String discordInviteCode;
     @Setting
     public ChannelDiscordConfig discord;
     @Setting
     public ChannelMinecraftConfig minecraft;
+
+    public void migrate() {
+        if (discord != null)
+            discord.migrate();
+    }
 }

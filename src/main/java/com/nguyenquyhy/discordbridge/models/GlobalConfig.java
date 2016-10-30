@@ -26,4 +26,10 @@ public class GlobalConfig {
     public String minecraftBroadcastTemplate;
     @Setting
     public List<ChannelConfig> channels;
+
+    public void migrate() {
+        if (channels != null) {
+            channels.forEach(ChannelConfig::migrate);
+        }
+    }
 }
