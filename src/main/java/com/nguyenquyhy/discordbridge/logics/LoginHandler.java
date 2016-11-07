@@ -5,6 +5,7 @@ import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.database.IStorage;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.Javacord;
@@ -147,10 +148,10 @@ public class LoginHandler {
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId)) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
-                        if (channel == null) {
-                            logger.warn("Cannot access channel " + channelConfig.discordId + " from Bot account! Please make sure the bot has read & write permission.");
-                        } else {
+                        if (channel != null) {
                             channelJoined(client, channelConfig, channel, commandSource);
+                        } else {
+                            ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }
                     } else {
                         logger.warn("Channel with empty ID!");
@@ -194,12 +195,10 @@ public class LoginHandler {
                     for (ChannelConfig channelConfig : config.channels) {
                         if (StringUtils.isNotBlank(channelConfig.discordId)) {
                             Channel channel = client.getChannelById(channelConfig.discordId);
-                            if (channel == null) {
-                                logger.error("Cannot find channel with ID " + channelConfig.discordId);
-                                //logger.info("Accepting channel invite");
-                                //acceptInvite(client, channelConfig, commandSource);
-                            } else {
+                            if (channel != null) {
                                 channelJoined(client, channelConfig, channel, commandSource);
+                            } else {
+                                ErrorMessages.CHANNEL_NOT_FOUND_HUMAN.log(channelConfig.discordId);
                             }
                         } else {
                             logger.warn("Channel with empty ID!");

@@ -4,6 +4,7 @@ import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
@@ -52,7 +53,7 @@ public class BroadcastCommand implements CommandExecutor {
                     channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
                             MessageHandler.formatForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
                 } else {
-                    logger.error("No active Discord connection is available!");
+                    ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                 }
             }
         }

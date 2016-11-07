@@ -8,6 +8,7 @@ import com.nguyenquyhy.discordbridge.logics.ConfigHandler;
 import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -30,7 +31,7 @@ import java.util.*;
  * Created by Hy on 1/4/2016.
  */
 @Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.1.0",
-        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy" })
+        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = {"Hy"})
 public class DiscordBridge {
     private DiscordAPI consoleClient = null;
     private final Map<UUID, DiscordAPI> humanClients = new HashMap<>();
@@ -79,6 +80,8 @@ public class DiscordBridge {
                     Channel channel = botClient.getChannelById(channelConfig.discordId);
                     if (channel != null) {
                         channel.sendMessage(channelConfig.discord.serverDownMessage, false);
+                    } else {
+                        ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                     }
                 }
             }

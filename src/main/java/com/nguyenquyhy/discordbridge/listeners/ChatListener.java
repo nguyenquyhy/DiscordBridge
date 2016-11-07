@@ -5,6 +5,7 @@ import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
@@ -63,6 +64,11 @@ public class ChatListener {
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId) && channelConfig.discord != null) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
+
+                        if (channel == null) {
+                            ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
+                            return;
+                        }
 
                         String template = null;
                         if (!isStaffChat && channelConfig.discord.publicChat != null) {
