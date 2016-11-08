@@ -44,25 +44,25 @@ public class BroadcastCommand implements CommandExecutor {
 
         // Send to Discord
         String discordMessage = TextUtil.formatMinecraftMessage(message);
-        for (ChannelConfig channelConfig : config.channels) {
-            if (StringUtils.isNotBlank(channelConfig.discordId)
-                    && channelConfig.discord != null
-                    && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)) {
-                Channel channel = defaultClient.getChannelById(channelConfig.discordId);
-                if (channel != null) {
-                    channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
-                            MessageHandler.formatForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
-                } else {
-                    ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
-                }
+        config.channels.stream().filter(channelConfig -> StringUtils.isNotBlank(channelConfig.discordId)
+                && channelConfig.discord != null
+                && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)).forEach(channelConfig -> {
+            Channel channel = defaultClient.getChannelById(channelConfig.discordId);
+            if (channel != null) {
+                channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
+                        MessageHandler.formatForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
+                logger.info("[BROADCAST DISCORD] " + discordMessage);
+            } else {
+                ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
             }
-        }
+        });
 
         // Send to Minecraft
         if (StringUtils.isNotBlank(config.minecraftBroadcastTemplate)) {
             for (Player player : Sponge.getServer().getOnlinePlayers()) {
                 player.sendMessage(TextUtil.formatUrl(String.format(config.minecraftBroadcastTemplate, message)));
             }
+            logger.info("[BROADCAST MINECRAFT] " + message);
         }
         return true;
     }

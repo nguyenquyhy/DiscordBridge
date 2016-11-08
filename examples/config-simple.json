@@ -7,8 +7,10 @@
       "discordId": "DISCORD_PUBLIC_CHANNEL_ID",
       "discordInviteCode": "DISCORD_INVITATION_CODE",
       "discord": {
-        "authenticatedChatTemplate": "%s",
-        "anonymousChatTemplate": "`%a:` %s",
+        "publicChat": {
+          "authenticatedChatTemplate": "%s",
+          "anonymousChatTemplate": "`%a:` %s"
+        },
         "joinedTemplate": "_%s just joined the server_",
         "leftTemplate": "_%s just left the server_",
         "serverUpMessage": "Server has started.",

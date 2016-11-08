@@ -49,10 +49,12 @@ public class ChannelDiscordConfig {
         if (StringUtils.isNotBlank(anonymousChatTemplate)) {
             if (publicChat == null) publicChat = new SpongeChannelConfig();
             publicChat.anonymousChatTemplate = anonymousChatTemplate;
+            anonymousChatTemplate = null;
         }
         if (StringUtils.isNotBlank(authenticatedChatTemplate)) {
             if (publicChat == null) publicChat = new SpongeChannelConfig();
             publicChat.authenticatedChatTemplate = authenticatedChatTemplate;
+            authenticatedChatTemplate = null;
         }
     }
 }

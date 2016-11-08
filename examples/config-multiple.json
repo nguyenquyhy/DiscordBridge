@@ -7,8 +7,10 @@
       "discordId": "DISCORD_PUBLIC_CHANNEL_ID",
       "discordInviteCode": "DISCORD_INVITATION_CODE",
       "discord": {
-        "authenticatedChatTemplate": "%s",
-        "anonymousChatTemplate": "`%a:` %s",
+        "publicChat": {
+          "authenticatedChatTemplate": "%s",
+          "anonymousChatTemplate": "`%a:` %s"
+        },
         "broadcastTemplate": "_<BROADCAST> %s_"
       },
       "minecraft": {
@@ -26,6 +28,12 @@
     },
     {
       "discordId": "DISCORD_STAFF_BROADCAST_CHANNEL_ID",
+      "minecraft": {
+        "chatTemplate": "&l&2<ANNOUNCEMENT> %s"
+      }
+    },
+    {
+      "discordId": "DISCORD_STAFF_CHAT_CHANNEL_ID",
       "minecraft": {
         "chatTemplate": "&l&2<ANNOUNCEMENT> %s"
       }

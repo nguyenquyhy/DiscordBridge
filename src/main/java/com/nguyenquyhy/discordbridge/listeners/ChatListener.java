@@ -26,6 +26,7 @@ import java.util.UUID;
 public class ChatListener {
     /**
      * Send chat from Minecraft to Discord
+     *
      * @param event
      */
     @Listener(order = Order.POST)
@@ -54,54 +55,45 @@ public class ChatListener {
             UUID playerId = player.get().getUniqueId();
 
             DiscordAPI client = mod.getBotClient();
-            boolean isDefaultAccount = true;
+            boolean isBotAccount = true;
             if (mod.getHumanClients().containsKey(playerId)) {
                 client = mod.getHumanClients().get(playerId);
-                isDefaultAccount = false;
+                isBotAccount = false;
             }
 
             if (client != null) {
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId) && channelConfig.discord != null) {
-                        Channel channel = client.getChannelById(channelConfig.discordId);
-
-                        if (channel == null) {
-                            ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
-                            return;
-                        }
-
                         String template = null;
                         if (!isStaffChat && channelConfig.discord.publicChat != null) {
-                            template = isDefaultAccount ? channelConfig.discord.publicChat.anonymousChatTemplate : channelConfig.discord.publicChat.authenticatedChatTemplate;
-                        }
-                        else if (isStaffChat && channelConfig.discord.staffChat != null) {
-                            template = isDefaultAccount ? channelConfig.discord.staffChat.anonymousChatTemplate : channelConfig.discord.staffChat.authenticatedChatTemplate;
+                            template = isBotAccount ? channelConfig.discord.publicChat.anonymousChatTemplate : channelConfig.discord.publicChat.authenticatedChatTemplate;
+                        } else if (isStaffChat && channelConfig.discord.staffChat != null) {
+                            template = isBotAccount ? channelConfig.discord.staffChat.anonymousChatTemplate : channelConfig.discord.staffChat.authenticatedChatTemplate;
                         }
 
                         if (StringUtils.isNotBlank(template)) {
-                            if (isDefaultAccount) {
-                                if (channel == null) {
-                                    LoginHandler.loginBotAccount();
-                                }
-                                if (channel != null) {
-                                    channel.sendMessage(
-                                            String.format(
-                                                    template.replace("%a",
-                                                            MessageHandler.formatForDiscord(player.get().getName(), template, "%a")),
-                                                    plainString),
-                                            false);
-                                } else {
-                                    logger.warn("Cannot re-login default account!");
-                                }
+                            Channel channel = client.getChannelById(channelConfig.discordId);
+
+                            if (channel == null) {
+                                ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
+                                return;
+                            }
+
+                            if (isBotAccount) {
+//                                if (channel == null) {
+//                                    LoginHandler.loginBotAccount();
+//                                }
+                                channel.sendMessage(
+                                        String.format(
+                                                template.replace("%a",
+                                                        MessageHandler.formatForDiscord(player.get().getName(), template, "%a")),
+                                                plainString),
+                                        false);
                             } else {
-                                if (channel == null) {
-                                    LoginHandler.loginHumanAccount(player.get());
-                                }
-                                if (channel != null) {
-                                    channel.sendMessage(String.format(template, plainString), false);
-                                } else {
-                                    logger.warn("Cannot re-login user account!");
-                                }
+//                                if (channel == null) {
+//                                    LoginHandler.loginHumanAccount(player.get());
+//                                }
+                                channel.sendMessage(String.format(template, plainString), false);
                             }
                         }
                     }
