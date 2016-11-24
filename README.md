@@ -31,6 +31,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 ## Commands
 
 - `/discord login`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
+- `/discord opt`: One-time password for Discord login _(thanks Prototik)_.
 - `/discord logout`: logout of Discord and unbind the Discord account from the Minecraft account. 
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.
 - `/discord status`: show current connection status.
@@ -41,6 +42,7 @@ A short summary is below:
 | Command | Shorthand | Permission |
 |---------|-----------|------------|
 | `/discord login` | `/d l` | `spongediscord.login` |
+| `/discord otp` | `/d otp` | `spongediscord.login` |
 | `/discord logout` | `/d lo` | `spongediscord.login` |
 | `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
 | `/discord status` | `/d s` | `spongediscord.status` |
@@ -61,6 +63,8 @@ Configuration is stored in `config.json` file.
   - `botToken`: App Bot User's token
   - `tokenStore`: `JSON` (default) or `NONE` (user authentication will be disabled) or `InMemory` (mainly for testing)
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
+  - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka2)_
+  - `cancelAllMessagesFromBot`: cancel all messages from Bot or only messages sent by the plugin _(thanks, Vankka2)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
