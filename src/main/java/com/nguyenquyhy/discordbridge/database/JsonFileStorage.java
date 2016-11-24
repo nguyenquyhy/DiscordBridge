@@ -14,9 +14,6 @@ import java.util.UUID;
  * Created by Hy on 1/6/2016.
  */
 public class JsonFileStorage implements IStorage {
-    @SuppressWarnings("unused")
-	private final String DEFAULT_NODE = "DEFAULT";
-
     private final ConfigurationLoader<? extends ConfigurationNode> configLoader;
     private ConfigurationNode configNode;
 

@@ -3,6 +3,7 @@ package com.nguyenquyhy.discordbridge.utils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
+import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
@@ -13,7 +14,9 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,18 +30,41 @@ public class TextUtil {
 
     private static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
 
-    public static String formatDiscordEmoji(String message) {
+    public static String formatDiscordMessage(String message) {
         for (Emoji emoji : Emoji.values()) {
             message = message.replace(emoji.unicode, emoji.minecraftFormat);
         }
         return message;
     }
 
-    public static String formatMinecraftMessage(String message) {
+    public static String formatMinecraftMessage(String message, GlobalConfig config) {
         for (Emoji emoji : Emoji.values()) {
             message = message.replace(emoji.minecraftFormat, emoji.discordFormat);
         }
-        return message + SPECIAL_CHAR;
+        return formatForDiscord(message, config);
+    }
+
+    public static String formatForDiscord(String message, GlobalConfig config) {
+        if (config.cancelAllMessagesFromBot)
+            return message;
+        else
+            return message + SPECIAL_CHAR;
+    }
+
+    private static Map<String, Map<String, Boolean>> needReplacementMap = new HashMap<>();
+
+    public static String escapeForDiscord(String text, String template, String token) {
+        if (!needReplacementMap.containsKey(token)) {
+            needReplacementMap.put(token, new HashMap<>());
+        }
+        Map<String, Boolean> needReplacement = needReplacementMap.get(token);
+        if (!needReplacement.containsKey(template)) {
+            boolean need = !Pattern.matches(".*`.*" + token + ".*`.*", template)
+                    && Pattern.matches(".*_.*" + token + ".*_.*", template);
+            needReplacement.put(template, need);
+        }
+        if (needReplacement.get(template)) text = text.replace("_", "\\_");
+        return text;
     }
 
     public static Text formatUrl(String message) {

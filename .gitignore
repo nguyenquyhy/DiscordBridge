@@ -1,7 +1,10 @@
 /.gradle
 /.idea
+/.classpath
+/.project
 /build
 /classes
 /run
 /*.iml
 /bin/
+/.settings/

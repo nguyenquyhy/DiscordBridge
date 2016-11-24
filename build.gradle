@@ -8,7 +8,7 @@ plugins {
 defaultTasks 'build', 'shadowJar'
 
 group = 'com.nguyenquyhy'
-version = '2.1.0'
+version = '2.2.0'
 description = 'A plugin to connect Discord and Minecraft'
 sourceCompatibility = 1.8
 
@@ -51,7 +51,7 @@ dependencies {
 }
 
 task fatJar(type: Jar) {
-    baseName = project.name + '-vFork'
+    baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }

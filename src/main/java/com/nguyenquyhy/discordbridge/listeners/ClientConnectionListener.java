@@ -42,9 +42,9 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
                         Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
                         if (channel != null) {
-                            channel.sendMessage(String.format(channelConfig.discord.joinedTemplate,
-                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s"))
-                                    + TextUtil.SPECIAL_CHAR, false);
+                            channel.sendMessage(TextUtil.formatForDiscord(String.format(channelConfig.discord.joinedTemplate,
+                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s")),
+                                    config), false);
                         } else {
                             ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }
@@ -72,9 +72,9 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.leftTemplate)) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
-                            channel.sendMessage(String.format(channelConfig.discord.leftTemplate,
-                                    MessageHandler.formatForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s"))
-                                    + TextUtil.SPECIAL_CHAR, false);
+                            channel.sendMessage(TextUtil.formatForDiscord(String.format(channelConfig.discord.leftTemplate,
+                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s")),
+                                    config), false);
                         } else {
                             ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }

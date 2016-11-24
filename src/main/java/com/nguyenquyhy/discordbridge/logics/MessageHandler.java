@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 public class MessageHandler {
     /**
      * Forward Discord messages to Minecraft
+     *
      * @param message
      */
     public static void discordMessageReceived(Message message) {
@@ -27,46 +28,34 @@ public class MessageHandler {
         Logger logger = mod.getLogger();
         GlobalConfig config = mod.getConfig();
 
-        String botid = mod.getBotClient().getYourself().getId();
-        String content = TextUtil.formatDiscordEmoji(message.getContent());
+        String botId = mod.getBotClient().getYourself().getId();
+        String content = TextUtil.formatDiscordMessage(message.getContent());
         for (ChannelConfig channelConfig : config.channels) {
-        	if(StringUtils.isNotBlank(config.prefixBlacklist)){
-        		if(content.startsWith(config.prefixBlacklist)){
-        			return;
-        		}
-        	} 
-        	if(config.cancelMessageFromBot == true){
-        		if(message.getAuthor().getId().equals(botid)){
-        			return;
-        		}
-        	}   
+
+            if (config.prefixBlacklist != null) {
+                for (String prefix : config.prefixBlacklist) {
+                    if (StringUtils.isNotBlank(prefix) && content.startsWith(prefix)) {
+                        return;
+                    }
+                }
+            }
+            if (config.cancelAllMessagesFromBot && message.getAuthor().getId().equals(botId)) {
+                return;
+            }
+            if (!config.cancelAllMessagesFromBot && content.contains(TextUtil.SPECIAL_CHAR)) {
+                return;
+            }
+
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.minecraft != null
                     && StringUtils.isNotBlank(channelConfig.minecraft.chatTemplate)
-                    && message.getChannelReceiver().getId().equals(channelConfig.discordId)
-                    && !content.contains(TextUtil.SPECIAL_CHAR) /* Not sending back message from this plugin */) {
-            	String author = message.getAuthor().getName();
+                    && message.getChannelReceiver().getId().equals(channelConfig.discordId)) {
+                String author = message.getAuthor().getName();
                 Text formattedMessage = TextUtil.formatUrl(String.format(channelConfig.minecraft.chatTemplate.replace("%a", author), content));
                 // This case is used for default account
                 logger.info(formattedMessage.toPlain());
                 Sponge.getServer().getOnlinePlayers().forEach(p -> p.sendMessage(formattedMessage));
             }
         }
-    }
-
-    private static Map<String, Map<String, Boolean>> needReplacementMap = new HashMap<>();
-
-    public static String formatForDiscord(String text, String template, String token) {
-        if (!needReplacementMap.containsKey(token)) {
-            needReplacementMap.put(token, new HashMap<>());
-        }
-        Map<String, Boolean> needReplacement = needReplacementMap.get(token);
-        if (!needReplacement.containsKey(template)) {
-            boolean need = !Pattern.matches(".*`.*" + token + ".*`.*", template)
-                    && Pattern.matches(".*_.*" + token + ".*_.*", template);
-            needReplacement.put(template, need);
-        }
-        if (needReplacement.get(template)) text = text.replace("_", "\\_");
-        return text;
     }
 }

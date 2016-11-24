@@ -207,7 +207,7 @@ public class LoginHandler {
                     if (StringUtils.isNotBlank(channelConfig.discordId)) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
-                            channelJoined(client, channelConfig, channel, commandSource);
+                            channelJoined(client, config, channelConfig, channel, commandSource);
                         } else {
                             ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }
@@ -254,7 +254,7 @@ public class LoginHandler {
                         if (StringUtils.isNotBlank(channelConfig.discordId)) {
                             Channel channel = client.getChannelById(channelConfig.discordId);
                             if (channel != null) {
-                                channelJoined(client, channelConfig, channel, commandSource);
+                                channelJoined(client, config, channelConfig, channel, commandSource);
                             } else {
                                 ErrorMessages.CHANNEL_NOT_FOUND_HUMAN.log(channelConfig.discordId);
                             }
@@ -299,7 +299,7 @@ public class LoginHandler {
 //        return null;
 //    }
 
-    private static void channelJoined(DiscordAPI client, ChannelConfig channelConfig, Channel channel, CommandSource src) {
+    private static void channelJoined(DiscordAPI client, GlobalConfig config, ChannelConfig channelConfig, Channel channel, CommandSource src) {
         DiscordBridge mod = DiscordBridge.getInstance();
         Logger logger = mod.getLogger();
 
@@ -317,7 +317,7 @@ public class LoginHandler {
             } else {
                 logger.info("Bot account has connected to Discord channel " + channelConfig.discordId + ".");
                 if (StringUtils.isNotBlank(channelConfig.discord.serverUpMessage)) {
-                    channel.sendMessage(channelConfig.discord.serverUpMessage + TextUtil.SPECIAL_CHAR, false);
+                    channel.sendMessage(TextUtil.formatForDiscord(channelConfig.discord.serverUpMessage, config), false);
                 }
             }
         }

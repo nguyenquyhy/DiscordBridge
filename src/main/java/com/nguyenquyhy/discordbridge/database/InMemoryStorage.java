@@ -9,8 +9,6 @@ import java.util.UUID;
  */
 public class InMemoryStorage implements IStorage {
     private final Map<UUID, String> tokens = new HashMap<>();
-    @SuppressWarnings("unused")
-	private String defaultToken = null;
 
     @Override
     public void putToken(UUID player, String token) {

@@ -30,10 +30,10 @@ import java.util.*;
 /**
  * Created by Hy on 1/4/2016.
  */
-@Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.1.0",
-        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = {"Hy"})
+@Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.2.0",
+        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy" })
 public class DiscordBridge {
-            
+
     private DiscordAPI consoleClient = null;
     private final Map<UUID, DiscordAPI> humanClients = new HashMap<>();
     private DiscordAPI botClient = null;

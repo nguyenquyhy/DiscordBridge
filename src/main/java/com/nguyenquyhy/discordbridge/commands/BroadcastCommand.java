@@ -42,14 +42,14 @@ public class BroadcastCommand implements CommandExecutor {
         }
 
         // Send to Discord
-        String discordMessage = TextUtil.formatMinecraftMessage(message);
+        String discordMessage = TextUtil.formatMinecraftMessage(message, config);
         config.channels.stream().filter(channelConfig -> StringUtils.isNotBlank(channelConfig.discordId)
                 && channelConfig.discord != null
                 && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)).forEach(channelConfig -> {
             Channel channel = defaultClient.getChannelById(channelConfig.discordId);
             if (channel != null) {
                 channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
-                        MessageHandler.formatForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
+                        TextUtil.escapeForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
                 logger.info("[BROADCAST DISCORD] " + discordMessage);
             } else {
                 ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);

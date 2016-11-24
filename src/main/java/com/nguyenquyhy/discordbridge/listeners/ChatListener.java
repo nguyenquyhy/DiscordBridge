@@ -32,8 +32,6 @@ public class ChatListener {
     public void onChat(MessageChannelEvent.Chat event) {
         DiscordBridge mod = DiscordBridge.getInstance();
         GlobalConfig config = mod.getConfig();
-        @SuppressWarnings("unused")
-		Logger logger = mod.getLogger();
 
         if (event.isCancelled() || event.isMessageCancelled()) return;
         boolean isStaffChat = false;
@@ -48,7 +46,7 @@ public class ChatListener {
         String plainString = event.getRawMessage().toPlain().trim();
         if (StringUtils.isBlank(plainString) || plainString.startsWith("/")) return;
 
-        plainString = TextUtil.formatMinecraftMessage(plainString);
+        plainString = TextUtil.formatMinecraftMessage(plainString, config);
         Optional<Player> player = event.getCause().first(Player.class);
 
         if (player.isPresent()) {
@@ -86,7 +84,7 @@ public class ChatListener {
                                 channel.sendMessage(
                                         String.format(
                                                 template.replace("%a",
-                                                        MessageHandler.formatForDiscord(player.get().getName(), template, "%a")),
+                                                        TextUtil.escapeForDiscord(player.get().getName(), template, "%a")),
                                                 plainString),
                                         false);
                             } else {
