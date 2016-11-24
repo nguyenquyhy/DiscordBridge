@@ -1,6 +1,10 @@
 package com.nguyenquyhy.discordbridge.logics;
 
 import com.google.common.util.concurrent.FutureCallback;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.database.IStorage;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
@@ -13,6 +17,7 @@ import de.btobastian.javacord.entities.Channel;
 import de.btobastian.javacord.entities.User;
 import de.btobastian.javacord.listener.message.MessageCreateListener;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -25,6 +30,8 @@ import org.spongepowered.api.text.format.TextStyles;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -79,11 +86,62 @@ public class LoginHandler {
         return false;
     }
 
+    private static Map<CommandSource, String> MFA_TICKETS = new HashMap<>();
+
     public static CommandResult login(CommandSource commandSource, String email, String password) {
         logout(commandSource, true);
 
-        DiscordAPI client = Javacord.getApi(email, password);
-        prepareHumanClient(client, commandSource);
+        try {
+            HttpResponse<JsonNode> response = Unirest.post("https://discordapp.com/api/v6/auth/login")
+                    .header("content-type", "application/json")
+                    .body(new JSONObject().put("email", email).put("password", password))
+                    .asJson();
+            if (response.getStatus() != 200) {
+                DiscordBridge.getInstance().getLogger().info("Auth response {} code with: {}", response.getStatus(), response.getBody());
+                commandSource.sendMessage(Text.of(TextColors.RED, "Wrong email or password!"));
+                return CommandResult.empty();
+            }
+            JSONObject result = response.getBody().getObject();
+            if (result.has("mfa") && result.getBoolean("mfa")) {
+                MFA_TICKETS.put(commandSource, result.getString("ticket"));
+                commandSource.sendMessage(Text.of(TextColors.GREEN, "Additional authorization required! Please type '/discord otp <code>' within a code from your authorization app"));
+            } else if (result.has("token")) {
+                String token = result.getString("token");
+                prepareHumanClient(Javacord.getApi(token, false), commandSource);
+            } else {
+                commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
+            }
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
+            return CommandResult.empty();
+        }
+
+        return CommandResult.success();
+    }
+
+    public static CommandResult otp(CommandSource commandSource, int code) {
+        String ticket = MFA_TICKETS.remove(commandSource);
+        if (ticket == null) {
+            commandSource.sendMessage(Text.of(TextColors.RED, "No OTP auth queued!"));
+            return CommandResult.empty();
+        }
+        try {
+            HttpResponse<JsonNode> response = Unirest.post("https://discordapp.com/api/v6/auth/mfa/totp")
+                    .header("content-type", "application/json")
+                    .body(new JSONObject().put("code", String.format("%06d", code)).put("ticket", ticket))
+                    .asJson();
+            if (response.getStatus() != 200) {
+                commandSource.sendMessage(Text.of(TextColors.RED, "Wrong auth code! Retry with '/discord loginconfirm <email> <password>'"));
+                return CommandResult.empty();
+            }
+            String token = response.getBody().getObject().getString("token");
+            prepareHumanClient(Javacord.getApi(token, false), commandSource);
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
+            return CommandResult.empty();
+        }
 
         return CommandResult.success();
     }

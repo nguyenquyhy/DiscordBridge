@@ -52,6 +52,13 @@ public class CommandRegistry {
                 .executor(new StatusCommand())
                 .build();
 
+        CommandSpec otpCmd = CommandSpec.builder()
+                .permission("discordbridge.login")
+                .description(Text.of("Additional authorization for 2FA-enabled user accounts"))
+                .arguments(GenericArguments.onlyOne(GenericArguments.integer(Text.of("code"))))
+                .executor(new OtpCommand())
+                .build();
+
         CommandSpec mainCommandSpec = CommandSpec.builder()
                 //.permission("discordbridge")
                 .description(Text.of("Discord in Minecraft"))
@@ -61,6 +68,7 @@ public class CommandRegistry {
                 .child(reloadCmd, "reload")
                 .child(broadcastCmd, "broadcast", "b", "bc")
                 .child(statusCmd, "status", "s")
+                .child(otpCmd, "otp", "o")
                 .build();
 
         DiscordBridge mod = DiscordBridge.getInstance();
