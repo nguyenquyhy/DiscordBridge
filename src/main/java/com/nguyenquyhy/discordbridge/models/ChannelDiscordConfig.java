@@ -4,8 +4,6 @@ import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.List;
-
 /**
  * Created by Hy on 10/13/2016.
  */

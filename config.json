@@ -2,7 +2,6 @@
   "tokenStore": "JSON",
   "botToken": "APP_BOT_USER_TOKEN",
   "prefixBlacklist": "",
-  "cancelMessageFromBot": false,
   "minecraftBroadcastTemplate": "&2<BROADCAST> %s",
   "channels": [
     {

@@ -51,7 +51,7 @@ dependencies {
 }
 
 task fatJar(type: Jar) {
-    baseName = project.name + '-all'
+    baseName = project.name + '-vFork'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }

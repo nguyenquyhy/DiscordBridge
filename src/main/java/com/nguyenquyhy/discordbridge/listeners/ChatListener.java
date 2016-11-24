@@ -1,7 +1,6 @@
 package com.nguyenquyhy.discordbridge.listeners;
 
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
@@ -33,7 +32,8 @@ public class ChatListener {
     public void onChat(MessageChannelEvent.Chat event) {
         DiscordBridge mod = DiscordBridge.getInstance();
         GlobalConfig config = mod.getConfig();
-        Logger logger = mod.getLogger();
+        @SuppressWarnings("unused")
+		Logger logger = mod.getLogger();
 
         if (event.isCancelled() || event.isMessageCancelled()) return;
         boolean isStaffChat = false;

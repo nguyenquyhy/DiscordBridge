@@ -12,7 +12,8 @@ public enum ErrorMessages {
     BOT_TOKEN_NOT_FOUND;
 
 
-    public void log(String... params) {
+    @SuppressWarnings("incomplete-switch")
+	public void log(String... params) {
         Logger logger = DiscordBridge.getInstance().getLogger();
         switch (this) {
             case CHANNEL_NOT_FOUND:
