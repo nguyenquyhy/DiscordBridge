@@ -41,12 +41,12 @@ A short summary is below:
 
 | Command | Shorthand | Permission |
 |---------|-----------|------------|
-| `/discord login` | `/d l` | `spongediscord.login` |
-| `/discord otp` | `/d otp` | `spongediscord.login` |
-| `/discord logout` | `/d lo` | `spongediscord.login` |
-| `/discord broadcast <message>` | `/d b <message>` | `spongediscord.broadcast` |
-| `/discord status` | `/d s` | `spongediscord.status` |
-| `/discord reload` | `/d reload` | `spongediscord.reload` |
+| `/discord login` | `/d l` | `discordbridge.login` |
+| `/discord otp` | `/d otp` | `discordbridge.login` |
+| `/discord logout` | `/d lo` | `discordbridge.login` |
+| `/discord broadcast <message>` | `/d b <message>` | `discordbridge.broadcast` |
+| `/discord status` | `/d s` | `discordbridge.status` |
+| `/discord reload` | `/d reload` | `discordbridge.reload` |
 
 Some ideas for future commands
 
