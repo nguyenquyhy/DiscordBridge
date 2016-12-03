@@ -63,8 +63,8 @@ Configuration is stored in `config.json` file.
   - `botToken`: App Bot User's token
   - `tokenStore`: `JSON` (default) or `NONE` (user authentication will be disabled) or `InMemory` (mainly for testing)
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
-  - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka2)_
-  - `cancelAllMessagesFromBot`: cancel all messages from Bot or only messages sent by the plugin _(thanks, Vankka2)_
+  - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka)_
+  - `cancelAllMessagesFromBot`: cancel all messages from Bot or only messages sent by the plugin _(thanks, Vankka)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
