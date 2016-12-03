@@ -3,6 +3,7 @@
   "botToken": "APP_BOT_USER_TOKEN",
   "prefixBlacklist": ["!"],
   "cancelAllMessagesFromBot": false,
+  "botDiscordGame": "Minecraft",
   "minecraftBroadcastTemplate": "&2<BROADCAST> %s",
   "channels": [
     {

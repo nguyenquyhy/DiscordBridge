@@ -16,6 +16,7 @@ public class GlobalConfig {
         tokenStore = TokenStore.JSON;
         prefixBlacklist = new ArrayList<>();
         cancelAllMessagesFromBot = true;
+        botDiscordGame = "Minecraft";
         minecraftBroadcastTemplate = "&2<BROADCAST> %s";
         botToken = "";
     }
@@ -28,6 +29,8 @@ public class GlobalConfig {
     public List<String> prefixBlacklist;
     @Setting
     public Boolean cancelAllMessagesFromBot;
+    @Setting
+    public String botDiscordGame;
     @Setting
     public String minecraftBroadcastTemplate;
     @Setting
