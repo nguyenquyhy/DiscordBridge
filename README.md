@@ -35,7 +35,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 ## Commands
 
 - `/discord login`: login to Discord and bind the Discord account to the Minecraft account for automatic login in the future. The email and password will not be stored; instead, the access token of the user will be stored in the config folder on the server.
-- `/discord opt`: One-time password for Discord login _(thanks Prototik)_.
+- `/discord otp`: One-time password for Discord login _(thanks Prototik)_.
 - `/discord logout`: logout of Discord and unbind the Discord account from the Minecraft account. 
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.
 - `/discord status`: show current connection status.
@@ -89,7 +89,7 @@ You can find some example configurations in `examples` folders.
 ### How to get channel ID
 
 1. Open `User Settings` in Discord, then open `Appearance` section and tick `Developer Mode`
-1. Right lick any channel and click `Copy ID`
+1. Right click any channel and click `Copy ID`
 
 ## CHANGELOG
 
@@ -97,6 +97,12 @@ You can find some example configurations in `examples` folders.
 
 ## TODO
 
+* 2.3.0
+- [ ] Mentions in Discord should show proper names in Minecraft
+- [ ] Attachments in Discord should show proper links in Minecraft
+
+* Future
+- [ ] MySQL token store
 - [ ] Group-based prefix
 - [ ] Handle custom Sponge channels (e.g. MCClan and staff chat of Nucleus)
 - [ ] Image upload in Discord should show links in Minecraft
