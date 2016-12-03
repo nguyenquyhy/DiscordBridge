@@ -65,7 +65,7 @@ Configuration is stored in `config.json` file.
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
   - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka)_
   - `cancelAllMessagesFromBot`: cancel all messages from Bot or only messages sent by the plugin _(thanks, Vankka)_
-  - `botDiscordGame`: sets the game of the bot in Discord () _(thanks, Vankka)_
+  - `botDiscordGame`: sets the game of the bot in Discord _(thanks, Vankka)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
