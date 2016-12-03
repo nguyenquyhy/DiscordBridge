@@ -196,6 +196,11 @@ public class LoginHandler {
                 if (user != null)
                     name = user.getName();
                 String text = "Bot account " + name + " will be used for all unauthenticated users!";
+                if(StringUtils.isNotBlank(config.botDiscordGame)) {
+                	client.setGame(config.botDiscordGame);
+                }else{
+                	client.setGame(null);
+                }
                 if (commandSource != null)
                     commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, text));
                 else
