@@ -15,7 +15,7 @@ public class GlobalConfig {
         channels = new ArrayList<>();
         tokenStore = TokenStore.JSON;
         prefixBlacklist = new ArrayList<>();
-        cancelAllMessagesFromBot = true;
+        ignoreBots = true;
         botDiscordGame = "Minecraft";
         minecraftBroadcastTemplate = "&2<BROADCAST> %s";
         botToken = "";
@@ -28,7 +28,7 @@ public class GlobalConfig {
     @Setting
     public List<String> prefixBlacklist;
     @Setting
-    public Boolean cancelAllMessagesFromBot;
+    public Boolean ignoreBots;
     @Setting
     public String botDiscordGame;
     @Setting

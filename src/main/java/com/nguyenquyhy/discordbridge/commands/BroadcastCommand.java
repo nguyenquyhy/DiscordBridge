@@ -3,6 +3,7 @@ package com.nguyenquyhy.discordbridge.commands;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
@@ -42,15 +43,15 @@ public class BroadcastCommand implements CommandExecutor {
         }
 
         // Send to Discord
-        String discordMessage = TextUtil.formatMinecraftMessage(message, config);
         config.channels.stream().filter(channelConfig -> StringUtils.isNotBlank(channelConfig.discordId)
                 && channelConfig.discord != null
                 && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)).forEach(channelConfig -> {
             Channel channel = defaultClient.getChannelById(channelConfig.discordId);
             if (channel != null) {
-                channel.sendMessage(String.format(channelConfig.discord.broadcastTemplate,
-                        TextUtil.escapeForDiscord(discordMessage, channelConfig.discord.broadcastTemplate, "%s")), false);
-                logger.info("[BROADCAST DISCORD] " + discordMessage);
+                String content = String.format(channelConfig.discord.broadcastTemplate,
+                        TextUtil.escapeForDiscord(message, channelConfig.discord.broadcastTemplate, "%s"));
+                ChannelUtil.sendMessage(channel, content);
+                logger.info("[BROADCAST DISCORD] " + message);
             } else {
                 ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
             }

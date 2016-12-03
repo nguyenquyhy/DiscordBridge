@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
  * Created by Hy on 8/29/2016.
  */
 public class TextUtil {
-    public static final String SPECIAL_CHAR = "\u2062";
     private static final Pattern urlPattern =
             Pattern.compile("(?<first>(^|\\s))(?<colour>(&[0-9a-flmnork])+)?(?<url>(http(s)?://)?([A-Za-z0-9]+\\.)+[A-Za-z0-9]{2,}\\S*)", Pattern.CASE_INSENSITIVE);
 
@@ -37,18 +36,11 @@ public class TextUtil {
         return message;
     }
 
-    public static String formatMinecraftMessage(String message, GlobalConfig config) {
+    public static String formatMinecraftMessage(String message) {
         for (Emoji emoji : Emoji.values()) {
             message = message.replace(emoji.minecraftFormat, emoji.discordFormat);
         }
-        return formatForDiscord(message, config);
-    }
-
-    public static String formatForDiscord(String message, GlobalConfig config) {
-        if (config.cancelAllMessagesFromBot)
-            return message;
-        else
-            return message + SPECIAL_CHAR;
+        return message;
     }
 
     private static Map<String, Map<String, Boolean>> needReplacementMap = new HashMap<>();

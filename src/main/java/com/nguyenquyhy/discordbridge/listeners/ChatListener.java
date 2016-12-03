@@ -4,6 +4,7 @@ import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
@@ -46,7 +47,7 @@ public class ChatListener {
         String plainString = event.getRawMessage().toPlain().trim();
         if (StringUtils.isBlank(plainString) || plainString.startsWith("/")) return;
 
-        plainString = TextUtil.formatMinecraftMessage(plainString, config);
+        plainString = TextUtil.formatMinecraftMessage(plainString);
         Optional<Player> player = event.getCause().first(Player.class);
 
         if (player.isPresent()) {
@@ -81,17 +82,16 @@ public class ChatListener {
 //                                if (channel == null) {
 //                                    LoginHandler.loginBotAccount();
 //                                }
-                                channel.sendMessage(
-                                        String.format(
-                                                template.replace("%a",
-                                                        TextUtil.escapeForDiscord(player.get().getName(), template, "%a")),
-                                                plainString),
-                                        false);
+                                String content = String.format(
+                                        template.replace("%a",
+                                                TextUtil.escapeForDiscord(player.get().getName(), template, "%a")),
+                                        plainString);
+                                ChannelUtil.sendMessage(channel, content);
                             } else {
 //                                if (channel == null) {
 //                                    LoginHandler.loginHumanAccount(player.get());
 //                                }
-                                channel.sendMessage(String.format(template, plainString), false);
+                                ChannelUtil.sendMessage(channel, String.format(template, plainString));
                             }
                         }
                     }

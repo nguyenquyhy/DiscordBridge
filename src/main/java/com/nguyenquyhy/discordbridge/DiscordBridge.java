@@ -8,11 +8,14 @@ import com.nguyenquyhy.discordbridge.logics.ConfigHandler;
 import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
+import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -80,7 +83,7 @@ public class DiscordBridge {
                         && StringUtils.isNotBlank(channelConfig.discord.serverDownMessage)) {
                     Channel channel = botClient.getChannelById(channelConfig.discordId);
                     if (channel != null) {
-                        channel.sendMessage(channelConfig.discord.serverDownMessage, false);
+                        ChannelUtil.sendMessage(channel, channelConfig.discord.serverDownMessage);
                     } else {
                         ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                     }

@@ -5,6 +5,7 @@ import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
@@ -42,9 +43,9 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
                         Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
                         if (channel != null) {
-                            channel.sendMessage(TextUtil.formatForDiscord(String.format(channelConfig.discord.joinedTemplate,
-                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s")),
-                                    config), false);
+                            String content = String.format(channelConfig.discord.joinedTemplate,
+                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s"));
+                            ChannelUtil.sendMessage(channel, content);
                         } else {
                             ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }
@@ -72,9 +73,9 @@ public class ClientConnectionListener {
                             && StringUtils.isNotBlank(channelConfig.discord.leftTemplate)) {
                         Channel channel = client.getChannelById(channelConfig.discordId);
                         if (channel != null) {
-                            channel.sendMessage(TextUtil.formatForDiscord(String.format(channelConfig.discord.leftTemplate,
-                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s")),
-                                    config), false);
+                            String content = String.format(channelConfig.discord.leftTemplate,
+                                    TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s"));
+                            ChannelUtil.sendMessage(channel, content);
                         } else {
                             ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                         }
