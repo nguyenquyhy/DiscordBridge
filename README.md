@@ -11,6 +11,10 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
   - 1 public channel to send & receive messages between Discord and Minecraft
   - 1 monitoring channel to record only server start/stop and player join/leave events
   - 1 staff-only channel that send message one-way from Discord to Minecraft with a special announcement template
+- **New in 2.2.0**
+  - Set game activity of the bot
+  - Ignore Discord messages from all bots and/or blacklist certain prefixes
+  - Support One-Time Password
 
 ## Getting Started for server owners and players
 
@@ -61,11 +65,11 @@ Configuration is stored in `config.json` file.
 
 - Global config
   - `botToken`: App Bot User's token
-  - `tokenStore`: `JSON` (default) or `NONE` (user authentication will be disabled) or `InMemory` (mainly for testing)
+  - `botDiscordGame`: sets the current game activity of the bot in Discord _(thanks, Vankka)_
+  - `tokenStore`: `JSON` (default) or `NONE` (user authentication will be disabled) or `InMemory` (mainly for testing). This is used for player authentication.
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
   - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka)_
-  - `cancelAllMessagesFromBot`: cancel all messages from Bot or only messages sent by the plugin _(thanks, Vankka)_
-  - `botDiscordGame`: sets the game of the bot in Discord _(thanks, Vankka)_
+  - `ignoreBots`: ignore all messages from any Discord Bots _(thanks, Vankka)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
@@ -84,15 +88,8 @@ You can find some example configurations in `examples` folders.
 
 ### How to get channel ID
 
-1. Get the URL to the channel
-   - If you are using the Dicord app, simply right click on on channel name and choose copy link and paste the link some where
-   
-   ![http://i.imgur.com/8scvoyS.png](http://i.imgur.com/8scvoyS.png)
-   - If you are not using the Discord app, navigate to the channel from discordapp.com and look at the address bar of your browser
-   
-   ![http://i.imgur.com/MT2OWKC.png](http://i.imgur.com/MT2OWKC.png)
-
-1. The link should be in this format `https://discordapp.com/{serverID}/{channelID}`, so the channel ID is the last 18 digit number in this link.
+1. Open `User Settings` in Discord, then open `Appearance` section and tick `Developer Mode`
+1. Right lick any channel and click `Copy ID`
 
 ## CHANGELOG
 

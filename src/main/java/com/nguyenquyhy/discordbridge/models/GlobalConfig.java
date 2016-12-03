@@ -15,8 +15,8 @@ public class GlobalConfig {
         channels = new ArrayList<>();
         tokenStore = TokenStore.JSON;
         prefixBlacklist = new ArrayList<>();
-        ignoreBots = true;
-        botDiscordGame = "Minecraft";
+        ignoreBots = false;
+        botDiscordGame = "";
         minecraftBroadcastTemplate = "&2<BROADCAST> %s";
         botToken = "";
     }
