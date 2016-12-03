@@ -50,9 +50,6 @@ public class LoginHandler {
 
         DiscordAPI defaultClient = mod.getBotClient();
         if (defaultClient != null && defaultClient.getToken().equals(config.botToken)) {
-            if(StringUtils.isNotBlank(config.botDiscordGame)){
-            	defaultClient.setGame(config.botDiscordGame);
-            }
             return true;
         }
 
@@ -64,9 +61,6 @@ public class LoginHandler {
 
         DiscordAPI client = Javacord.getApi(config.botToken, true);
         prepareBotClient(client, null);
-        if(StringUtils.isNotBlank(config.botDiscordGame)){
-        	client.setGame(config.botDiscordGame);
-        }
         return true;
     }
 
@@ -202,6 +196,11 @@ public class LoginHandler {
                 if (user != null)
                     name = user.getName();
                 String text = "Bot account " + name + " will be used for all unauthenticated users!";
+                if(StringUtils.isNotBlank(config.botDiscordGame)) {
+                	client.setGame(config.botDiscordGame);
+                }else{
+                	client.setGame(null);
+                }
                 if (commandSource != null)
                     commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, text));
                 else
