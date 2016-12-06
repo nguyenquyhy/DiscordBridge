@@ -17,6 +17,7 @@ public class GlobalConfig {
         prefixBlacklist = new ArrayList<>();
         ignoreBots = false;
         botDiscordGame = "";
+        linkDiscordAttachments = true;
         minecraftBroadcastTemplate = "&2<BROADCAST> %s";
         botToken = "";
     }
@@ -29,6 +30,8 @@ public class GlobalConfig {
     public List<String> prefixBlacklist;
     @Setting
     public Boolean ignoreBots;
+    @Setting
+    public Boolean linkDiscordAttachments;
     @Setting
     public String botDiscordGame;
     @Setting

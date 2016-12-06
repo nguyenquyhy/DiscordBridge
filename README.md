@@ -70,6 +70,7 @@ Configuration is stored in `config.json` file.
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
   - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka)_
   - `ignoreBots`: ignore all messages from any Discord Bots _(thanks, Vankka)_
+  - `linkDiscordAttachments`: adds a clickable link in game for attachments sent via discord _(thanks, Mohron)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
@@ -81,6 +82,18 @@ Configuration is stored in `config.json` file.
     - `broadcastTemplate`: (optional) template for messages in Discord from `/discord broadcast` command
   - `minecraft`: templates in Minecraft
     - `chatTemplate`: (optional) template for messages from Discord to Minecraft
+        - **Supported Placeholders**
+        - %s - the message sent via discord
+        - %a - the username of the message author
+        - %r - the name of the highest role held by the message author (See also defaultRole & roleBlacklist)
+        - %c - the color code of the highest role if set to a Minecraft compatible color
+        - %g - the current game of the message author
+        - %s - the message sent from discord
+    - `attachmentTemplate`: (required for linkDiscordAttachments) template for Discord attachments linked in Minecraft _(thanks, Mohron)_
+    - `attachmentColor`: (optional) designate a color to be applied to attachmentTemplate (ie `&0` or `§0`) _(thanks, Mohron)_
+    - `attachmentHoverTemplate`: (optional) template for the message shown when you hover over an attachment link _(thanks, Mohron)_
+    - `defaultRole`: (optional) a default role and formatting to be used when a user's has no non-blacklisted roles _(thanks, Mohron)_
+    - `roleBlacklist`: (optional) a list of roles to ignore when calculating a user's highest rank _(thanks, Mohron)_
 
 You can find some example configurations in `examples` folders.
 
@@ -98,14 +111,13 @@ You can find some example configurations in `examples` folders.
 ## TODO
 
 * 2.3.0
-- [ ] Mentions in Discord should show proper names in Minecraft
-- [ ] Attachments in Discord should show proper links in Minecraft
+- [X] Mentions in Discord should show proper names in Minecraft
+- [X] Attachments in Discord should show proper links in Minecraft
 
 * Future
 - [ ] MySQL token store
 - [ ] Group-based prefix
 - [ ] Handle custom Sponge channels (e.g. MCClan and staff chat of Nucleus)
-- [ ] Image upload in Discord should show links in Minecraft
 - [ ] A command to check Bot connection status
 - [ ] New config to allow executing Minecraft command from Discord
 - [ ] New config to route Minecraft server log to Discord

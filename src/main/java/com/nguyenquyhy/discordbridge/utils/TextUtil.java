@@ -3,7 +3,10 @@ package com.nguyenquyhy.discordbridge.utils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import com.nguyenquyhy.discordbridge.models.GlobalConfig;
+import com.nguyenquyhy.discordbridge.models.ChannelConfig;
+import de.btobastian.javacord.entities.User;
+import de.btobastian.javacord.entities.message.Message;
+import de.btobastian.javacord.entities.permissions.Role;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
@@ -12,6 +15,7 @@ import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -57,6 +61,43 @@ public class TextUtil {
         }
         if (needReplacement.get(template)) text = text.replace("_", "\\_");
         return text;
+    }
+
+    public static String formatForMinecraft(ChannelConfig config, Message message) {
+        // Replace %a with Message author's Name
+        String s = config.minecraft.chatTemplate.replace("%a", message.getAuthor().getName());
+
+        // Replace %n with Message author's Nickname (Not yet supported)
+        //s = s.replace("%n", message.getAuthor().getNickname());
+
+        // Get author's highest role
+        int position = 0;
+        String roleName = config.minecraft.defaultRole;
+        Color roleColor = Color.WHITE;
+        for (Role role: message.getAuthor().getRoles(message.getChannelReceiver().getServer())){
+            if (role.getPosition() > position && !config.minecraft.roleBlacklist.contains(role.getName())) {
+                position = role.getPosition();
+                roleName = role.getName();
+                roleColor = role.getColor();
+            }
+        }
+        // Replace %r with Message author's highest role
+        s = s.replace("%r", roleName);
+        // Replace %c with Message MC color code if compatible with author's highest role color
+        s = s.replace("%c", ColorUtil.getColorCode(roleColor));
+        // Replace %g with Message author's game
+        String game = message.getAuthor().getGame();
+        if (game != null) s = s.replace("%g", game);
+
+        s = String.format(s, message.getContent());
+
+        // Replace Mentions with readable names
+        for (User mention: message.getMentions()) {
+            s = s.replace("<@"+mention.getId()+">","@" + mention.getName());
+            s = s.replace("<@!"+mention.getId()+">","@" + mention.getName()); // Change to getNickname() when supported
+        }
+
+        return TextUtil.formatDiscordMessage(s);
     }
 
     public static Text formatUrl(String message) {
