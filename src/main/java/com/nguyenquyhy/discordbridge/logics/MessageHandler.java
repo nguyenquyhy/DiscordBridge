@@ -44,8 +44,13 @@ public class MessageHandler {
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.minecraft != null
                     && StringUtils.isNotBlank(channelConfig.minecraft.chatTemplate)
+                    && message.getChannelReceiver() != null
                     && message.getChannelReceiver().getId().equals(channelConfig.discordId)) {
                 String author = message.getAuthor().getName();
+                if (channelConfig.discord.useNickname && message.getChannelReceiver().getServer() != null
+                        && StringUtils.isNotBlank(message.getAuthor().getNickname(message.getChannelReceiver().getServer().getId()))) {
+                    author = message.getAuthor().getNickname(message.getChannelReceiver().getServer().getId());
+                }
                 Text formattedMessage = TextUtil.formatUrl(String.format(channelConfig.minecraft.chatTemplate.replace("%a", author), content));
                 // This case is used for default account
                 logger.info(formattedMessage.toPlain());
