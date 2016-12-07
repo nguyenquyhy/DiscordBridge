@@ -1,7 +1,6 @@
 package com.nguyenquyhy.discordbridge.commands;
 
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;

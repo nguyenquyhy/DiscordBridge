@@ -18,7 +18,6 @@ public class ChannelDiscordConfig {
         serverUpMessage = "Server has started.";
         serverDownMessage = "Server has stopped.";
         broadcastTemplate = "_<BROADCAST> %s_";
-        useNickname = true;
     }
 
     @Setting
@@ -35,8 +34,6 @@ public class ChannelDiscordConfig {
     public String serverDownMessage;
     @Setting
     public String broadcastTemplate;
-    @Setting
-    public boolean useNickname;
 
 
     @Deprecated
