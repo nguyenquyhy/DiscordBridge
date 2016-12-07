@@ -85,6 +85,7 @@ Configuration is stored in `config.json` file.
         - **Supported Placeholders**
         - %s - the message sent via discord
         - %a - the username of the message author
+        - %n - the nickname of the message author or username if not set
         - %r - the name of the highest role held by the message author (See also defaultRole & roleBlacklist)
         - %c - the color code of the highest role if set to a Minecraft compatible color
         - %g - the current game of the message author

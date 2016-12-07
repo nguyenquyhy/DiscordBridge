@@ -45,6 +45,7 @@ public class MessageHandler {
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.minecraft != null
                     && StringUtils.isNotBlank(channelConfig.minecraft.chatTemplate)
+                    && message.getChannelReceiver() != null
                     && message.getChannelReceiver().getId().equals(channelConfig.discordId)) {
                 Text messageText = TextUtil.formatUrl(TextUtil.formatForMinecraft(channelConfig, message));
                 if (config.linkDiscordAttachments

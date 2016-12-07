@@ -64,11 +64,13 @@ public class TextUtil {
     }
 
     public static String formatForMinecraft(ChannelConfig config, Message message) {
+        String serverID = message.getChannelReceiver().getServer().getId();
         // Replace %a with Message author's Name
         String s = config.minecraft.chatTemplate.replace("%a", message.getAuthor().getName());
 
-        // Replace %n with Message author's Nickname (Not yet supported)
-        //s = s.replace("%n", message.getAuthor().getNickname());
+        // Replace %n with Message author's Nickname
+        String nickname = (message.getAuthor().getNickname(serverID) != null) ? message.getAuthor().getNickname(serverID) : message.getAuthor().getName();
+        s = s.replace("%n", nickname);
 
         // Get author's highest role
         int position = 0;
@@ -94,7 +96,8 @@ public class TextUtil {
         // Replace Mentions with readable names
         for (User mention: message.getMentions()) {
             s = s.replace("<@"+mention.getId()+">","@" + mention.getName());
-            s = s.replace("<@!"+mention.getId()+">","@" + mention.getName()); // Change to getNickname() when supported
+            String nick = (mention.getNickname(serverID) != null) ? mention.getNickname(serverID) : mention.getName();
+            s = s.replace("<@!"+mention.getId()+">","@" + nick);
         }
 
         return TextUtil.formatDiscordMessage(s);
