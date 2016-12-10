@@ -1,7 +1,6 @@
 {
   "tokenStore": "JSON",
   "botToken": "APP_BOT_USER_TOKEN",
-  "linkDiscordAttachments": true,
   "botDiscordGame": "Minecraft",
   "prefixBlacklist": ["!"],
   "ignoreBots": false,
@@ -19,11 +18,15 @@
       },
       "minecraft": {
         "chatTemplate": "&7<%a> &f%s",
-        "attachmentTemplate": "[Attachment]",
-        "attachmentHoverTemplate": "Click to open attachment.",
-        "attachmentColor": "&3",
-        "defaultRole": "&eMember",
-        "roleBlacklist": ["Bot"]
+        "attachment": {
+          "template": "&3[Attachment]&r",
+          "hoverTemplate": "Click to open attachment."
+        },
+        "role": {
+          "exclude": ["Bot"],
+
+        }
+        "defaultRole": "&eMember"
       }
     },
     {

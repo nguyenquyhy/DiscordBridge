@@ -30,7 +30,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 
 1. Clone this repository
 1. Run `gradlew`
-1. The jar file will be in `build/libs/Sponge-Discord-{version}-all.jar`.
+1. The jar file will be in `build/libs/DiscordBridge-{version}-all.jar`.
 
 ## Commands
 
@@ -70,7 +70,6 @@ Configuration is stored in `config.json` file.
   - `minecraftBroadcastTemplate`: template for messages in Minecraft from `/discord broadcast` command
   - `prefixBlacklist`: a list of prefix string (e.g. `["!"]`) that will be ignored by the plugin _(thanks, Vankka)_
   - `ignoreBots`: ignore all messages from any Discord Bots _(thanks, Vankka)_
-  - `linkDiscordAttachments`: adds a clickable link in game for attachments sent via discord _(thanks, Mohron)_
   - `channels`: a list of channel configurations
 - Channel config
   - `discordId`: the ID of the Discord channel (usually a 18-digit number)
@@ -81,22 +80,22 @@ Configuration is stored in `config.json` file.
     - `authenticatedChatTemplate`: (optional) template for messages from Minecraft to Discord for authenticated user
     - `broadcastTemplate`: (optional) template for messages in Discord from `/discord broadcast` command
   - `minecraft`: templates in Minecraft
-    - `chatTemplate`: (optional) template for messages from Discord to Minecraft
-        - **Supported Placeholders**
-        - %s - the message sent via discord
-        - %a - the username of the message author
-        - %n - the nickname of the message author or username if not set
-        - %r - the name of the highest role held by the message author (See also defaultRole & roleBlacklist)
-        - %c - the color code of the highest role if set to a Minecraft compatible color
-        - %g - the current game of the message author
-        - %s - the message sent from discord
-    - `attachmentTemplate`: (required for linkDiscordAttachments) template for Discord attachments linked in Minecraft _(thanks, Mohron)_
-    - `attachmentColor`: (optional) designate a color to be applied to attachmentTemplate (ie `&0` or `§0`) _(thanks, Mohron)_
-    - `attachmentHoverTemplate`: (optional) template for the message shown when you hover over an attachment link _(thanks, Mohron)_
-    - `defaultRole`: (optional) a default role and formatting to be used when a user's has no non-blacklisted roles _(thanks, Mohron)_
-    - `roleBlacklist`: (optional) a list of roles to ignore when calculating a user's highest rank _(thanks, Mohron)_
+    - `chatTemplate`: (optional) template for messages from Discord to Minecraft. For supporting placeholders in the template, check the section **Chat placeholder** 
+    - `attachment`:
+      - `template`: template for Discord attachments linked in Minecraft _(thanks, Mohron)_
+      - `hoverTemplate`: template for the message shown when you hover over an attachment link _(thanks, Mohron)_
+      - `allowLink`: adds a clickable link in game for attachments sent via discord _(thanks, Mohron)_
+    - `roles`: `minecraft` configurations that are for a specific Discord role
 
 You can find some example configurations in `examples` folders.
+
+### Supported Placeholders
+- %s - the message sent via discord
+- %a - the nickname of the message author or username if nickname is unavailable
+- %u - the username of the author. This is used if you want to disallow Discord nickname.
+- %r - the name of the highest Discord role held by the message author. Color of the role will also be translated into Minecraft color automatically.
+- %g - the current game of the message author
+- %s - the message sent from discord
 
 ## Notes
 
@@ -110,10 +109,6 @@ You can find some example configurations in `examples` folders.
 [CHANGELOG.md](CHANGELOG.md)
 
 ## TODO
-
-* 2.3.0
-- [X] Mentions in Discord should show proper names in Minecraft
-- [X] Attachments in Discord should show proper links in Minecraft
 
 * Future
 - [ ] MySQL token store

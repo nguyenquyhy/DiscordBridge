@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+## 2.3.0
+- Mentions in Discord shows proper names in Minecraft
+- Attachments in Discord shows proper links in Minecraft
+- Role-based configurations
+
 ## 2.0.0
 - Configuration is now stored in `config.json`. Old `config.conf` will be migrated automatically. 
 - Support for multiple channels.

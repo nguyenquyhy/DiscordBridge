@@ -16,6 +16,7 @@ public class ColorUtil {
         minecraftColors.put(new Color(0,170,0), "&2");
         minecraftColors.put(new Color(0,170,170), "&3");
         minecraftColors.put(new Color(170,0,0), "&4");
+        minecraftColors.put(new Color(233,30,99), "&4");
         minecraftColors.put(new Color(170,0,170), "&5");
         minecraftColors.put(new Color(255,170,0), "&6");
         minecraftColors.put(new Color(170,170,170), "&7");

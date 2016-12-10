@@ -11,8 +11,10 @@ import de.btobastian.javacord.entities.message.MessageAttachment;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.text.LiteralText;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 /**
  * Created by Hy on 8/6/2016.
@@ -48,19 +50,23 @@ public class MessageHandler {
                     && message.getChannelReceiver() != null
                     && message.getChannelReceiver().getId().equals(channelConfig.discordId)) {
                 Text messageText = TextUtil.formatUrl(TextUtil.formatForMinecraft(channelConfig, message));
-                if (config.linkDiscordAttachments
-                        && StringUtils.isNotBlank(channelConfig.minecraft.attachmentTemplate)
+
+                // Format attachments
+                if (channelConfig.minecraft.attachment != null
+                        && StringUtils.isNotBlank(channelConfig.minecraft.attachment.template)
                         && message.getAttachments() != null) {
-                    for (MessageAttachment attachment:message.getAttachments()) {
-                        String spacing = message.getContent().equals("") ?  "" : " ";
-                        messageText = Text.join(messageText,
-                                Text.builder(spacing + channelConfig.minecraft.attachmentTemplate)
-                                .color(ColorUtil.getTextColor(channelConfig.minecraft.attachmentColor))
-                                .onClick(TextActions.openUrl(attachment.getUrl()))
-                                .onHover(TextActions.showText(Text.of(channelConfig.minecraft.attachmentHoverTemplate)))
-                                .build());
+                    for (MessageAttachment attachment : message.getAttachments()) {
+                        String spacing = message.getContent().equals("") ? "" : " ";
+                        Text.Builder builder = Text.builder()
+                                .append(TextSerializers.FORMATTING_CODE.deserialize(spacing + channelConfig.minecraft.attachment.template));
+                        if (channelConfig.minecraft.attachment.allowLink)
+                            builder = builder.onClick(TextActions.openUrl(attachment.getUrl()));
+                        if (StringUtils.isNotBlank(channelConfig.minecraft.attachment.hoverTemplate))
+                            builder = builder.onHover(TextActions.showText(Text.of(channelConfig.minecraft.attachment.hoverTemplate)));
+                        messageText = Text.join(messageText, builder.build());
                     }
                 }
+
                 Text formattedMessage = messageText;
                 // This case is used for default account
                 logger.info(formattedMessage.toPlain());
