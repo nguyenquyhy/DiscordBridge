@@ -20,13 +20,19 @@
         "chatTemplate": "&7<%a> &f%s",
         "attachment": {
           "template": "&3[Attachment]&r",
-          "hoverTemplate": "Click to open attachment."
+          "hoverTemplate": "Please check Discord.",
+          "allowLink": false
         },
-        "role": {
-          "exclude": ["Bot"],
-
+        "roles": {
+          "Admin": {
+            "chatTemplate": "[&4ADMIN&r] &7<%a> &f%s",
+            "attachment": {
+              "template": "&3[Attachment]&r",
+              "hoverTemplate": "Click to open attachment.",
+              "allowLink": true
+            }
+          }
         }
-        "defaultRole": "&eMember"
       }
     },
     {
@@ -40,12 +46,6 @@
     },
     {
       "discordId": "DISCORD_STAFF_BROADCAST_CHANNEL_ID",
-      "minecraft": {
-        "chatTemplate": "&l&2<ANNOUNCEMENT> %s"
-      }
-    },
-    {
-      "discordId": "DISCORD_STAFF_CHAT_CHANNEL_ID",
       "minecraft": {
         "chatTemplate": "&l&2<ANNOUNCEMENT> %s"
       }
