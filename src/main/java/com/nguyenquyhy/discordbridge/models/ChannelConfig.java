@@ -8,8 +8,17 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
  */
 @ConfigSerializable
 public class ChannelConfig {
+    /**
+     * Configs initialized in constructor will be restored automatically if deleted.
+     */
+    public ChannelConfig() {
+        discordId = "DISCORD_CHANNEL_ID";
+    }
+
+    /**
+     * This is called only when the config file is first created.
+     */
     public void initializeDefault() {
-        discordId = "";
         discord = new ChannelDiscordConfig();
         discord.initializeDefault();
         minecraft = new ChannelMinecraftConfig();

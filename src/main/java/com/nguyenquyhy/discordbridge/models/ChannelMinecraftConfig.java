@@ -3,8 +3,8 @@ package com.nguyenquyhy.discordbridge.models;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Hy on 10/13/2016.
@@ -18,10 +18,10 @@ public class ChannelMinecraftConfig extends ChannelMinecraftConfigCore {
     @Override
     void initializeDefault() {
         super.initializeDefault();
-        roles = new ArrayList<>();
+        roles = new HashMap<>();
     }
 
     @Setting
-    public List<ChannelMinecraftConfigCore> roles;
+    public Map<String, ChannelMinecraftConfigCore> roles;
 
 }

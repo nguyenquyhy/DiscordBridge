@@ -9,6 +9,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 @ConfigSerializable
 public class ChannelDiscordConfig {
+    /**
+     * This is called only when the config file is first created.
+     */
     void initializeDefault() {
         joinedTemplate = "_%s just joined the server_";
         leftTemplate = "_%s just left the server_";

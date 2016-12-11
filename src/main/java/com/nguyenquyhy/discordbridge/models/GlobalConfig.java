@@ -11,6 +11,9 @@ import java.util.List;
  */
 @ConfigSerializable
 public class GlobalConfig {
+    /**
+     * Configs initialized in constructor will be restored automatically if deleted.
+     */
     public GlobalConfig() {
         channels = new ArrayList<>();
         tokenStore = TokenStore.JSON;

@@ -3,7 +3,7 @@ package com.nguyenquyhy.discordbridge.utils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import com.nguyenquyhy.discordbridge.models.ChannelConfig;
+import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
 import de.btobastian.javacord.entities.User;
 import de.btobastian.javacord.entities.message.Message;
 import de.btobastian.javacord.entities.permissions.Role;
@@ -69,10 +69,10 @@ public class TextUtil {
      * @param message
      * @return
      */
-    public static String formatForMinecraft(ChannelConfig config, Message message) {
+    public static String formatForMinecraft(ChannelMinecraftConfigCore config, Message message) {
         String serverID = message.getChannelReceiver().getServer().getId();
         // Replace %u with author's username
-        String s = config.minecraft.chatTemplate.replace("%u", message.getAuthor().getName());
+        String s = config.chatTemplate.replace("%u", message.getAuthor().getName());
 
         // Replace %n with author's nickname or username
         String nickname = (message.getAuthor().getNickname(serverID) != null) ? message.getAuthor().getNickname(serverID) : message.getAuthor().getName();

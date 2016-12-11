@@ -27,7 +27,6 @@
           "Admin": {
             "chatTemplate": "[&4ADMIN&r] &7<%a> &f%s",
             "attachment": {
-              "template": "&3[Attachment]&r",
               "hoverTemplate": "Click to open attachment.",
               "allowLink": true
             }
