@@ -2,6 +2,7 @@
 
 ## 2.3.0
 - Mentions in Discord shows proper names in Minecraft
+- Mentions sent from Minecraft are supported if the player has permission to do so
 - Attachments in Discord shows proper links in Minecraft
 - Role-based configurations
 
