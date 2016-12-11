@@ -89,13 +89,23 @@ Configuration is stored in `config.json` file.
 
 You can find some example configurations in `examples` folders.
 
-### Supported Placeholders
+### Chat Placeholders
 - %s - the message sent via discord
 - %a - the nickname of the message author or username if nickname is unavailable
 - %u - the username of the author. This is used if you want to disallow Discord nickname.
 - %r - the name of the highest Discord role held by the message author. Color of the role will also be translated into Minecraft color automatically.
 - %g - the current game of the message author
-- %s - the message sent from discord
+
+### Additional Permissions
+ **Only applicable to unathenticated users**
+
+| Permission | Use |
+|---------|-----------|
+| `discordbridge.mention.name` <br> `discordbridge.mention.name.<name>` | Allows `@username`/`@nickname` mentions to be sent from Minecraft |
+| `discordbridge.mention.role` <br> `discordbridge.mention.role.<role>`  | Allows `@role` mentions - the role must have "Allow anyone to @mention" set |
+| `discordbridge.mention.here` | Allows the `@here` mention<sup>1</sup> |
+| `discordbridge.mention.everyone` | Allows the `@everyone` mention<sup>1</sup> |
+>  <sup>1</sup> The bot must have permission to "Mention Everyone" in order to use `@here` & `@everyone`.
 
 ## Notes
 

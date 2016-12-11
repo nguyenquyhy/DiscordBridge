@@ -1,7 +1,6 @@
 package com.nguyenquyhy.discordbridge.listeners;
 
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import com.nguyenquyhy.discordbridge.logics.MessageHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
@@ -10,7 +9,6 @@ import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -77,6 +75,9 @@ public class ChatListener {
                                 ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                                 return;
                             }
+
+                            // Format Mentions for Discord
+                            plainString = TextUtil.formatMinecraftMention(channel.getServer(), plainString, player.get(), isBotAccount);
 
                             if (isBotAccount) {
 //                                if (channel == null) {

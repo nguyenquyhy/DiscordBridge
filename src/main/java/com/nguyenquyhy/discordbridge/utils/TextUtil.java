@@ -4,10 +4,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
+import de.btobastian.javacord.entities.Server;
 import de.btobastian.javacord.entities.User;
 import de.btobastian.javacord.entities.message.Message;
 import de.btobastian.javacord.entities.permissions.Role;
 import org.apache.commons.lang3.StringUtils;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
@@ -31,6 +33,8 @@ import java.util.regex.Pattern;
 public class TextUtil {
     private static final Pattern urlPattern =
             Pattern.compile("(?<first>(^|\\s))(?<colour>(&[0-9a-flmnork])+)?(?<url>(http(s)?://)?([A-Za-z0-9]+\\.)+[A-Za-z0-9]{2,}\\S*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern mentionPattern =
+            Pattern.compile("(@\\S*)");
 
     private static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
 
@@ -44,6 +48,45 @@ public class TextUtil {
     public static String formatMinecraftMessage(String message) {
         for (Emoji emoji : Emoji.values()) {
             message = message.replace(emoji.minecraftFormat, emoji.discordFormat);
+        }
+        return message;
+    }
+
+    /**
+     *
+     * @param server
+     * @param message
+     * @param player
+     * @param isBot
+     * @return
+     */
+    public static String formatMinecraftMention(Server server, String message, Player player, boolean isBot) {
+        Matcher m = mentionPattern.matcher(message);
+        replaceMentions:
+        while(m.find()) {
+            String mention = m.group();
+            String mentionName = mention.replace("@","");
+            if ((mentionName.equalsIgnoreCase("here") && isBot && !player.hasPermission("discordbridge.mention.here")) ||
+                    (mentionName.equalsIgnoreCase("everyone") && isBot && !player.hasPermission("discordbridge.mention.everyone"))) {
+                message = message.replace(mention, mentionName);
+                continue;
+            }
+            if (!isBot || player.hasPermission("discordbridge.mention.name." + mentionName.toLowerCase())) {
+                for (User user : server.getMembers()) {
+                    if (user.getName().equalsIgnoreCase(mentionName) || (user.getNickname(server.getId()) != null && user.getNickname(server.getId()).equalsIgnoreCase(mentionName))) {
+                        message = message.replace(mention, "<@" + user.getId() + ">");
+                        continue replaceMentions;
+                    }
+                }
+            }
+            if (!isBot || player.hasPermission("discordbridge.mention.role." + mentionName.toLowerCase())) {
+                for (Role roles : server.getRoles()) {
+                    if (roles.getName().equalsIgnoreCase(mentionName) && roles.getMentionable()) {
+                        message = message.replace(mention, "<@&" + roles.getId() + ">");
+                        continue replaceMentions;
+                    }
+                }
+            }
         }
         return message;
     }
@@ -70,12 +113,13 @@ public class TextUtil {
      * @return
      */
     public static String formatForMinecraft(ChannelMinecraftConfigCore config, Message message) {
-        String serverID = message.getChannelReceiver().getServer().getId();
+        Server server = message.getChannelReceiver().getServer();
+        
         // Replace %u with author's username
         String s = config.chatTemplate.replace("%u", message.getAuthor().getName());
 
         // Replace %n with author's nickname or username
-        String nickname = (message.getAuthor().getNickname(serverID) != null) ? message.getAuthor().getNickname(serverID) : message.getAuthor().getName();
+        String nickname = (message.getAuthor().getNickname(server.getId()) != null) ? message.getAuthor().getNickname(server.getId()) : message.getAuthor().getName();
         s = s.replace("%a", nickname);
 
         // Get author's highest role
@@ -101,11 +145,15 @@ public class TextUtil {
 
         s = String.format(s, message.getContent());
 
-        // Replace Mentions with readable names
+        // Replace user mentions with readable names
         for (User mention : message.getMentions()) {
             s = s.replace("<@" + mention.getId() + ">", "@" + mention.getName());
-            String nick = (mention.getNickname(serverID) != null) ? mention.getNickname(serverID) : mention.getName();
+            String nick = (mention.getNickname(server.getId()) != null) ? mention.getNickname(server.getId()) : mention.getName();
             s = s.replace("<@!" + mention.getId() + ">", "@" + nick);
+        }
+        // Replace role mentions
+        for (Role mention : message.getMentionRoles()) {
+            s = s.replace("<@&" + mention.getId() + ">", "@" + mention.getName());
         }
 
         return TextUtil.formatDiscordMessage(s);
