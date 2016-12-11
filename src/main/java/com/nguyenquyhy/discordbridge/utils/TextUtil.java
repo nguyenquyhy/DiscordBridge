@@ -53,7 +53,6 @@ public class TextUtil {
     }
 
     /**
-     *
      * @param server
      * @param message
      * @param player
@@ -63,9 +62,9 @@ public class TextUtil {
     public static String formatMinecraftMention(Server server, String message, Player player, boolean isBot) {
         Matcher m = mentionPattern.matcher(message);
         replaceMentions:
-        while(m.find()) {
+        while (m.find()) {
             String mention = m.group();
-            String mentionName = mention.replace("@","");
+            String mentionName = mention.replace("@", "");
             if ((mentionName.equalsIgnoreCase("here") && isBot && !player.hasPermission("discordbridge.mention.here")) ||
                     (mentionName.equalsIgnoreCase("everyone") && isBot && !player.hasPermission("discordbridge.mention.everyone"))) {
                 message = message.replace(mention, mentionName);
@@ -114,7 +113,7 @@ public class TextUtil {
      */
     public static String formatForMinecraft(ChannelMinecraftConfigCore config, Message message) {
         Server server = message.getChannelReceiver().getServer();
-        
+
         // Replace %u with author's username
         String s = config.chatTemplate.replace("%u", message.getAuthor().getName());
 

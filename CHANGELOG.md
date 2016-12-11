@@ -1,10 +1,15 @@
 # CHANGE LOG
 
 ## 2.3.0
-- Mentions in Discord shows proper names in Minecraft
-- Mentions sent from Minecraft are supported if the player has permission to do so
-- Attachments in Discord shows proper links in Minecraft
-- Role-based configurations
+- Mentions in Discord show proper names in Minecraft.
+- Mentions from Minecraft show as proper mentions in Discord if the player has permission to do so.
+- Attachments in Discord shows proper links in Minecraft.
+- Support Minecraft templates based on Discord roles.
+
+## 2.2.0
+
+## 2.1.0
+- Rename plugin ID to discordbridge.
 
 ## 2.0.0
 - Configuration is now stored in `config.json`. Old `config.conf` will be migrated automatically. 

@@ -7,14 +7,18 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 - Admins and mods can log in to their own Discord account, so that chat messages show under their names in Discord.
 - Emoji is converted between Minecraft and Discord format. Details are showed in [EMOJI.md](EMOJI.md).
 - Clickable URL.
-- **New in 2.0.0** Multiple channels with custom configuration for each channel. E.g.:
+- Multiple channels with custom configuration for each channel. E.g.:
   - 1 public channel to send & receive messages between Discord and Minecraft
   - 1 monitoring channel to record only server start/stop and player join/leave events
   - 1 staff-only channel that send message one-way from Discord to Minecraft with a special announcement template
-- **New in 2.2.0**
-  - Set game activity of the bot
-  - Ignore Discord messages from all bots and/or blacklist certain prefixes
-  - Support One-Time Password
+- Set game activity of the bot
+- Ignore Discord messages from all bots and/or blacklist certain prefixes
+- Support One-Time Password
+- **New in 2.3.0**
+  - Mentions in Discord show proper names in Minecraft
+  - Mentions from Minecraft are supported if the player has permission to do so
+  - Attachments in Discord shows proper links in Minecraft
+  - Support Minecraft templates based on Discord roles
 
 ## Getting Started for server owners and players
 
@@ -97,7 +101,7 @@ You can find some example configurations in `examples` folders.
 - %g - the current game of the message author
 
 ### Additional Permissions
- **Only applicable to unathenticated users**
+ **The below permissions are applicable only to unathenticated users. For authenticated users, you can restrict using Text permission of Discord roles.**
 
 | Permission | Use |
 |---------|-----------|
@@ -120,10 +124,12 @@ You can find some example configurations in `examples` folders.
 
 ## TODO
 
+* 2.4.0
+- [ ] New config to allow executing Minecraft command from Discord
+
 * Future
 - [ ] MySQL token store
 - [ ] Group-based prefix
 - [ ] Handle custom Sponge channels (e.g. MCClan and staff chat of Nucleus)
 - [ ] A command to check Bot connection status
-- [ ] New config to allow executing Minecraft command from Discord
 - [ ] New config to route Minecraft server log to Discord
