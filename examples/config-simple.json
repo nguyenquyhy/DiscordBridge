@@ -26,6 +26,11 @@
           "template": "&3[Attachment]",
           "hoverTemplate": "Click to open attachment.",
           "allowLink": true
+        },
+        "mention": {
+          "template": "&6@&3%a",
+          "userTemplate": "&6@&e%a",
+          "roleTemplate": "&6@&a%r"
         }
       }
     }
