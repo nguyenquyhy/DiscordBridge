@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,22 +123,16 @@ public class TextUtil {
         s = s.replace("%a", nickname);
 
         // Get author's highest role
-        int position = 0;
+        Optional<Role> highestRole = getHighestRole(message.getAuthor(), server);
         String roleName = "";
         Color roleColor = Color.WHITE;
-        for (Role role : message.getAuthor().getRoles(message.getChannelReceiver().getServer())) {
-            if (role.getPosition() > position) {
-                position = role.getPosition();
-                roleName = role.getName();
-                roleColor = role.getColor();
-            }
+        if (highestRole.isPresent()) {
+            roleName = highestRole.get().getName();
+            roleColor = highestRole.get().getColor();
         }
         // Replace %r with Message author's highest role
         String colorString = ColorUtil.getColorCode(roleColor);
-        if (StringUtils.isNotBlank(colorString))
-            s = s.replace("%r", colorString + roleName + "&r");
-        else
-            s = s.replace("%r", roleName);
+        s = (StringUtils.isNotBlank(colorString)) ? s.replace("%r", colorString + roleName + "&r") : s.replace("%r", roleName);
         // Replace %g with Message author's game
         String game = message.getAuthor().getGame();
         if (game != null) s = s.replace("%g", game);
@@ -146,13 +141,28 @@ public class TextUtil {
 
         // Replace user mentions with readable names
         for (User mention : message.getMentions()) {
-            s = s.replace("<@" + mention.getId() + ">", "@" + mention.getName());
+            Optional<Role> role = getHighestRole(mention, server);
             String nick = (mention.getNickname(server.getId()) != null) ? mention.getNickname(server.getId()) : mention.getName();
-            s = s.replace("<@!" + mention.getId() + ">", "@" + nick);
+            String color = (role.isPresent()) ? ColorUtil.getColorCode(role.get().getColor()) : null;
+            String mentionString = (color != null) ?
+                    config.mention.userTemplate.replace("%a", color + nick + "&r").replace("%u", color + mention.getName() + "&r") :
+                    config.mention.userTemplate.replace("%a", nick).replace("%u", mention.getName());
+            s = s.replaceAll("(<@!?" + mention.getId() + ">)", mentionString);
         }
         // Replace role mentions
         for (Role mention : message.getMentionRoles()) {
-            s = s.replace("<@&" + mention.getId() + ">", "@" + mention.getName());
+            String color = ColorUtil.getColorCode(mention.getColor());
+            String mentionString = (StringUtils.isNotBlank(color)) ?
+                    config.mention.roleTemplate.replace("%r", color + mention.getName() + "&r") :
+                    config.mention.roleTemplate.replace("%r", mention.getName());
+            s = s.replace("<@&" + mention.getId() + ">", mentionString);
+        }
+        // Format @here/@everyone mentions
+        if (message.getMentionEveryone() ) {
+            Matcher m = mentionPattern.matcher(s);
+            while (m.find()) {
+                s = s.replace(m.group(), config.mention.template.replace("%a", m.group().substring(1,m.group().length())));
+            }
         }
 
         return TextUtil.formatDiscordMessage(s);
@@ -275,5 +285,17 @@ public class TextUtil {
             this.colour = colour;
             this.style = style;
         }
+    }
+
+    private static Optional<Role> getHighestRole(User user, Server server) {
+        int position = 0;
+        Optional<Role> highestRole = Optional.empty();
+        for (Role role:user.getRoles(server)) {
+            if (role.getPosition() > position) {
+                position = role.getPosition();
+                highestRole = Optional.of(role);
+            }
+        }
+        return highestRole;
     }
 }

@@ -23,6 +23,11 @@
           "hoverTemplate": "Please check Discord.",
           "allowLink": false
         },
+        "mention": {
+          "template": "&6@&3%a",
+          "userTemplate": "&6@&e%a",
+          "roleTemplate": "&6@&a%r"
+        },
         "roles": {
           "Admin": {
             "chatTemplate": "[&4ADMIN&r] &7<%a> &f%s",

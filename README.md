@@ -89,6 +89,10 @@ Configuration is stored in `config.json` file.
       - `template`: template for Discord attachments linked in Minecraft _(thanks, Mohron)_
       - `hoverTemplate`: template for the message shown when you hover over an attachment link _(thanks, Mohron)_
       - `allowLink`: adds a clickable link in game for attachments sent via discord _(thanks, Mohron)_
+    - `mention`:
+      - `template`: template for @here & @everyone mentions - accepts `%a` _(thanks, Mohron)_
+      - `userTemplate`: template for @user mentions - accepts `%a`/`%u` _(thanks, Mohron)_
+      - `roleTemplate`: template for @role mentions - accepts `%r` _(thanks, Mohron)_
     - `roles`: `minecraft` configurations that are for a specific Discord role
 
 You can find some example configurations in `examples` folders.
