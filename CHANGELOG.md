@@ -1,15 +1,22 @@
 # CHANGE LOG
 
 ## 2.3.0
-- Mentions in Discord show proper names in Minecraft.
-- Mentions from Minecraft show as proper mentions in Discord if the player has permission to do so.
-- Attachments in Discord shows proper links in Minecraft.
+- Mentions in Discord show properly in Minecraft with configurable templates.
+- Mentions from Minecraft are supported with permission control.
+- Attachments in Discord show proper links in Minecraft.
 - Support Minecraft templates based on Discord roles.
 
 ## 2.2.0
+- Set game activity of the bot.
+- Ignore Discord messages from all bots with `ignoreBots` and/or blacklist certain prefixes with `prefixBlacklist`. 
+- Support One-Time Password.
 
 ## 2.1.0
-- Rename plugin ID to discordbridge.
+- Rename plugin ID from `com.nguyenquyhy.spongediscord` into `discordbridge`.
+- Add support for setting different templates for public chat and staff chat. Currently only Nucleus's staff chat is detected. Setting up `staffChat` section will route message from Minecraft to Discord. Check out example configurations to see the `publicChat` and `staffChat` section.
+- All Minecraft messages from other Minecraft channels (e.g. Clan chat) will not be routed to Discord.
+- Improve error message when the channel ID is incorrect.
+- Fix `/discord broadcast` 
 
 ## 2.0.0
 - Configuration is now stored in `config.json`. Old `config.conf` will be migrated automatically. 

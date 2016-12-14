@@ -34,7 +34,7 @@ import java.util.*;
  * Created by Hy on 1/4/2016.
  */
 @Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.3.0",
-        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy" })
+        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy", "Mohron" })
 public class DiscordBridge {
 
     private DiscordAPI consoleClient = null;

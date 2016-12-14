@@ -19,3 +19,4 @@
     - Otherwise, your messages will show up in the Discord channel under the bot name if you have not __authenticated__.
 - To __authenticate__, run this command in Minecraft `/discord login <your_Discord_username> <your_Discord_password>`
     - **WARNING: the server may log all commands, so be careful not to leak your Discord credentials on untrusted servers.**
+    - NOTE: when authenticated for the first time on a server, Discord will block the login attempt and send a notification email. You have to check your email for a link to unblock server's IP address.

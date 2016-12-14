@@ -28,9 +28,9 @@
           "allowLink": true
         },
         "mention": {
-          "template": "&6@&3%a",
           "userTemplate": "&6@&e%a",
-          "roleTemplate": "&6@&a%r"
+          "roleTemplate": "&6@&a%r",
+          "everyoneTemplate": "&6@&3%a"
         }
       }
     }

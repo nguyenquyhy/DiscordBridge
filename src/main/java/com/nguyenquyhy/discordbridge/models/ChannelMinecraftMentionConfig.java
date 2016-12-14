@@ -16,22 +16,22 @@ public class ChannelMinecraftMentionConfig implements IConfigInheritable<Channel
      * This is called only when the config file is first created.
      */
     void initializeDefault() {
-        template = "&6@&3%a";
         userTemplate = "&6@&e%a";
         roleTemplate = "&6@&a%r";
+        everyoneTemplate = "&6@&3%a";
     }
 
-    @Setting
-    public String template;
     @Setting
     public String userTemplate;
     @Setting
     public String roleTemplate;
+    @Setting
+    public String everyoneTemplate;
 
     @Override
     public void inherit(ChannelMinecraftMentionConfig parent) {
-        if (template == null) template = parent.template;
         if (userTemplate == null) userTemplate = parent.userTemplate;
         if (roleTemplate == null) roleTemplate = parent.roleTemplate;
+        if (everyoneTemplate == null) everyoneTemplate = parent.everyoneTemplate;
     }
 }

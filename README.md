@@ -15,8 +15,8 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 - Ignore Discord messages from all bots and/or blacklist certain prefixes
 - Support One-Time Password
 - **New in 2.3.0**
-  - Mentions in Discord show proper names in Minecraft
-  - Mentions from Minecraft are supported if the player has permission to do so
+  - Mentions in Discord show properly in Minecraft with configurable templates
+  - Mentions from Minecraft are supported with permission control (check **Additional Permissions**)
   - Attachments in Discord shows proper links in Minecraft
   - Support Minecraft templates based on Discord roles
 
@@ -24,11 +24,9 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 
 [GETTING STARTED.md](GETTING STARTED.md)
 
-## Migrating from version 1.x.x
-- `/discord default` command and default account are no longer available. You must setup a Discord Bot for the plugin to properly function.
-- Your current configuration will be migrated automatically from `config.conf` into `config.json`.
-- Invite code has been removed. Please contact me if you have specific need for that.
-- Default anonymouss chat template is changed to ```"`%a:\` %s"```, which looks nicer in my opinion.
+## Migrating from 1.x.x or 2.0.0
+
+[MIGRATE.md](MIGRATE.md)
 
 ## Build your own .jar
 
@@ -85,27 +83,27 @@ Configuration is stored in `config.json` file.
     - `broadcastTemplate`: (optional) template for messages in Discord from `/discord broadcast` command
   - `minecraft`: templates in Minecraft
     - `chatTemplate`: (optional) template for messages from Discord to Minecraft. For supporting placeholders in the template, check the section **Chat placeholder** 
-    - `attachment`:
-      - `template`: template for Discord attachments linked in Minecraft _(thanks, Mohron)_
-      - `hoverTemplate`: template for the message shown when you hover over an attachment link _(thanks, Mohron)_
-      - `allowLink`: adds a clickable link in game for attachments sent via discord _(thanks, Mohron)_
-    - `mention`:
-      - `template`: template for @here & @everyone mentions - accepts `%a` _(thanks, Mohron)_
-      - `userTemplate`: template for @user mentions - accepts `%a`/`%u` _(thanks, Mohron)_
-      - `roleTemplate`: template for @role mentions - accepts `%r` _(thanks, Mohron)_
+    - `attachment`: _(thanks, Mohron)_
+      - `template`: template for Discord attachments linked in Minecraft 
+      - `hoverTemplate`: template for the message shown when you hover over an attachment link
+      - `allowLink`: adds a clickable link in game for attachments sent via discord
+    - `mention`: _(thanks, Mohron)_
+      - `userTemplate`: template for @user mentions - accepts `%a`/`%u` 
+      - `roleTemplate`: template for @role mentions - accepts `%r`
+      - `everyoneTemplate`: template for @here & @everyone mentions - accepts `%a`
     - `roles`: `minecraft` configurations that are for a specific Discord role
 
 You can find some example configurations in `examples` folders.
 
 ### Chat Placeholders
-- %s - the message sent via discord
-- %a - the nickname of the message author or username if nickname is unavailable
-- %u - the username of the author. This is used if you want to disallow Discord nickname.
-- %r - the name of the highest Discord role held by the message author. Color of the role will also be translated into Minecraft color automatically.
-- %g - the current game of the message author
+- `%s` - the message sent via discord
+- `%a` - the nickname of the message author or username if nickname is unavailable
+- `%u` - the username of the author. This is used if you want to disallow Discord nickname.
+- `%r` - the name of the highest Discord role held by the message author. Color of the role will also be translated into Minecraft color automatically.
+- `%g` - the current game of the message author
 
 ### Additional Permissions
- **The below permissions are applicable only to unathenticated users. For authenticated users, you can restrict using Text permission of Discord roles.**
+ *NOTE: The below permissions are applicable only to unathenticated users. Authenticated users chat under their own Discord accounts, so you can restrict using Text permission of Discord roles.*
 
 | Permission | Use |
 |---------|-----------|
@@ -115,7 +113,7 @@ You can find some example configurations in `examples` folders.
 | `discordbridge.mention.everyone` | Allows the `@everyone` mention<sup>1</sup> |
 >  <sup>1</sup> The bot must have permission to "Mention Everyone" in order to use `@here` & `@everyone`.
 
-## Notes
+## Frequently Asked Questions
 
 ### How to get channel ID
 

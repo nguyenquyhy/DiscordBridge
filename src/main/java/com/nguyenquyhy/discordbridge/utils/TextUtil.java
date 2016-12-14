@@ -161,7 +161,7 @@ public class TextUtil {
         if (message.getMentionEveryone() ) {
             Matcher m = mentionPattern.matcher(s);
             while (m.find()) {
-                s = s.replace(m.group(), config.mention.template.replace("%a", m.group().substring(1,m.group().length())));
+                s = s.replace(m.group(), config.mention.everyoneTemplate.replace("%a", m.group().substring(1,m.group().length())));
             }
         }
 
