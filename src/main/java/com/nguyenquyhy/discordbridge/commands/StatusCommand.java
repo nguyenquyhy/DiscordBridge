@@ -19,7 +19,7 @@ public class StatusCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         DiscordBridge mod = DiscordBridge.getInstance();
-        ImplDiscordAPI bot = (ImplDiscordAPI)mod.getBotClient();
+        ImplDiscordAPI bot = (ImplDiscordAPI) mod.getBotClient();
 
         boolean isProfileReady = false;
         boolean isSocketOpen = false;
