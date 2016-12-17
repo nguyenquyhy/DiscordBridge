@@ -8,6 +8,8 @@ import java.util.UUID;
  */
 public interface IStorage {
     void putToken(UUID player, String token) throws IOException;
+
     String getToken(UUID player);
+
     void removeToken(UUID player) throws IOException;
 }

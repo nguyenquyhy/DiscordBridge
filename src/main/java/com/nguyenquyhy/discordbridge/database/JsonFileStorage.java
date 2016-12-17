@@ -30,8 +30,7 @@ public class JsonFileStorage implements IStorage {
             configNode = configLoader.load();
             getCachedTokens().setValue(new HashMap<UUID, String>());
             configLoader.save(configNode);
-        }
-        else {
+        } else {
             configNode = configLoader.load();
         }
     }

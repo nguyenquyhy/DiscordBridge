@@ -13,6 +13,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 
 import java.util.Optional;
@@ -22,17 +23,24 @@ import java.util.UUID;
  * Created by Hy on 10/13/2016.
  */
 public class ChatListener {
+    DiscordBridge mod = DiscordBridge.getInstance();
+    GlobalConfig config = mod.getConfig();
+
     /**
      * Send chat from Minecraft to Discord
      *
      * @param event
      */
-    @Listener(order = Order.POST)
+    @Listener(order = Order.LATE)
     public void onChat(MessageChannelEvent.Chat event) {
-        DiscordBridge mod = DiscordBridge.getInstance();
-        GlobalConfig config = mod.getConfig();
 
         if (event.isCancelled() || event.isMessageCancelled()) return;
+
+        sendToDiscord(event);
+        formatForMinecraft(event);
+    }
+
+    private void sendToDiscord(MessageChannelEvent.Chat event) {
         boolean isStaffChat = false;
         if (event.getChannel().isPresent()) {
             MessageChannel channel = event.getChannel().get();
@@ -77,7 +85,7 @@ public class ChatListener {
                             }
 
                             // Format Mentions for Discord
-                            plainString = TextUtil.formatMinecraftMention(channel.getServer(), plainString, player.get(), isBotAccount);
+                            plainString = TextUtil.formatMinecraftMention(plainString, channel.getServer(), player.get(), isBotAccount);
 
                             if (isBotAccount) {
 //                                if (channel == null) {
@@ -99,5 +107,41 @@ public class ChatListener {
                 }
             }
         }
+    }
+
+    private void formatForMinecraft(MessageChannelEvent.Chat event) {
+        Text rawMessage = event.getRawMessage();
+        Optional<Player> player = event.getCause().first(Player.class);
+
+        if (player.isPresent()) {
+/*            UUID playerId = player.get().getUniqueId();
+
+            for (ChannelConfig channelConfig : config.channels) {
+                String template = null;
+
+                Channel channel = client.getChannelById(channelConfig.discordId);
+
+                Optional<User> userOptional = DiscordUtil.getUserByName(player.get().getName(), channel.getServer());
+                if (userOptional.isPresent()) {
+                    User user = userOptional.get();
+                }
+
+                ChannelMinecraftConfigCore minecraftConfig = channelConfig.minecraft;
+                if (channelConfig.minecraft.roles != null) {
+                    Collection<Role> roles = message.getAuthor().getRoles(message.getChannelReceiver().getServer());
+                    for (String roleName : channelConfig.minecraft.roles.keySet()) {
+                        if (roles.stream().anyMatch(r -> r.getName().equals(roleName))) {
+                            ChannelMinecraftConfigCore roleConfig = channelConfig.minecraft.roles.get(roleName);
+                            roleConfig.inherit(channelConfig.minecraft);
+                            minecraftConfig = roleConfig;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            event.setMessage(rawMessage);*/
+        }
+
     }
 }
