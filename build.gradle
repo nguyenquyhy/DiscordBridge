@@ -40,7 +40,7 @@ spongestart{
 
 dependencies {
     compile('org.spongepowered:spongeapi:4.1.0')
-    compile files('libs/javacord-2.0.11-shaded.jar')
+    compile files('libs/javacord-2.0.13-shaded.jar')
 //    compile('de.btobastian.javacord:javacord:2.0.11:shaded')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'

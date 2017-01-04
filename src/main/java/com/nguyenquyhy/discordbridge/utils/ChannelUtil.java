@@ -9,6 +9,6 @@ public class ChannelUtil {
     public static final String SPECIAL_CHAR = "\u2062";
 
     public static void sendMessage(Channel channel, String content) {
-        channel.sendMessage(content, false, SPECIAL_CHAR);
+        channel.sendMessage(content, null, false, SPECIAL_CHAR, null);
     }
 }
