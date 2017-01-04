@@ -13,7 +13,7 @@ public enum ErrorMessages {
 
 
     @SuppressWarnings("incomplete-switch")
-	public void log(String... params) {
+    public void log(String... params) {
         Logger logger = DiscordBridge.getInstance().getLogger();
         switch (this) {
             case CHANNEL_NOT_FOUND:

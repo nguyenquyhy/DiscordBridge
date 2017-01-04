@@ -10,12 +10,10 @@ import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
-import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.entities.Channel;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -34,7 +32,7 @@ import java.util.*;
  * Created by Hy on 1/4/2016.
  */
 @Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.3.0",
-        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = { "Hy", "Mohron" })
+        description = "A Sponge plugin to connect your Minecraft server with Discord", authors = {"Hy", "Mohron"})
 public class DiscordBridge {
 
     private DiscordAPI consoleClient = null;

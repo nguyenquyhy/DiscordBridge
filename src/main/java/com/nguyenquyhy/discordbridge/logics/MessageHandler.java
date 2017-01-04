@@ -73,7 +73,7 @@ public class MessageHandler {
                             && StringUtils.isNotBlank(minecraftConfig.attachment.template)
                             && message.getAttachments() != null) {
                         for (MessageAttachment attachment : message.getAttachments()) {
-                            String spacing = message.getContent().equals("") ? "" : " ";
+                            String spacing = StringUtils.isBlank(message.getContent()) ? "" : " ";
                             Text.Builder builder = Text.builder()
                                     .append(TextSerializers.FORMATTING_CODE.deserialize(spacing + minecraftConfig.attachment.template));
                             if (minecraftConfig.attachment.allowLink)

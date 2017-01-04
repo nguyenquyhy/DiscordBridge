@@ -11,7 +11,6 @@ import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
-import com.nguyenquyhy.discordbridge.utils.TextUtil;
 import de.btobastian.javacord.DiscordAPI;
 import de.btobastian.javacord.Javacord;
 import de.btobastian.javacord.entities.Channel;
@@ -39,10 +38,11 @@ import java.util.UUID;
  * Created by Hy on 8/6/2016.
  */
 public class LoginHandler {
+    private static DiscordBridge mod = DiscordBridge.getInstance();
+    private static Logger logger = mod.getLogger();
+    private static GlobalConfig config = mod.getConfig();
+
     public static boolean loginBotAccount() {
-        DiscordBridge mod = DiscordBridge.getInstance();
-        Logger logger = mod.getLogger();
-        GlobalConfig config = mod.getConfig();
 
         if (StringUtils.isBlank(config.botToken)) {
             logger.warn("No Bot token is available! Messages can only get from and to authenticated players.");
@@ -70,7 +70,6 @@ public class LoginHandler {
      * @return
      */
     public static boolean loginHumanAccount(Player player) {
-        DiscordBridge mod = DiscordBridge.getInstance();
         IStorage storage = mod.getStorage();
 
         if (storage != null) {
@@ -147,7 +146,6 @@ public class LoginHandler {
     }
 
     public static CommandResult logout(CommandSource commandSource, boolean isSilence) {
-        DiscordBridge mod = DiscordBridge.getInstance();
 
         if (commandSource instanceof Player) {
             Player player = (Player) commandSource;
@@ -176,9 +174,6 @@ public class LoginHandler {
     }
 
     private static void prepareBotClient(DiscordAPI client, CommandSource commandSource) {
-        DiscordBridge mod = DiscordBridge.getInstance();
-        Logger logger = mod.getLogger();
-        GlobalConfig config = mod.getConfig();
 
         if (commandSource != null)
             commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "Logging in..."));
@@ -198,8 +193,6 @@ public class LoginHandler {
                 String text = "Bot account " + name + " will be used for all unauthenticated users!";
                 if (StringUtils.isNotBlank(config.botDiscordGame)) {
                     client.setGame(config.botDiscordGame);
-                } else {
-                    client.setGame(null);
                 }
                 if (commandSource != null)
                     commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, text));
@@ -230,9 +223,6 @@ public class LoginHandler {
     }
 
     private static void prepareHumanClient(DiscordAPI client, CommandSource commandSource) {
-        DiscordBridge mod = DiscordBridge.getInstance();
-        GlobalConfig config = mod.getConfig();
-        Logger logger = mod.getLogger();
 
         client.connect(new FutureCallback<DiscordAPI>() {
             @Override
@@ -276,7 +266,7 @@ public class LoginHandler {
             public void onFailure(Throwable throwable) {
                 logger.error("Cannot connect to Discord!", throwable);
                 if (commandSource != null) {
-                    commandSource.sendMessage(Text.of(TextColors.RED, "Cannot login! Please check your email and password."));
+                    commandSource.sendMessage(Text.of(TextColors.RED, "Unable to login! Please check your login details or your email for login verification."));
                 }
             }
         });
@@ -305,8 +295,6 @@ public class LoginHandler {
 //    }
 
     private static void channelJoined(DiscordAPI client, GlobalConfig config, ChannelConfig channelConfig, Channel channel, CommandSource src) {
-        DiscordBridge mod = DiscordBridge.getInstance();
-        Logger logger = mod.getLogger();
 
         if (channel != null && StringUtils.isNotBlank(channelConfig.discordId) && channelConfig.discord != null) {
             if (client != mod.getBotClient()) {

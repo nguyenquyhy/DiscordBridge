@@ -54,15 +54,14 @@ public class TextUtil {
     }
 
     /**
-     * @param server
-     * @param message
-     * @param player
-     * @param isBot
-     * @return
+     * @param message the Minecraft message to be checked for valid mentions
+     * @param server the server to search through Users and Roles
+     * @param player the player who's permissions to check
+     * @param isBot used to ignore permission checks for authenticated users
+     * @return the message with mentions properly formatted for Discord, if allowed
      */
-    public static String formatMinecraftMention(Server server, String message, Player player, boolean isBot) {
+    public static String formatMinecraftMention(String message, Server server, Player player, boolean isBot) {
         Matcher m = mentionPattern.matcher(message);
-        replaceMentions:
         while (m.find()) {
             String mention = m.group();
             String mentionName = mention.replace("@", "");
@@ -72,19 +71,18 @@ public class TextUtil {
                 continue;
             }
             if (!isBot || player.hasPermission("discordbridge.mention.name." + mentionName.toLowerCase())) {
-                for (User user : server.getMembers()) {
-                    if (user.getName().equalsIgnoreCase(mentionName) || (user.getNickname(server.getId()) != null && user.getNickname(server.getId()).equalsIgnoreCase(mentionName))) {
-                        message = message.replace(mention, "<@" + user.getId() + ">");
-                        continue replaceMentions;
-                    }
+                Optional<User> user = DiscordUtil.getUserByName(mentionName, server);
+                DiscordBridge.getInstance().getLogger().info(String.format("Found user %s: %s", mentionName, user.isPresent()));
+                if (user.isPresent()) {
+                    message = message.replace(mention, "<@" + user.get().getId() + ">");
+                    continue;
                 }
             }
             if (!isBot || player.hasPermission("discordbridge.mention.role." + mentionName.toLowerCase())) {
-                for (Role roles : server.getRoles()) {
-                    if (roles.getName().equalsIgnoreCase(mentionName) && roles.getMentionable()) {
-                        message = message.replace(mention, "<@&" + roles.getId() + ">");
-                        continue replaceMentions;
-                    }
+                Optional<Role> role = DiscordUtil.getRoleByName(mentionName, server);
+                DiscordBridge.getInstance().getLogger().info(String.format("Found role %s: %s", mentionName, role.isPresent()));
+                if (role.isPresent() && role.get().getMentionable()) {
+                    message = message.replace(mention, "<@&" + role.get().getId() + ">");
                 }
             }
         }
@@ -114,17 +112,18 @@ public class TextUtil {
      */
     public static String formatForMinecraft(ChannelMinecraftConfigCore config, Message message) {
         Server server = message.getChannelReceiver().getServer();
+        User author = message.getAuthor();
 
         // Replace %u with author's username
-        String s = config.chatTemplate.replace("%u", message.getAuthor().getName());
+        String s = ConfigUtil.get(config.chatTemplate, "&7<%a> &f%s").replace("%u", author.getName());
 
         // Replace %n with author's nickname or username
-        String nickname = (message.getAuthor().getNickname(server.getId()) != null) ? message.getAuthor().getNickname(server.getId()) : message.getAuthor().getName();
+        String nickname = (author.getNickname(server.getId()) != null) ? author.getNickname(server.getId()) : author.getName();
         s = s.replace("%a", nickname);
 
         // Get author's highest role
-        Optional<Role> highestRole = getHighestRole(message.getAuthor(), server);
-        String roleName = "";
+        Optional<Role> highestRole = DiscordUtil.getHighestRole(author, server);
+        String roleName = "Discord"; //(config.roles.containsKey("everyone")) ? config.roles.get("everyone").name : "Member";
         Color roleColor = Color.WHITE;
         if (highestRole.isPresent()) {
             roleName = highestRole.get().getName();
@@ -134,36 +133,18 @@ public class TextUtil {
         String colorString = ColorUtil.getColorCode(roleColor);
         s = (StringUtils.isNotBlank(colorString)) ? s.replace("%r", colorString + roleName + "&r") : s.replace("%r", roleName);
         // Replace %g with Message author's game
-        String game = message.getAuthor().getGame();
+        String game = author.getGame();
         if (game != null) s = s.replace("%g", game);
 
+        // Add the actual message
         s = String.format(s, message.getContent());
 
         // Replace user mentions with readable names
-        for (User mention : message.getMentions()) {
-            Optional<Role> role = getHighestRole(mention, server);
-            String nick = (mention.getNickname(server.getId()) != null) ? mention.getNickname(server.getId()) : mention.getName();
-            String color = (role.isPresent()) ? ColorUtil.getColorCode(role.get().getColor()) : null;
-            String mentionString = (color != null) ?
-                    config.mention.userTemplate.replace("%a", color + nick + "&r").replace("%u", color + mention.getName() + "&r") :
-                    config.mention.userTemplate.replace("%a", nick).replace("%u", mention.getName());
-            s = s.replaceAll("(<@!?" + mention.getId() + ">)", mentionString);
-        }
+        s = DiscordUtil.formatUserMentions(s, config.mention, message.getMentions(), server);
         // Replace role mentions
-        for (Role mention : message.getMentionRoles()) {
-            String color = ColorUtil.getColorCode(mention.getColor());
-            String mentionString = (StringUtils.isNotBlank(color)) ?
-                    config.mention.roleTemplate.replace("%r", color + mention.getName() + "&r") :
-                    config.mention.roleTemplate.replace("%r", mention.getName());
-            s = s.replace("<@&" + mention.getId() + ">", mentionString);
-        }
+        s = DiscordUtil.formatRoleMentions(s, config.mention, message.getMentionRoles());
         // Format @here/@everyone mentions
-        if (message.getMentionEveryone() ) {
-            Matcher m = mentionPattern.matcher(s);
-            while (m.find()) {
-                s = s.replace(m.group(), config.mention.everyoneTemplate.replace("%a", m.group().substring(1,m.group().length())));
-            }
-        }
+        s = DiscordUtil.formatEveryoneMentions(s, config.mention, message.getMentionEveryone());
 
         return TextUtil.formatDiscordMessage(s);
     }
@@ -285,17 +266,5 @@ public class TextUtil {
             this.colour = colour;
             this.style = style;
         }
-    }
-
-    private static Optional<Role> getHighestRole(User user, Server server) {
-        int position = 0;
-        Optional<Role> highestRole = Optional.empty();
-        for (Role role:user.getRoles(server)) {
-            if (role.getPosition() > position) {
-                position = role.getPosition();
-                highestRole = Optional.of(role);
-            }
-        }
-        return highestRole;
     }
 }
