@@ -90,9 +90,10 @@ Configuration is stored in `config.json` file.
       - `hoverTemplate`: template for the message shown when you hover over an attachment link
       - `allowLink`: adds a clickable link in game for attachments sent via discord
     - `mention`: _(thanks, Mohron)_
-      - `userTemplate`: template for @user mentions - accepts `%a`/`%u` 
-      - `roleTemplate`: template for @role mentions - accepts `%r`
-      - `everyoneTemplate`: template for @here & @everyone mentions - accepts `%a`
+      - `userTemplate`: template for @user mentions - accepts `%s`/`%u` 
+      - `roleTemplate`: template for @role mentions - accepts `%s`
+      - `everyoneTemplate`: template for @here & @everyone mentions - accepts `%s`
+      - `channelTemplate`: template for @here & @everyone mentions - accepts `%s`
     - `roles`: `minecraft` configurations that are for a specific Discord role
 
 You can find some example configurations in `examples` folders.
@@ -111,6 +112,7 @@ You can find some example configurations in `examples` folders.
 |---------|-----------|
 | `discordbridge.mention.name` <br> `discordbridge.mention.name.<name>` | Allows `@username`/`@nickname` mentions to be sent from Minecraft |
 | `discordbridge.mention.role` <br> `discordbridge.mention.role.<role>`  | Allows `@role` mentions - the role must have "Allow anyone to @mention" set |
+| `discordbridge.mention.channel` <br> `discordbridge.mention.channel.<channel>` | Allows `#channel` mention |
 | `discordbridge.mention.here` | Allows the `@here` mention<sup>1</sup> |
 | `discordbridge.mention.everyone` | Allows the `@everyone` mention<sup>1</sup> |
 >  <sup>1</sup> The bot must have permission to "Mention Everyone" in order to use `@here` & `@everyone`.

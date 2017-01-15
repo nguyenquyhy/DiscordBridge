@@ -11,6 +11,7 @@ import de.btobastian.javacord.entities.User;
 import de.btobastian.javacord.entities.message.Message;
 import de.btobastian.javacord.entities.permissions.Role;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.HoverAction;
@@ -38,7 +39,7 @@ public class TextUtil {
     private static final Pattern urlPattern =
             Pattern.compile("(?<first>(^|\\s))(?<colour>(&[0-9a-flmnork])+)?(?<url>(http(s)?://)?([A-Za-z0-9]+\\.)+[A-Za-z0-9]{2,}\\S*)", Pattern.CASE_INSENSITIVE);
     private static final Pattern mentionPattern =
-            Pattern.compile("(@\\S*)");
+            Pattern.compile("([@#]\\S*)");
 
     public static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
 
@@ -65,27 +66,40 @@ public class TextUtil {
      */
     public static String formatMinecraftMention(String message, Server server, Player player, boolean isBot) {
         Matcher m = mentionPattern.matcher(message);
+        Logger logger = DiscordBridge.getInstance().getLogger();
+
         while (m.find()) {
             String mention = m.group();
-            String mentionName = mention.replace("@", "");
-            if ((mentionName.equalsIgnoreCase("here") && isBot && !player.hasPermission("discordbridge.mention.here")) ||
-                    (mentionName.equalsIgnoreCase("everyone") && isBot && !player.hasPermission("discordbridge.mention.everyone"))) {
-                message = message.replace(mention, mentionName);
-                continue;
-            }
-            if (!isBot || player.hasPermission("discordbridge.mention.name." + mentionName.toLowerCase())) {
-                Optional<User> user = DiscordUtil.getUserByName(mentionName, server);
-                DiscordBridge.getInstance().getLogger().info(String.format("Found user %s: %s", mentionName, user.isPresent()));
-                if (user.isPresent()) {
-                    message = message.replace(mention, "<@" + user.get().getId() + ">");
+            if (mention.contains("@")) {
+                String mentionName = mention.replace("@", "");
+                if ((mentionName.equalsIgnoreCase("here") && isBot && !player.hasPermission("discordbridge.mention.here")) ||
+                        (mentionName.equalsIgnoreCase("everyone") && isBot && !player.hasPermission("discordbridge.mention.everyone"))) {
+                    message = message.replace(mention, mentionName);
                     continue;
                 }
-            }
-            if (!isBot || player.hasPermission("discordbridge.mention.role." + mentionName.toLowerCase())) {
-                Optional<Role> role = DiscordUtil.getRoleByName(mentionName, server);
-                DiscordBridge.getInstance().getLogger().info(String.format("Found role %s: %s", mentionName, role.isPresent()));
-                if (role.isPresent() && role.get().isMentionable()) {
-                    message = message.replace(mention, "<@&" + role.get().getId() + ">");
+                if (!isBot || player.hasPermission("discordbridge.mention.name." + mentionName.toLowerCase())) {
+                    Optional<User> user = DiscordUtil.getUserByName(mentionName, server);
+                    logger.debug(String.format("Found user %s: %s", mentionName, user.isPresent()));
+                    if (user.isPresent()) {
+                        message = message.replace(mention, "<@" + user.get().getId() + ">");
+                        continue;
+                    }
+                }
+                if (!isBot || player.hasPermission("discordbridge.mention.role." + mentionName.toLowerCase())) {
+                    Optional<Role> role = DiscordUtil.getRoleByName(mentionName, server);
+                    logger.debug(String.format("Found role %s: %s", mentionName, role.isPresent()));
+                    if (role.isPresent() && role.get().isMentionable()) {
+                        message = message.replace(mention, "<@&" + role.get().getId() + ">");
+                    }
+                }
+            } else if (mention.contains("#")) {
+                String mentionName = mention.replace("#", "");
+                if (!isBot || player.hasPermission("discordbridge.mention.channel." + mentionName.toLowerCase())) {
+                    Optional<Channel> channel = DiscordUtil.getChannelByName(mentionName, server);
+                    logger.debug(String.format("Found channel %s: %s", mentionName, channel.isPresent()));
+                    if (channel.isPresent()) {
+                        message = message.replace(mention, "<#" + channel.get().getId() + ">");
+                    }
                 }
             }
         }

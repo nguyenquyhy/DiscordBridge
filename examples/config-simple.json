@@ -28,9 +28,10 @@
           "allowLink": true
         },
         "mention": {
-          "userTemplate": "&6@&e%a",
-          "roleTemplate": "&6@&a%r",
-          "everyoneTemplate": "&6@&3%a"
+          "userTemplate": "@%s",
+          "roleTemplate": "@%s",
+          "everyoneTemplate": "&6@%s",
+          "channelTemplate": "&9#%s"
         }
       }
     }
