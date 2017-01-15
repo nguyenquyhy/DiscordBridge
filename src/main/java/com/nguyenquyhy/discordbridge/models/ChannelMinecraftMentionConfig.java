@@ -16,9 +16,9 @@ public class ChannelMinecraftMentionConfig implements IConfigInheritable<Channel
      * This is called only when the config file is first created.
      */
     void initializeDefault() {
-        userTemplate = "&6@&e%a&r";
-        roleTemplate = "&6@&a%r&r";
-        everyoneTemplate = "&6@&3%a&r";
+        userTemplate = "@%a";
+        roleTemplate = "@%r";
+        everyoneTemplate = "@%a";
     }
 
     @Setting

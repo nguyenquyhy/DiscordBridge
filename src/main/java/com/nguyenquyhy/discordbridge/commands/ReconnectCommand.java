@@ -5,12 +5,16 @@ import com.nguyenquyhy.discordbridge.logics.ConfigHandler;
 import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import org.slf4j.Logger;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.entity.living.player.Player;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by Hy on 1/5/2016.
@@ -24,6 +28,10 @@ public class ReconnectCommand implements CommandExecutor {
             DiscordBridge.getInstance().setConfig(config);
 
             LoginHandler.loginBotAccount();
+            for (UUID uuid : DiscordBridge.getInstance().getHumanClients().keySet()) {
+                Optional<Player> player = Sponge.getServer().getPlayer(uuid);
+                player.ifPresent(LoginHandler::loginHumanAccount);
+            }
 
             return CommandResult.success();
         } catch (Exception e) {

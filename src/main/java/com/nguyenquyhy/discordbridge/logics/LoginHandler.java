@@ -77,7 +77,13 @@ public class LoginHandler {
             if (StringUtils.isNotBlank(cachedToken)) {
                 player.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
 
-                DiscordAPI client = Javacord.getApi(cachedToken, false);
+                DiscordAPI client = mod.getHumanClients().get(player.getUniqueId());
+                if (client != null) {
+                    client.disconnect();
+                } else {
+                    client = Javacord.getApi(cachedToken, false);
+                }
+
                 prepareHumanClient(client, player);
                 return true;
             }

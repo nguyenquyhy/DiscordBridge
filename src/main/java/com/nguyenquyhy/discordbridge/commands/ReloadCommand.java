@@ -2,9 +2,7 @@ package com.nguyenquyhy.discordbridge.commands;
 
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.logics.ConfigHandler;
-import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
-import de.btobastian.javacord.DiscordAPI;
 import org.slf4j.Logger;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;

@@ -148,9 +148,9 @@ public class TextUtil {
         // Replace user mentions with readable names
         texts = formatUserMentions(texts, config.mention, message.getMentions(), server);
         // Replace role mentions
-        s = formatRoleMentions(s, config.mention, message.getMentionedRoles());
+        texts = formatRoleMentions(texts, config.mention, message.getMentionedRoles());
         // Format @here/@everyone mentions
-        s = formatEveryoneMentions(s, config.mention, message.isMentioningEveryone());
+        texts = formatEveryoneMentions(texts, config.mention, message.isMentioningEveryone());
 
         return Text.join(texts);
     }
@@ -162,9 +162,9 @@ public class TextUtil {
      * @param server   The server to be used for nickname support
      * @return The final message with User mentions formatted
      */
-    public static List<Text> formatUserMentions(List<Text> texts, ChannelMinecraftMentionConfig config, List<User> mentions, Server server) {
+    private static List<Text> formatUserMentions(List<Text> texts, ChannelMinecraftMentionConfig config, List<User> mentions, Server server) {
         if (mentions.isEmpty()) return texts;
-        // Prepare the mentioning
+        // Prepare the text builders
         Map<User, Text.Builder> formattedMentioning = new HashMap<>();
         for (User mention : mentions) {
             Optional<Role> role = getHighestRole(mention, server);
@@ -179,69 +179,58 @@ public class TextUtil {
 
         // Replace the mention
         for (User mention : mentions) {
-            String mentionString = "(<@!?" + mention.getId() + ">)";
-
-            List<Text> result = Lists.newArrayList();
-            StyleTuple st = EMPTY;
-            for (Text text : texts) {
-                Text remaining = text;
-                while (remaining != null) {
-                    String serialized = TextSerializers.FORMATTING_CODE.serialize(remaining);
-                    String[] splitted = serialized.split("(" + mentionString + ")", 2);
-                    if (splitted.length == 2) {
-                        // Add first part
-                        Text first = TextSerializers.FORMATTING_CODE.deserialize(splitted[0]);
-                        result.add(first);
-
-                        // Add the mention
-                        result.add(formattedMentioning.get(mention).build());
-
-                        // Calculate the remaining
-                        st = TextUtil.getLastColourAndStyle(first, st);
-                        remaining = Text.builder().color(st.colour).style(st.style)
-                                .append(TextSerializers.FORMATTING_CODE.deserialize(splitted[1])).build();
-                    } else {
-                        result.add(remaining);
-                        break;
-                    }
-                }
-            }
-            texts = result;
+            String mentionString = "<@" + mention.getId() + ">";
+            texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
         }
 
         return texts;
     }
 
     /**
-     * @param message  The message that may contain Role mentions
+     * @param texts  The message that may contain Role mentions
      * @param config   The mention config to be used for formatting
      * @param mentions The list of roles mentioned
      * @return The final message with Role mentions formatted
      */
-    public static String formatRoleMentions(String message, ChannelMinecraftMentionConfig config, List<Role> mentions) {
-        if (mentions.isEmpty()) return message;
+    private static List<Text> formatRoleMentions(List<Text> texts, ChannelMinecraftMentionConfig config, List<Role> mentions) {
+        if (mentions.isEmpty()) return texts;
+
+        // Prepare the text builders
+        Map<Role, Text.Builder> formattedMentioning = new HashMap<>();
         for (Role mention : mentions) {
-            String color = ColorUtil.getColorCode(mention.getColor());
-            String mentionString = (StringUtils.isNotBlank(color)) ?
-                    ConfigUtil.get(config.roleTemplate, "@%r").replace("%r", color + mention.getName() + "&r") :
-                    ConfigUtil.get(config.roleTemplate, "@%r").replace("%r", mention.getName());
-            message = message.replace("<@&" + mention.getId() + ">", mentionString);
+            String mentionString = ConfigUtil.get(config.roleTemplate, "@%r").replace("%r", mention.getName());
+            Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString));
+            if (mention.getColor() != null) {
+                builder.color(ColorUtil.getColor(mention.getColor()));
+            }
+            formattedMentioning.put(mention, builder);
         }
-        return message;
+
+        for (Role mention : mentions) {
+            String mentionString = "<@&" + mention.getId() + ">";
+            texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
+        }
+
+        return texts;
     }
 
     /**
-     * @param message The message that may contain everyone mentions
+     * @param texts The message that may contain everyone mentions
      * @param config  The mention config to be used for formatting
      * @param mention Whether everyone was mentioned
      * @return The final message with everyone mentions formatted
      */
-    public static String formatEveryoneMentions(String message, ChannelMinecraftMentionConfig config, boolean mention) {
-        if (!mention) return message;
-        String template = ConfigUtil.get(config.everyoneTemplate, "@%a");
-        return message
-                .replaceAll("(@(here))", template.replace("%a", "here&r"))
-                .replaceAll("(@(everyone))", template.replace("%a", "everyone&r"));
+    private static List<Text> formatEveryoneMentions(List<Text> texts, ChannelMinecraftMentionConfig config, boolean mention) {
+        if (!mention) return texts;
+        String mentionText = ConfigUtil.get(config.everyoneTemplate, "@%a").replace("%a", "everyone");
+        Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText));
+        texts = replaceMention(texts, "(@(everyone))", builder);
+
+        mentionText = ConfigUtil.get(config.everyoneTemplate, "@%a").replace("%a", "here");
+        builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText));
+        texts = replaceMention(texts, "(@(here))", builder);
+
+        return texts;
     }
 
     public static List<Text> formatUrl(String message) {
@@ -317,6 +306,35 @@ public class TextUtil {
         }
 
         return texts;
+    }
+
+    private static List<Text> replaceMention(List<Text> texts, String mentionString, Text.Builder mentionBuilder) {
+        List<Text> result = Lists.newArrayList();
+        StyleTuple st = EMPTY;
+        for (Text text : texts) {
+            Text remaining = text;
+            while (remaining != null) {
+                String serialized = TextSerializers.FORMATTING_CODE.serialize(remaining);
+                String[] splitted = serialized.split(mentionString, 2);
+                if (splitted.length == 2) {
+                    // Add first part
+                    Text first = TextSerializers.FORMATTING_CODE.deserialize(splitted[0]);
+                    result.add(first);
+
+                    // Add the mention
+                    result.add(mentionBuilder.build());
+
+                    // Calculate the remaining
+                    st = TextUtil.getLastColourAndStyle(first, st);
+                    remaining = Text.builder().color(st.colour).style(st.style)
+                            .append(TextSerializers.FORMATTING_CODE.deserialize(splitted[1])).build();
+                } else {
+                    result.add(remaining);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     private static StyleTuple getLastColourAndStyle(Text text, StyleTuple current) {
