@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftMentionConfig;
+import de.btobastian.javacord.entities.Channel;
 import de.btobastian.javacord.entities.Server;
 import de.btobastian.javacord.entities.User;
 import de.btobastian.javacord.entities.message.Message;
@@ -12,6 +13,7 @@ import de.btobastian.javacord.entities.permissions.Role;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -151,6 +153,8 @@ public class TextUtil {
         texts = formatRoleMentions(texts, config.mention, message.getMentionedRoles());
         // Format @here/@everyone mentions
         texts = formatEveryoneMentions(texts, config.mention, message.isMentioningEveryone());
+        // Format #channel mentions
+        texts = formatChannelMentions(texts, config.mention);
 
         return Text.join(texts);
     }
@@ -169,8 +173,11 @@ public class TextUtil {
         for (User mention : mentions) {
             Optional<Role> role = getHighestRole(mention, server);
             String nick = (mention.getNickname(server) != null) ? mention.getNickname(server) : mention.getName();
-            String mentionString = ConfigUtil.get(config.userTemplate, "@%a").replace("%a", nick).replace("%u", mention.getName());
-            Text.Builder formatted = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString));
+            String mentionString = ConfigUtil.get(config.userTemplate, "@%a")
+                    .replace("%s", nick).replace("%a", nick)
+                    .replace("%u", mention.getName());
+            Text.Builder formatted = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString))
+                    .onHover(TextActions.showText(Text.of("Mentioning user " + nick + ".")));
             if (role.isPresent()) {
                 formatted = formatted.color(ColorUtil.getColor(role.get().getColor()));
             }
@@ -198,8 +205,9 @@ public class TextUtil {
         // Prepare the text builders
         Map<Role, Text.Builder> formattedMentioning = new HashMap<>();
         for (Role mention : mentions) {
-            String mentionString = ConfigUtil.get(config.roleTemplate, "@%r").replace("%r", mention.getName());
-            Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString));
+            String mentionString = ConfigUtil.get(config.roleTemplate, "@%s").replace("%s", mention.getName());
+            Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString))
+                    .onHover(TextActions.showText(Text.of("Mentioning role " + mention.getName() + ".")));
             if (mention.getColor() != null) {
                 builder.color(ColorUtil.getColor(mention.getColor()));
             }
@@ -222,14 +230,46 @@ public class TextUtil {
      */
     private static List<Text> formatEveryoneMentions(List<Text> texts, ChannelMinecraftMentionConfig config, boolean mention) {
         if (!mention) return texts;
-        String mentionText = ConfigUtil.get(config.everyoneTemplate, "@%a").replace("%a", "everyone");
-        Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText));
+        String mentionText = ConfigUtil.get(config.everyoneTemplate, "@%s").replace("%s", "everyone");
+        Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText))
+                .onHover(TextActions.showText(Text.of("Mentioning everyone.")));
         texts = replaceMention(texts, "(@(everyone))", builder);
 
-        mentionText = ConfigUtil.get(config.everyoneTemplate, "@%a").replace("%a", "here");
-        builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText));
+        mentionText = ConfigUtil.get(config.everyoneTemplate, "@%s").replace("%s", "here");
+        builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText))
+                .onHover(TextActions.showText(Text.of("Mentioning online people.")));
         texts = replaceMention(texts, "(@(here))", builder);
 
+        return texts;
+    }
+
+    private static Pattern channelPattern = Pattern.compile("<#[0-9]+>");
+
+    /**
+     * @param texts The message that may contain everyone mentions
+     * @param config  The mention config to be used for formatting
+     * @return The final message with everyone mentions formatted
+     */
+    private static List<Text> formatChannelMentions(List<Text> texts, ChannelMinecraftMentionConfig config) {
+        Map<String, Text.Builder> formattedMentions = new HashMap<>();
+        for (Text text : texts) {
+            String serialized = TextSerializers.FORMATTING_CODE.serialize(text);
+            Matcher matcher = channelPattern.matcher(serialized);
+            while (matcher.find()) {
+                String channelId = serialized.substring(matcher.start() + 2, matcher.end() - 1);
+                if (!formattedMentions.containsKey(channelId)) {
+                    Channel channel = DiscordBridge.getInstance().getBotClient().getChannelById(channelId);
+                    String mentionText = ConfigUtil.get(config.channelTemplate, "#%s").replace("%s", channel.getName());
+                    Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText))
+                            .onHover(TextActions.showText(Text.of("Mentioning channel " + channel.getName() + ".")));
+                    formattedMentions.put(channelId, builder);
+                }
+            }
+        }
+
+        for (String channelId : formattedMentions.keySet()) {
+            texts = replaceMention(texts, "<#" + channelId + ">", formattedMentions.get(channelId));
+        }
         return texts;
     }
 
