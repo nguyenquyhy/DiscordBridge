@@ -39,6 +39,12 @@ public class CommandRegistry {
                 .executor(new ReloadCommand())
                 .build();
 
+        CommandSpec reconnectCmd = CommandSpec.builder()
+                .permission("discordbridge.reconnect")
+                .description(Text.of("Reconnect Discord Bridge connection"))
+                .executor(new ReconnectCommand())
+                .build();
+
         CommandSpec broadcastCmd = CommandSpec.builder()
                 .permission("discordbridge.broadcast")
                 .description(Text.of("Broadcast message to Discord and online Minecraft accounts"))
@@ -66,6 +72,7 @@ public class CommandRegistry {
                 .child(loginConfirmCmd, "loginconfirm", "lc")
                 .child(logoutCmd, "logout", "lo")
                 .child(reloadCmd, "reload")
+                .child(reconnectCmd, "reconnect")
                 .child(broadcastCmd, "broadcast", "b", "bc")
                 .child(statusCmd, "status", "s")
                 .child(otpCmd, "otp", "o")

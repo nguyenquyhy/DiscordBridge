@@ -42,6 +42,7 @@ This is a [Sponge](http://spongepowered.com) plugin to integrate [Minecraft](htt
 - `/discord broadcast`: as this plugin cannot capture server's `/say` at the moment, this command is to send a message to all online players and Discord. This command requires having the default account set up.
 - `/discord status`: show current connection status.
 - `/discord reload`: reload configurations.
+- `/discord reconnect`: reconnect Discord connection.
 
 A short summary is below:
 
@@ -53,6 +54,7 @@ A short summary is below:
 | `/discord broadcast <message>` | `/d b <message>` | `discordbridge.broadcast` |
 | `/discord status` | `/d s` | `discordbridge.status` |
 | `/discord reload` | `/d reload` | `discordbridge.reload` |
+| `/discord reconnect` | `/d reconnect` | `discordbridge.reconnect` |
 
 Some ideas for future commands
 

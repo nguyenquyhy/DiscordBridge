@@ -33,14 +33,15 @@ spongestart{
 
     //optional configs
     //spongeVanillaBuild 'LATEST'
+    spongeVanillaBuild '1.10.2-5.1.0-BETA-366'
     //spongeForgeBuild 'LATEST'
     //forgeServerFolder 'run'
     //vanillaServerFolder 'run/vanilla'
 }
 
 dependencies {
-    compile('org.spongepowered:spongeapi:4.1.0')
-    compile files('libs/javacord-2.0.13-shaded.jar')
+    compile('org.spongepowered:spongeapi:5.0.0')
+    compile files('libs/javacord-2.0.14-shaded.jar')
 //    compile('de.btobastian.javacord:javacord:2.0.11:shaded')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'

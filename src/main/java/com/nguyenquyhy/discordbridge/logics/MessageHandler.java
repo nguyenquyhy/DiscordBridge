@@ -66,7 +66,7 @@ public class MessageHandler {
                 }
 
                 if (StringUtils.isNotBlank(minecraftConfig.chatTemplate)) {
-                    Text messageText = TextUtil.formatUrl(TextUtil.formatForMinecraft(minecraftConfig, message));
+                    Text messageText = TextUtil.formatForMinecraft(minecraftConfig, message);
 
                     // Format attachments
                     if (minecraftConfig.attachment != null

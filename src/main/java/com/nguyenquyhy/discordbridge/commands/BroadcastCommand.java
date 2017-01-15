@@ -59,7 +59,7 @@ public class BroadcastCommand implements CommandExecutor {
         // Send to Minecraft
         if (StringUtils.isNotBlank(config.minecraftBroadcastTemplate)) {
             for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                player.sendMessage(TextUtil.formatUrl(String.format(config.minecraftBroadcastTemplate, message)));
+                player.sendMessage(Text.join(TextUtil.formatUrl(String.format(config.minecraftBroadcastTemplate, message))));
             }
             logger.info("[BROADCAST MINECRAFT] " + message);
         }

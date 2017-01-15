@@ -5,6 +5,8 @@
 - Mentions from Minecraft are supported with permission control.
 - Attachments in Discord show proper links in Minecraft.
 - Support Minecraft templates based on Discord roles.
+- Split `/discord reload` into `/discord reload` (reload config file only) and `/discord reconnect` (reconnect Discord connections).
+- Update Javacord to fix console spamming issue.
 
 ## 2.2.0
 - Set game activity of the bot.
