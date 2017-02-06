@@ -46,7 +46,8 @@
         "joinedTemplate": "_%s just joined the server_",
         "leftTemplate": "_%s just left the server_",
         "serverUpMessage": "Server has started.",
-        "serverDownMessage": "Server has stopped."
+        "serverDownMessage": "Server has stopped.",
+        "deathTemplate": "**%s**"
       }
     },
     {

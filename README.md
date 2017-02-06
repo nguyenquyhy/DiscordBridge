@@ -83,6 +83,7 @@ Configuration is stored in `config.json` file.
     - `anonymousChatTemplate`: (optional) template for messages from Minecraft to Discord for unauthenticated user
     - `authenticatedChatTemplate`: (optional) template for messages from Minecraft to Discord for authenticated user
     - `broadcastTemplate`: (optional) template for messages in Discord from `/discord broadcast` command
+    - `deathTemplate`: (optional) template for a message in Discord when a player dies _(thanks, Mohron)_
   - `minecraft`: templates in Minecraft
     - `chatTemplate`: (optional) template for messages from Discord to Minecraft. For supporting placeholders in the template, check the section **Chat placeholder** 
     - `attachment`: _(thanks, Mohron)_

@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.nguyenquyhy.discordbridge.database.IStorage;
 import com.nguyenquyhy.discordbridge.listeners.ChatListener;
 import com.nguyenquyhy.discordbridge.listeners.ClientConnectionListener;
+import com.nguyenquyhy.discordbridge.listeners.DeathListener;
 import com.nguyenquyhy.discordbridge.logics.ConfigHandler;
 import com.nguyenquyhy.discordbridge.logics.LoginHandler;
 import com.nguyenquyhy.discordbridge.models.ChannelConfig;
@@ -64,6 +65,7 @@ public class DiscordBridge {
 
         Sponge.getEventManager().registerListeners(this, new ChatListener());
         Sponge.getEventManager().registerListeners(this, new ClientConnectionListener());
+        Sponge.getEventManager().registerListeners(this, new DeathListener());
     }
 
     @Listener
