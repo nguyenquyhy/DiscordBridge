@@ -21,6 +21,7 @@ public class ChannelDiscordConfig {
         serverUpMessage = "Server has started.";
         serverDownMessage = "Server has stopped.";
         broadcastTemplate = "_<BROADCAST> %s_";
+        deathTemplate = "**%s**";
     }
 
     @Setting
@@ -37,6 +38,8 @@ public class ChannelDiscordConfig {
     public String serverDownMessage;
     @Setting
     public String broadcastTemplate;
+    @Setting
+    public String deathTemplate;
 
 
     @Deprecated

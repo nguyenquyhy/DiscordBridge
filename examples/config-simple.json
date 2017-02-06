@@ -18,7 +18,8 @@
         "leftTemplate": "_%s just left the server_",
         "serverUpMessage": "Server has started.",
         "serverDownMessage": "Server has stopped.",
-        "broadcastTemplate": "_<BROADCAST> %s_"
+        "broadcastTemplate": "_<BROADCAST> %s_",
+        "deathTemplate": "**%s**"
       },
       "minecraft": {
         "chatTemplate": "&7<%a> &f%s",
