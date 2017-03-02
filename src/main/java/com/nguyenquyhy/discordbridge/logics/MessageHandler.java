@@ -43,7 +43,7 @@ public class MessageHandler {
             if (config.ignoreBots && message.getAuthor().isBot()) {
                 return;
             }
-            if (message.getNonce() != null && message.getNonce().equals(ChannelUtil.SPECIAL_CHAR)) {
+            if (message.getNonce() != null && message.getNonce().equals(ChannelUtil.SPECIAL_CHAR + ChannelUtil.BOT_RANDOM)) {
                 return;
             }
             if (StringUtils.isNotBlank(channelConfig.discordId)
