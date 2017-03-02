@@ -202,6 +202,8 @@ public class TextUtil {
         for (User mention : mentions) {
             String mentionString = "<@" + mention.getId() + ">";
             texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
+            mentionString = "<@!" + mention.getId() + ">";
+            texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
         }
 
         return texts;
