@@ -24,7 +24,6 @@ import java.util.UUID;
  */
 public class ChatListener {
     DiscordBridge mod = DiscordBridge.getInstance();
-    GlobalConfig config = mod.getConfig();
 
     /**
      * Send chat from Minecraft to Discord
@@ -41,6 +40,8 @@ public class ChatListener {
     }
 
     private void sendToDiscord(MessageChannelEvent.Chat event) {
+        GlobalConfig config = mod.getConfig();
+
         boolean isStaffChat = false;
         if (event.getChannel().isPresent()) {
             MessageChannel channel = event.getChannel().get();
