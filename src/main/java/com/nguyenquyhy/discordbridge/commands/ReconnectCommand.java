@@ -26,6 +26,7 @@ public class ReconnectCommand implements CommandExecutor {
         try {
             GlobalConfig config = ConfigHandler.loadConfiguration();
             DiscordBridge.getInstance().setConfig(config);
+            logger.info("Configuration reloaded!");
 
             LoginHandler.loginBotAccount();
             for (UUID uuid : DiscordBridge.getInstance().getHumanClients().keySet()) {
