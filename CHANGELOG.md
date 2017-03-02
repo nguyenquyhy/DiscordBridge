@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+## 2.4.0
+- Support sending message to Discord when a player die (check `deathTemplate`).
+- Discord Bridge now ignores only messages from Discord Brige and from the same server. Previously, the plugin ignores all messages from Discord Bridge regardless different servers.
+- Fix reloading does not reload templates.
+- Fix mentioning nickname.
+
 ## 2.3.0
 - Mentions in Discord show properly in Minecraft with configurable templates.
 - Mentions from Minecraft are supported with permission control.
