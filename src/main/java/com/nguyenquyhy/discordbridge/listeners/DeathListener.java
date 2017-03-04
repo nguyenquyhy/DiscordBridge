@@ -19,7 +19,7 @@ public class DeathListener {
         GlobalConfig config = mod.getConfig();
         DiscordAPI client = mod.getBotClient();
 
-        if (!(event.getTargetEntity() instanceof Player) || event.isMessageCancelled()) return;
+        if (!(event.getTargetEntity() instanceof Player) || event.isMessageCancelled() || StringUtils.isBlank(event.getMessage().toPlain())) return;
         Player player = (Player) event.getTargetEntity();
 
         if (client != null) {
