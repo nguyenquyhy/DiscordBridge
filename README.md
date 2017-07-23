@@ -90,6 +90,10 @@ Configuration is stored in `config.json` file.
       - `template`: template for Discord attachments linked in Minecraft 
       - `hoverTemplate`: template for the message shown when you hover over an attachment link
       - `allowLink`: adds a clickable link in game for attachments sent via discord
+    - `emoji`: _(thanks, Mohron)_
+      - `template`: template for custom emoji viewed in Minecraft - accepts `%n`
+      - `hoverTemplate`: template for the message shown when you hover over an emoji
+      - `allowLink`: adds a clickable link in game to view the emoji image
     - `mention`: _(thanks, Mohron)_
       - `userTemplate`: template for @user mentions - accepts `%s`/`%u` 
       - `roleTemplate`: template for @role mentions - accepts `%s`
@@ -105,6 +109,7 @@ You can find some example configurations in `examples` folders.
 - `%u` - the username of the author. This is used if you want to disallow Discord nickname.
 - `%r` - the name of the highest Discord role held by the message author. Color of the role will also be translated into Minecraft color automatically.
 - `%g` - the current game of the message author
+- `%n` - the name of of custom emoji
 
 ### Additional Permissions
  *NOTE: The below permissions are applicable only to unathenticated users. Authenticated users chat under their own Discord accounts, so you can restrict using Text permission of Discord roles.*

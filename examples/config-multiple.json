@@ -23,6 +23,11 @@
           "hoverTemplate": "Please check Discord.",
           "allowLink": false
         },
+        "emoji": {
+          "template": "&b:%n:&r",
+          "hoverTemplate": "Click to view emjoi.",
+          "allowLink": true
+        },
         "mention": {
           "userTemplate": "@%s",
           "roleTemplate": "@%s",
