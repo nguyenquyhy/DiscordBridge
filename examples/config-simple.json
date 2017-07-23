@@ -28,6 +28,11 @@
           "hoverTemplate": "Click to open attachment.",
           "allowLink": true
         },
+        "emoji": {
+          "template": "&b:%n:&r",
+          "hoverTemplate": "Click to view emjoi.",
+          "allowLink": true
+        },
         "mention": {
           "userTemplate": "@%s",
           "roleTemplate": "@%s",
