@@ -46,6 +46,9 @@ public class MessageHandler {
             if (message.getNonce() != null && message.getNonce().equals(ChannelUtil.SPECIAL_CHAR + ChannelUtil.BOT_RANDOM)) {
                 return;
             }
+            if (message.isPinned()) {
+                return;
+            }
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.minecraft != null
                     && message.getChannelReceiver() != null
