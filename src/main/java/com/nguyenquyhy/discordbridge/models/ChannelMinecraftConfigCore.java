@@ -12,6 +12,8 @@ public class ChannelMinecraftConfigCore implements IConfigInheritable<ChannelMin
         chatTemplate = "&7<%a> &f%s";
         attachment = new ChannelMinecraftAttachmentConfig();
         attachment.initializeDefault();
+        emoji = new ChannelMinecraftEmojiConfig();
+        emoji.initializeDefault();
         mention = new ChannelMinecraftMentionConfig();
         mention.initializeDefault();
     }
@@ -20,6 +22,8 @@ public class ChannelMinecraftConfigCore implements IConfigInheritable<ChannelMin
     public String chatTemplate;
     @Setting
     public ChannelMinecraftAttachmentConfig attachment;
+    @Setting
+    public ChannelMinecraftEmojiConfig emoji;
     @Setting
     public ChannelMinecraftMentionConfig mention;
 

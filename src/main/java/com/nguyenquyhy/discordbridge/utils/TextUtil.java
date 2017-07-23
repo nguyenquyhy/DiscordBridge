@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
+import com.nguyenquyhy.discordbridge.models.ChannelMinecraftEmojiConfig;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftMentionConfig;
 import de.btobastian.javacord.entities.Channel;
 import de.btobastian.javacord.entities.Server;
@@ -169,6 +170,8 @@ public class TextUtil {
         texts = formatEveryoneMentions(texts, config.mention, message.isMentioningEveryone());
         // Format #channel mentions
         texts = formatChannelMentions(texts, config.mention);
+        // Format custom :emjoi:
+        texts = formatCustomEmoji(texts, config.emoji);
 
         return Text.join(texts);
     }
@@ -262,9 +265,9 @@ public class TextUtil {
     private static Pattern channelPattern = Pattern.compile("<#[0-9]+>");
 
     /**
-     * @param texts The message that may contain everyone mentions
+     * @param texts The message that may contain channel mentions
      * @param config  The mention config to be used for formatting
-     * @return The final message with everyone mentions formatted
+     * @return The final message with channel mentions formatted
      */
     private static List<Text> formatChannelMentions(List<Text> texts, ChannelMinecraftMentionConfig config) {
         Map<String, Text.Builder> formattedMentions = new HashMap<>();
@@ -285,6 +288,37 @@ public class TextUtil {
 
         for (String channelId : formattedMentions.keySet()) {
             texts = replaceMention(texts, "<#" + channelId + ">", formattedMentions.get(channelId));
+        }
+        return texts;
+    }
+
+    private static Pattern customEmoji = Pattern.compile("<:([a-z]+):([0-9]+)>", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * @param texts The message that may contain custom emoji
+     * @param config  The mention config to be used for formatting
+     * @return The final message with custom emoji formatted
+     */
+    private static List<Text> formatCustomEmoji(List<Text> texts, ChannelMinecraftEmojiConfig config) {
+        for(Text text : texts){
+            String serialized = TextSerializers.FORMATTING_CODE.serialize(text);
+            Matcher matcher = customEmoji.matcher(serialized);
+            while (matcher.find()) {
+                String name = matcher.group(1);
+                String id = matcher.group(2);
+
+                Text.Builder builder = TextSerializers.FORMATTING_CODE.deserialize(config.template.replace("%n", name)).toBuilder();
+
+                if (config.allowLink) {
+                    try {
+                        builder = builder.onClick(TextActions.openUrl(new URL("https://cdn.discordapp.com/emojis/" + id + ".png")));
+                    } catch (MalformedURLException ignored) { }
+                }
+
+                if (StringUtils.isNotBlank(config.hoverTemplate))
+                    builder = builder.onHover(TextActions.showText(Text.of(config.hoverTemplate)));
+                texts = replaceMention(texts, "<:"+name+":"+id+">", builder);
+            }
         }
         return texts;
     }
