@@ -6,8 +6,8 @@ import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.entities.Channel;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -60,7 +60,7 @@ public class ChatListener {
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
 
-            DiscordAPI client = mod.getBotClient();
+            JDA client = mod.getBotClient();
             boolean isBotAccount = true;
             if (mod.getHumanClients().containsKey(playerId)) {
                 client = mod.getHumanClients().get(playerId);
@@ -78,7 +78,7 @@ public class ChatListener {
                         }
 
                         if (StringUtils.isNotBlank(template)) {
-                            Channel channel = client.getChannelById(channelConfig.discordId);
+                            TextChannel channel = client.getTextChannelById(channelConfig.discordId);
 
                             if (channel == null) {
                                 ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
@@ -86,7 +86,7 @@ public class ChatListener {
                             }
 
                             // Format Mentions for Discord
-                            plainString = TextUtil.formatMinecraftMention(plainString, channel.getServer(), player.get(), isBotAccount);
+                            plainString = TextUtil.formatMinecraftMention(plainString, channel.getGuild(), player.get(), isBotAccount);
 
                             if (isBotAccount) {
 //                                if (channel == null) {

@@ -6,9 +6,7 @@ import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
-import de.btobastian.javacord.entities.message.Message;
-import de.btobastian.javacord.entities.message.MessageAttachment;
-import de.btobastian.javacord.entities.permissions.Role;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -16,6 +14,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 
 /**
@@ -51,13 +51,13 @@ public class MessageHandler {
             }
             if (StringUtils.isNotBlank(channelConfig.discordId)
                     && channelConfig.minecraft != null
-                    && message.getChannelReceiver() != null
-                    && message.getChannelReceiver().getId().equals(channelConfig.discordId)) {
+                    && message.getChannel() != null
+                    && message.getChannel().getId().equals(channelConfig.discordId)) {
 
                 // Role base configuration
                 ChannelMinecraftConfigCore minecraftConfig = channelConfig.minecraft;
                 if (channelConfig.minecraft.roles != null) {
-                    Collection<Role> roles = message.getAuthor().getRoles(message.getChannelReceiver().getServer());
+                    Collection<Role> roles = message.getMember().getRoles();
                     for (String roleName : channelConfig.minecraft.roles.keySet()) {
                         if (roles.stream().anyMatch(r -> r.getName().equals(roleName))) {
                             ChannelMinecraftConfigCore roleConfig = channelConfig.minecraft.roles.get(roleName);
@@ -75,12 +75,17 @@ public class MessageHandler {
                     if (minecraftConfig.attachment != null
                             && StringUtils.isNotBlank(minecraftConfig.attachment.template)
                             && message.getAttachments() != null) {
-                        for (MessageAttachment attachment : message.getAttachments()) {
+                        for (Message.Attachment attachment : message.getAttachments()) {
                             String spacing = StringUtils.isBlank(message.getContent()) ? "" : " ";
                             Text.Builder builder = Text.builder()
                                     .append(TextSerializers.FORMATTING_CODE.deserialize(spacing + minecraftConfig.attachment.template));
-                            if (minecraftConfig.attachment.allowLink)
-                                builder = builder.onClick(TextActions.openUrl(attachment.getUrl()));
+                            if (minecraftConfig.attachment.allowLink) {
+                                try {
+                                    builder = builder.onClick(TextActions.openUrl(new URL(attachment.getUrl())));
+                                } catch (MalformedURLException ignored) {
+
+                                }
+                            }
                             if (StringUtils.isNotBlank(minecraftConfig.attachment.hoverTemplate))
                                 builder = builder.onHover(TextActions.showText(Text.of(minecraftConfig.attachment.hoverTemplate)));
                             messageText = Text.join(messageText, builder.build());

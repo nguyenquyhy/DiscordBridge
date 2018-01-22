@@ -1,14 +1,12 @@
 plugins {
-    id "com.qixalite.spongestart" version "1.5.2"
     id 'java'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
-    //id 'org.spongepowered.plugin' version '0.5.1'
 }
 
 defaultTasks 'build', 'shadowJar'
 
 group = 'com.nguyenquyhy'
-version = '2.4.0'
+version = '3.0.0'
 description = 'A plugin to connect Discord and Minecraft'
 sourceCompatibility = 1.8
 
@@ -22,27 +20,15 @@ repositories {
         name 'sponge'
         url 'http://repo.spongepowered.org/maven'
     }
-    maven {
-        name 'javacord-repo'
-        url 'http://repo.bastian-oppermann.de'
-    }
-}
-
-spongestart{
-    eula true
-
-    //optional configs
-    //spongeVanillaBuild 'LATEST'
-    spongeVanillaBuild '1.10.2-5.1.0-BETA-366'
-    //spongeForgeBuild 'LATEST'
-    //forgeServerFolder 'run'
-    //vanillaServerFolder 'run/vanilla'
+    jcenter()
 }
 
 dependencies {
-    compile('org.spongepowered:spongeapi:4.1.0')
+    compile('org.spongepowered:spongeapi:7.0.0')
     //compile('org.spongepowered:spongeapi:5.0.0')
-    compile files('libs/javacord-2.0.14-shaded.jar')
+    //compile files('libs/javacord-2.0.14-shaded.jar')
+    compile 'net.dv8tion:JDA:3.4.0_320'
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
 //    compile('de.btobastian.javacord:javacord:2.0.11:shaded')
 //    compile "com.github.austinv11:Discord4j:2.4.9:shaded"
 //    compile 'org.apache.httpcomponents:httpcore:4.3.2'

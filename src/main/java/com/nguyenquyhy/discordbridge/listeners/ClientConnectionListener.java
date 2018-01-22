@@ -7,8 +7,8 @@ import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.entities.Channel;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -40,7 +40,7 @@ public class ClientConnectionListener {
                     if (StringUtils.isNotBlank(channelConfig.discordId)
                             && channelConfig.discord != null
                             && StringUtils.isNotBlank(channelConfig.discord.joinedTemplate)) {
-                        Channel channel = mod.getBotClient().getChannelById(channelConfig.discordId);
+                        TextChannel channel = mod.getBotClient().getTextChannelById(channelConfig.discordId);
                         if (channel != null) {
                             String content = String.format(channelConfig.discord.joinedTemplate,
                                     TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.joinedTemplate, "%s"));
@@ -63,14 +63,14 @@ public class ClientConnectionListener {
         if (player.isPresent()) {
             UUID playerId = player.get().getUniqueId();
 
-            DiscordAPI client = mod.getHumanClients().get(playerId);
+            JDA client = mod.getHumanClients().get(playerId);
             if (client == null) client = mod.getBotClient();
             if (client != null) {
                 for (ChannelConfig channelConfig : config.channels) {
                     if (StringUtils.isNotBlank(channelConfig.discordId)
                             && channelConfig.discord != null
                             && StringUtils.isNotBlank(channelConfig.discord.leftTemplate)) {
-                        Channel channel = client.getChannelById(channelConfig.discordId);
+                        TextChannel channel = client.getTextChannelById(channelConfig.discordId);
                         if (channel != null) {
                             String content = String.format(channelConfig.discord.leftTemplate,
                                     TextUtil.escapeForDiscord(player.get().getName(), channelConfig.discord.leftTemplate, "%s"));

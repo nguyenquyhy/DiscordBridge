@@ -6,16 +6,11 @@ import com.nguyenquyhy.discordbridge.DiscordBridge;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftConfigCore;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftEmojiConfig;
 import com.nguyenquyhy.discordbridge.models.ChannelMinecraftMentionConfig;
-import de.btobastian.javacord.entities.Channel;
-import de.btobastian.javacord.entities.Server;
-import de.btobastian.javacord.entities.User;
-import de.btobastian.javacord.entities.message.Message;
-import de.btobastian.javacord.entities.permissions.Role;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
@@ -65,7 +60,7 @@ public class TextUtil {
      * @param isBot used to ignore permission checks for authenticated users
      * @return the message with mentions properly formatted for Discord, if allowed
      */
-    public static String formatMinecraftMention(String message, Server server, Player player, boolean isBot) {
+    public static String formatMinecraftMention(String message, Guild server, Player player, boolean isBot) {
         Matcher m = mentionPattern.matcher(message);
         Logger logger = DiscordBridge.getInstance().getLogger();
 
@@ -79,10 +74,10 @@ public class TextUtil {
                     continue;
                 }
                 if (!isBot || player.hasPermission("discordbridge.mention.name." + mentionName.toLowerCase())) {
-                    Optional<User> user = DiscordUtil.getUserByName(mentionName, server);
+                    Optional<Member> user = DiscordUtil.getMemberByName(mentionName, server);
                     logger.debug(String.format("Found user %s: %s", mentionName, user.isPresent()));
                     if (user.isPresent()) {
-                        message = message.replace(mention, "<@" + user.get().getId() + ">");
+                        message = message.replace(mention, "<@" + user.get().getUser().getId() + ">");
                         continue;
                     }
                 }
@@ -129,18 +124,19 @@ public class TextUtil {
      * @return
      */
     public static Text formatForMinecraft(ChannelMinecraftConfigCore config, Message message) {
-        Server server = message.getChannelReceiver().getServer();
+        Guild server = message.getGuild();
         User author = message.getAuthor();
 
         // Replace %u with author's username
         String s = ConfigUtil.get(config.chatTemplate, "&7<%a> &f%s").replace("%u", author.getName());
 
         // Replace %n with author's nickname or username
-        String nickname = (author.getNickname(server) != null) ? author.getNickname(server) : author.getName();
+        Member authorMember = server.getMember(author);
+        String nickname = authorMember.getNickname() != null ? authorMember.getNickname() : author.getName();
         s = s.replace("%a", nickname);
 
         // Get author's highest role
-        Optional<Role> highestRole = getHighestRole(author, server);
+        Optional<Role> highestRole = getHighestRole(authorMember);
         String roleName = "Discord"; //(config.roles.containsKey("everyone")) ? config.roles.get("everyone").name : "Member";
         Color roleColor = Color.WHITE;
         if (highestRole.isPresent()) {
@@ -151,7 +147,7 @@ public class TextUtil {
         String colorString = ColorUtil.getColorCode(roleColor);
         s = (StringUtils.isNotBlank(colorString)) ? s.replace("%r", colorString + roleName + "&r") : s.replace("%r", roleName);
         // Replace %g with Message author's game
-        String game = author.getGame();
+        String game = authorMember.getGame().getName();
         if (game != null) s = s.replace("%g", game);
 
         // Add the actual message
@@ -163,11 +159,11 @@ public class TextUtil {
         // Format URL
         List<Text> texts = formatUrl(s);
         // Replace user mentions with readable names
-        texts = formatUserMentions(texts, config.mention, message.getMentions(), server);
+        texts = formatUserMentions(texts, config.mention, message.getMentionedMembers(), server);
         // Replace role mentions
         texts = formatRoleMentions(texts, config.mention, message.getMentionedRoles());
         // Format @here/@everyone mentions
-        texts = formatEveryoneMentions(texts, config.mention, message.isMentioningEveryone());
+        texts = formatEveryoneMentions(texts, config.mention, message.mentionsEveryone());
         // Format #channel mentions
         texts = formatChannelMentions(texts, config.mention);
         // Format custom :emjoi:
@@ -183,16 +179,16 @@ public class TextUtil {
      * @param server   The server to be used for nickname support
      * @return The final message with User mentions formatted
      */
-    private static List<Text> formatUserMentions(List<Text> texts, ChannelMinecraftMentionConfig config, List<User> mentions, Server server) {
+    private static List<Text> formatUserMentions(List<Text> texts, ChannelMinecraftMentionConfig config, List<Member> mentions, Guild server) {
         if (mentions.isEmpty()) return texts;
         // Prepare the text builders
-        Map<User, Text.Builder> formattedMentioning = new HashMap<>();
-        for (User mention : mentions) {
-            Optional<Role> role = getHighestRole(mention, server);
-            String nick = (mention.getNickname(server) != null) ? mention.getNickname(server) : mention.getName();
+        Map<Member, Text.Builder> formattedMentioning = new HashMap<>();
+        for (Member mention : mentions) {
+            Optional<Role> role = getHighestRole(mention);
+            String nick = (mention.getNickname() != null) ? mention.getNickname() : mention.getEffectiveName();
             String mentionString = ConfigUtil.get(config.userTemplate, "@%a")
                     .replace("%s", nick).replace("%a", nick)
-                    .replace("%u", mention.getName());
+                    .replace("%u", mention.getEffectiveName());
             Text.Builder formatted = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionString))
                     .onHover(TextActions.showText(Text.of("Mentioning user " + nick + ".")));
             if (role.isPresent()) {
@@ -202,10 +198,10 @@ public class TextUtil {
         }
 
         // Replace the mention
-        for (User mention : mentions) {
-            String mentionString = "<@" + mention.getId() + ">";
+        for (Member mention : mentions) {
+            String mentionString = mention.getAsMention();
             texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
-            mentionString = "<@!" + mention.getId() + ">";
+            mentionString = mention.getUser().getAsMention();
             texts = replaceMention(texts, mentionString, formattedMentioning.get(mention));
         }
 
@@ -277,7 +273,7 @@ public class TextUtil {
             while (matcher.find()) {
                 String channelId = serialized.substring(matcher.start() + 2, matcher.end() - 1);
                 if (!formattedMentions.containsKey(channelId)) {
-                    Channel channel = DiscordBridge.getInstance().getBotClient().getChannelById(channelId);
+                    Channel channel = DiscordBridge.getInstance().getBotClient().getTextChannelById(channelId);
                     String mentionText = ConfigUtil.get(config.channelTemplate, "#%s").replace("%s", channel.getName());
                     Text.Builder builder = Text.builder().append(TextSerializers.FORMATTING_CODE.deserialize(mentionText))
                             .onHover(TextActions.showText(Text.of("Mentioning channel " + channel.getName() + ".")));
@@ -464,13 +460,12 @@ public class TextUtil {
 
     /**
      * @param user
-     * @param server
      * @return
      */
-    public static Optional<Role> getHighestRole(User user, Server server) {
+    public static Optional<Role> getHighestRole(Member user) {
         int position = 0;
         Optional<Role> highestRole = Optional.empty();
-        for (Role role : user.getRoles(server)) {
+        for (Role role : user.getRoles()) {
             if (role.getPosition() > position) {
                 position = role.getPosition();
                 highestRole = Optional.of(role);

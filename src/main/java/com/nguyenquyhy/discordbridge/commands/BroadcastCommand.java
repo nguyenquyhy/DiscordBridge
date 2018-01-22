@@ -5,8 +5,8 @@ import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
 import com.nguyenquyhy.discordbridge.utils.TextUtil;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.entities.Channel;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -35,7 +35,7 @@ public class BroadcastCommand implements CommandExecutor {
         GlobalConfig config = mod.getConfig();
         Logger logger = mod.getLogger();
 
-        DiscordAPI defaultClient = mod.getBotClient();
+        JDA defaultClient = mod.getBotClient();
         if (defaultClient == null) {
             commandSource.sendMessage(Text.of(TextColors.RED, "You have to set up a Bot token first!"));
             return false;
@@ -45,7 +45,7 @@ public class BroadcastCommand implements CommandExecutor {
         config.channels.stream().filter(channelConfig -> StringUtils.isNotBlank(channelConfig.discordId)
                 && channelConfig.discord != null
                 && StringUtils.isNotBlank(channelConfig.discord.broadcastTemplate)).forEach(channelConfig -> {
-            Channel channel = defaultClient.getChannelById(channelConfig.discordId);
+            TextChannel channel = defaultClient.getTextChannelById(channelConfig.discordId);
             if (channel != null) {
                 String content = String.format(channelConfig.discord.broadcastTemplate,
                         TextUtil.escapeForDiscord(message, channelConfig.discord.broadcastTemplate, "%s"));

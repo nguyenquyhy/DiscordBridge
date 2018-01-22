@@ -11,8 +11,8 @@ import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.entities.Channel;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.*;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,9 +20,7 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.game.state.*;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.IOException;
@@ -32,13 +30,13 @@ import java.util.*;
 /**
  * Created by Hy on 1/4/2016.
  */
-@Plugin(id = "discordbridge", name = "Discord Bridge", version = "2.3.0",
+@Plugin(id = "discordbridge", name = "Discord Bridge", version = "3.0.0",
         description = "A Sponge plugin to connect your Minecraft server with Discord", authors = {"Hy", "Mohron"})
 public class DiscordBridge {
 
-    private DiscordAPI consoleClient = null;
-    private final Map<UUID, DiscordAPI> humanClients = new HashMap<>();
-    private DiscordAPI botClient = null;
+    private JDA consoleClient = null;
+    private final Map<UUID, JDA> humanClients = new HashMap<>();
+    private JDA botClient = null;
 
     private final Set<UUID> unauthenticatedPlayers = new HashSet<>(100);
 
@@ -59,7 +57,7 @@ public class DiscordBridge {
     private static DiscordBridge instance;
 
     @Listener
-    public void onPreInitialization(GamePreInitializationEvent event) throws IOException, ObjectMappingException {
+    public void onInitialization(GameInitializationEvent event) throws IOException, ObjectMappingException {
         instance = this;
         config = ConfigHandler.loadConfiguration();
 
@@ -81,7 +79,7 @@ public class DiscordBridge {
                 if (StringUtils.isNotBlank(channelConfig.discordId)
                         && channelConfig.discord != null
                         && StringUtils.isNotBlank(channelConfig.discord.serverDownMessage)) {
-                    Channel channel = botClient.getChannelById(channelConfig.discordId);
+                    TextChannel channel = botClient.getTextChannelById(channelConfig.discordId);
                     if (channel != null) {
                         ChannelUtil.sendMessage(channel, channelConfig.discord.serverDownMessage);
                     } else {
@@ -124,15 +122,15 @@ public class DiscordBridge {
         this.storage = storage;
     }
 
-    public DiscordAPI getBotClient() {
+    public JDA getBotClient() {
         return botClient;
     }
 
-    public void setBotClient(DiscordAPI botClient) {
+    public void setBotClient(JDA botClient) {
         this.botClient = botClient;
     }
 
-    public Map<UUID, DiscordAPI> getHumanClients() {
+    public Map<UUID, JDA> getHumanClients() {
         return humanClients;
     }
 
@@ -140,7 +138,7 @@ public class DiscordBridge {
         return unauthenticatedPlayers;
     }
 
-    public void addClient(UUID player, DiscordAPI client) {
+    public void addClient(UUID player, JDA client) {
         if (player == null) {
             consoleClient = client;
         } else {
@@ -150,12 +148,12 @@ public class DiscordBridge {
 
     public void removeAndLogoutClient(UUID player) {
         if (player == null) {
-            consoleClient.disconnect();
+            consoleClient.shutdown();
             consoleClient = null;
         } else {
             if (humanClients.containsKey(player)) {
-                DiscordAPI client = humanClients.get(player);
-                client.disconnect();
+                JDA client = humanClients.get(player);
+                client.shutdown();
                 humanClients.remove(player);
             }
         }

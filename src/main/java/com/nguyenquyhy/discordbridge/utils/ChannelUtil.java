@@ -1,6 +1,6 @@
 package com.nguyenquyhy.discordbridge.utils;
 
-import de.btobastian.javacord.entities.Channel;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.Random;
 
@@ -11,7 +11,7 @@ public class ChannelUtil {
     public static final String SPECIAL_CHAR = "\u2062";
     public static final String BOT_RANDOM = String.valueOf(new Random().nextInt(100000));
 
-    public static void sendMessage(Channel channel, String content) {
-        channel.sendMessage(content, null, false, SPECIAL_CHAR + BOT_RANDOM, null);
+    public static void sendMessage(TextChannel channel, String content) {
+        channel.sendMessage(content).nonce(SPECIAL_CHAR + BOT_RANDOM).queue();
     }
 }

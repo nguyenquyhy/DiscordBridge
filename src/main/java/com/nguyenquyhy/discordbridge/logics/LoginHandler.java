@@ -1,6 +1,5 @@
 package com.nguyenquyhy.discordbridge.logics;
 
-import com.google.common.util.concurrent.FutureCallback;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -11,11 +10,11 @@ import com.nguyenquyhy.discordbridge.models.ChannelConfig;
 import com.nguyenquyhy.discordbridge.models.GlobalConfig;
 import com.nguyenquyhy.discordbridge.utils.ChannelUtil;
 import com.nguyenquyhy.discordbridge.utils.ErrorMessages;
-import de.btobastian.javacord.DiscordAPI;
-import de.btobastian.javacord.Javacord;
-import de.btobastian.javacord.entities.Channel;
-import de.btobastian.javacord.entities.User;
-import de.btobastian.javacord.listener.message.MessageCreateListener;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,7 +27,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
-import javax.annotation.Nullable;
+import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +40,8 @@ public class LoginHandler {
     private static DiscordBridge mod = DiscordBridge.getInstance();
     private static Logger logger = mod.getLogger();
 
+    private static Map<CommandSource, String> MFA_TICKETS = new HashMap<>();
+
     public static boolean loginBotAccount() {
         GlobalConfig config = mod.getConfig();
 
@@ -49,20 +50,28 @@ public class LoginHandler {
             return false;
         }
 
-        DiscordAPI defaultClient = mod.getBotClient();
+        JDA defaultClient = mod.getBotClient();
         if (defaultClient != null && defaultClient.getToken().equals(config.botToken)) {
             return true;
         }
 
         if (defaultClient != null) {
-            defaultClient.disconnect();
+            defaultClient.shutdown();
         }
 
         logger.info("Logging in to bot Discord account...");
 
-        DiscordAPI client = Javacord.getApi(config.botToken, true);
-        prepareBotClient(client, null);
-        return true;
+        try {
+            prepareBotClient(config.botToken, null);
+            return true;
+        } catch (LoginException e) {
+            e.printStackTrace();
+        } catch (RateLimitedException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -77,21 +86,15 @@ public class LoginHandler {
             if (StringUtils.isNotBlank(cachedToken)) {
                 player.sendMessage(Text.of(TextColors.GRAY, "Logging in to Discord..."));
 
-                DiscordAPI client = mod.getHumanClients().get(player.getUniqueId());
+                JDA client = mod.getHumanClients().get(player.getUniqueId());
                 if (client != null) {
-                    client.disconnect();
-                } else {
-                    client = Javacord.getApi(cachedToken, false);
+                    client.shutdown();
                 }
-
-                prepareHumanClient(client, player);
-                return true;
+                return PrepareHumanClientForCommandSource(player, cachedToken);
             }
         }
         return false;
     }
-
-    private static Map<CommandSource, String> MFA_TICKETS = new HashMap<>();
 
     public static CommandResult login(CommandSource commandSource, String email, String password) {
         logout(commandSource, true);
@@ -112,17 +115,16 @@ public class LoginHandler {
                 commandSource.sendMessage(Text.of(TextColors.GREEN, "Additional authorization required! Please type '/discord otp <code>' within a code from your authorization app"));
             } else if (result.has("token")) {
                 String token = result.getString("token");
-                prepareHumanClient(Javacord.getApi(token, false), commandSource);
+
+                if (PrepareHumanClientForCommandSource(commandSource, token)) return CommandResult.success();
             } else {
                 commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
             }
         } catch (UnirestException e) {
             e.printStackTrace();
             commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
-            return CommandResult.empty();
         }
-
-        return CommandResult.success();
+        return CommandResult.empty();
     }
 
     public static CommandResult otp(CommandSource commandSource, int code) {
@@ -141,18 +143,35 @@ public class LoginHandler {
                 return CommandResult.empty();
             }
             String token = response.getBody().getObject().getString("token");
-            prepareHumanClient(Javacord.getApi(token, false), commandSource);
+            if (PrepareHumanClientForCommandSource(commandSource, token)) return CommandResult.success();
         } catch (UnirestException e) {
             e.printStackTrace();
             commandSource.sendMessage(Text.of(TextColors.RED, "Unexpected error!"));
-            return CommandResult.empty();
         }
+        return CommandResult.empty();
+    }
 
-        return CommandResult.success();
+    public static boolean PrepareHumanClientForCommandSource(CommandSource commandSource, String token) {
+        try {
+            prepareHumanClient(token, commandSource);
+            return true;
+        } catch (LoginException e) {
+            e.printStackTrace();
+            logger.error("Cannot connect to Discord!", e);
+            if (commandSource != null) {
+                commandSource.sendMessage(Text.of(TextColors.RED, "Unable to login! Please check your login details or your email for login verification."));
+            }
+        } catch (InterruptedException | RateLimitedException e) {
+            e.printStackTrace();
+            logger.error("Cannot connect to Discord!", e);
+            if (commandSource != null) {
+                commandSource.sendMessage(Text.of(TextColors.RED, "Unable to login! Please try again later."));
+            }
+        }
+        return false;
     }
 
     public static CommandResult logout(CommandSource commandSource, boolean isSilence) {
-
         if (commandSource instanceof Player) {
             Player player = (Player) commandSource;
             UUID playerId = player.getUniqueId();
@@ -179,130 +198,95 @@ public class LoginHandler {
         return CommandResult.empty();
     }
 
-    private static void prepareBotClient(DiscordAPI client, CommandSource commandSource) {
+    private static JDA prepareBotClient(String botToken, CommandSource commandSource) throws LoginException, RateLimitedException, InterruptedException {
         GlobalConfig config = mod.getConfig();
 
         if (commandSource != null)
             commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "Logging in..."));
 
-        client.connect(new FutureCallback<DiscordAPI>() {
-            @Override
-            public void onSuccess(@Nullable DiscordAPI discordAPI) {
-                client.registerListener((MessageCreateListener) (client, message)
-                        -> {
-                    MessageHandler.discordMessageReceived(message);
-                });
+        JDA client = new JDABuilder(AccountType.BOT)
+                .setToken(botToken)
+                .addEventListener(new MessageHandler())
+                .buildBlocking();
 
-                User user = discordAPI.getYourself();
-                String name = "unknown";
-                if (user != null)
-                    name = user.getName();
-                String text = "Bot account " + name + " will be used for all unauthenticated users!";
-                if (StringUtils.isNotBlank(config.botDiscordGame)) {
-                    client.setGame(config.botDiscordGame);
+        User user = client.getSelfUser();
+        String name = "unknown";
+        if (user != null)
+            name = user.getName();
+        String text = "Bot account " + name + " will be used for all unauthenticated users!";
+        if (StringUtils.isNotBlank(config.botDiscordGame)) {
+            client.getPresence().setGame(Game.playing(config.botDiscordGame));
+        }
+        if (commandSource != null)
+            commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, text));
+        else
+            logger.info(text);
+
+        mod.setBotClient(client);
+
+        for (ChannelConfig channelConfig : config.channels) {
+            if (StringUtils.isNotBlank(channelConfig.discordId)) {
+                TextChannel channel = client.getTextChannelById(channelConfig.discordId);
+                if (channel != null) {
+                    channelJoined(client, config, channelConfig, channel, commandSource);
+                } else {
+                    ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
                 }
-                if (commandSource != null)
-                    commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, text));
-                else
-                    logger.info(text);
-
-                mod.setBotClient(client);
-
-                for (ChannelConfig channelConfig : config.channels) {
-                    if (StringUtils.isNotBlank(channelConfig.discordId)) {
-                        Channel channel = client.getChannelById(channelConfig.discordId);
-                        if (channel != null) {
-                            channelJoined(client, config, channelConfig, channel, commandSource);
-                        } else {
-                            ErrorMessages.CHANNEL_NOT_FOUND.log(channelConfig.discordId);
-                        }
-                    } else {
-                        logger.warn("Channel with empty ID!");
-                    }
-                }
+            } else {
+                logger.warn("Channel with empty ID!");
             }
+        }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                logger.error("Cannot connect to Discord!", throwable);
-            }
-        });
+        return client;
     }
 
-    private static void prepareHumanClient(DiscordAPI client, CommandSource commandSource) {
+    private static JDA prepareHumanClient(String cachedToken, CommandSource commandSource) throws LoginException, InterruptedException, RateLimitedException {
+        if (commandSource instanceof CommandBlockSource) {
+            commandSource.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
+            return null;
+        }
+
         GlobalConfig config = mod.getConfig();
 
-        client.connect(new FutureCallback<DiscordAPI>() {
-            @Override
-            public void onSuccess(@Nullable DiscordAPI discordAPI) {
-                try {
-                    String name = client.getYourself().getName();
-                    commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "You have logged in to Discord account " + name + "!"));
+        JDA client = new JDABuilder(AccountType.CLIENT)
+                .setToken(cachedToken)
+                .buildBlocking();
 
-                    if (commandSource instanceof Player) {
-                        Player player = (Player) commandSource;
-                        UUID playerId = player.getUniqueId();
-                        mod.getUnauthenticatedPlayers().remove(playerId);
-                        mod.addClient(playerId, client);
-                        mod.getStorage().putToken(playerId, client.getToken());
-                    } else if (commandSource instanceof ConsoleSource) {
-                        commandSource.sendMessage(Text.of("WARNING: This Discord account will be used only for this console session!"));
-                        mod.addClient(null, client);
-                    } else if (commandSource instanceof CommandBlockSource) {
-                        commandSource.sendMessage(Text.of(TextColors.GREEN, "Account is valid!"));
-                        return;
-                    }
+        try {
+            String name = client.getSelfUser().getName();
+            commandSource.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "You have logged in to Discord account " + name + "!"));
 
-                    for (ChannelConfig channelConfig : config.channels) {
-                        if (StringUtils.isNotBlank(channelConfig.discordId)) {
-                            Channel channel = client.getChannelById(channelConfig.discordId);
-                            if (channel != null) {
-                                channelJoined(client, config, channelConfig, channel, commandSource);
-                            } else {
-                                ErrorMessages.CHANNEL_NOT_FOUND_HUMAN.log(channelConfig.discordId);
-                            }
-                        } else {
-                            logger.warn("Channel with empty ID!");
-                        }
-                    }
-                } catch (IOException e) {
-                    logger.error("Cannot connect to Discord!", e);
-                }
+            if (commandSource instanceof Player) {
+                Player player = (Player) commandSource;
+                UUID playerId = player.getUniqueId();
+                mod.getUnauthenticatedPlayers().remove(playerId);
+                mod.addClient(playerId, client);
+                mod.getStorage().putToken(playerId, client.getToken());
+            } else if (commandSource instanceof ConsoleSource) {
+                commandSource.sendMessage(Text.of("WARNING: This Discord account will be used only for this console session!"));
+                mod.addClient(null, client);
             }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                logger.error("Cannot connect to Discord!", throwable);
-                if (commandSource != null) {
-                    commandSource.sendMessage(Text.of(TextColors.RED, "Unable to login! Please check your login details or your email for login verification."));
+            for (ChannelConfig channelConfig : config.channels) {
+                if (StringUtils.isNotBlank(channelConfig.discordId)) {
+                    TextChannel channel = client.getTextChannelById(channelConfig.discordId);
+                    if (channel != null) {
+                        channelJoined(client, config, channelConfig, channel, commandSource);
+                    } else {
+                        ErrorMessages.CHANNEL_NOT_FOUND_HUMAN.log(channelConfig.discordId);
+                    }
+                } else {
+                    logger.warn("Channel with empty ID!");
                 }
             }
-        });
+        } catch (IOException e) {
+            logger.error("Cannot connect to Discord!", e);
+        }
+
+        return client;
     }
 
-//    private static Channel acceptInvite(DiscordAPI client, ChannelConfig channelConfig, CommandSource src) {
-//        DiscordBridge mod = DiscordBridge.getInstance();
-//        Logger logger = mod.getLogger();
-//        GlobalConfig config = mod.getConfig();
-//
-//        if (StringUtils.isNotBlank(channelConfig.discordInviteCode)) {
-//            client.acceptInvite(channelConfig.discordInviteCode, new FutureCallback<Server>() {
-//                @Override
-//                public void onSuccess(@Nullable Server server) {
-//                    Channel channel = client.getChannelById(channelConfig.discordId);
-//                    channelJoined(client, channelConfig, channel, src);
-//                }
-//
-//                @Override
-//                public void onFailure(Throwable throwable) {
-//                    logger.error("Cannot accept invite", throwable);
-//                }
-//            });
-//        }
-//        return null;
-//    }
-
-    private static void channelJoined(DiscordAPI client, GlobalConfig config, ChannelConfig channelConfig, Channel channel, CommandSource src) {
+    private static void channelJoined(JDA client, GlobalConfig config, ChannelConfig channelConfig, TextChannel channel, CommandSource src) {
 
         if (channel != null && StringUtils.isNotBlank(channelConfig.discordId) && channelConfig.discord != null) {
             if (client != mod.getBotClient()) {

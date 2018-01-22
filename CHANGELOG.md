@@ -1,8 +1,12 @@
 # CHANGE LOG
 
+## 3.0.0
+- Change JavaCord to JDA for Discord API support
+- Upgrade to Minecraft 1.12
+
 ## 2.4.0
 - Support sending message to Discord when a player die (check `deathTemplate`).
-- Discord Bridge now ignores only messages from Discord Brige and from the same server. Previously, the plugin ignores all messages from Discord Bridge regardless different servers.
+- Discord Bridge now ignores only messages from Discord Bridge and from the same server. Previously, the plugin ignores all messages from Discord Bridge regardless different servers.
 - Fix reloading does not reload templates.
 - Fix mentioning nickname.
 

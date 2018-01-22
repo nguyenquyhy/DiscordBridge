@@ -1,7 +1,7 @@
 package com.nguyenquyhy.discordbridge.commands;
 
 import com.nguyenquyhy.discordbridge.DiscordBridge;
-import de.btobastian.javacord.ImplDiscordAPI;
+import net.dv8tion.jda.core.JDA;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -19,22 +19,16 @@ public class StatusCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         DiscordBridge mod = DiscordBridge.getInstance();
-        ImplDiscordAPI bot = (ImplDiscordAPI) mod.getBotClient();
+        JDA bot = mod.getBotClient();
 
         boolean isProfileReady = false;
-        boolean isSocketOpen = false;
         if (bot != null) {
-            isProfileReady = bot.getYourself() != null;
-            try {
-                isSocketOpen = bot.getSocketAdapter() != null && bot.getSocketAdapter().isReady().get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            isProfileReady = bot.getSelfUser() != null;
         }
 
         src.sendMessage(Text.of(TextColors.GREEN, "Bot account:"));
-        src.sendMessage(Text.of("- Profile: " + (isProfileReady ? bot.getYourself().getName() : "Not available")));
-        src.sendMessage(Text.of("- Websocket: " + (isSocketOpen ? "Open" : "Closed")));
+        src.sendMessage(Text.of("- Profile: " + (isProfileReady ? bot.getSelfUser().getName() : "Not available")));
+        src.sendMessage(Text.of("- Status: " + (bot == null ? "N/A" : bot.getStatus().toString())));
         return CommandResult.success();
     }
 }
